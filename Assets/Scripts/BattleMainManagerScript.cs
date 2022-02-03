@@ -36,16 +36,17 @@ public class BattleMainManagerScript : MonoBehaviour {
   private void moveEnemies() {
     var playerPosition = player.transform.position;
     foreach (var enemy in enemies) {
-      // TODO - this way the movement is separated from facing, which means that the enemy might move backwards or in weird direction.
-      enemy.transform.position = Vector3.MoveTowards(enemy.transform.position, playerPosition, Time.deltaTime * 2);
       rotateTowards(enemy.transform, playerPosition, 15.0f);
+      var movementSpeed = Time.deltaTime * 1.5f;
+      var direction = enemy.transform.rotation * Vector3.right;
+      enemy.transform.position += direction * movementSpeed;
     }
   }
 
   private void rotateTowards(Transform toRotate, Vector3 targetPosition, float rotateSpeed) {
-    var offset = toRotate.position - targetPosition;
+    var offset = targetPosition - toRotate.position;
     offset.z = 0;
-    float angle = Mathf.Atan2(offset.y, offset.x) * Mathf.Rad2Deg + 90; // 90 added because forward should be on y axis, not x;
+    float angle = Mathf.Atan2(offset.y, offset.x) * Mathf.Rad2Deg;
     Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
     toRotate.rotation = Quaternion.RotateTowards(toRotate.rotation, targetRotation, rotateSpeed * Time.deltaTime);
   }
