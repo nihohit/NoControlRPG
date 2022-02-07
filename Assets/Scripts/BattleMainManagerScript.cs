@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using System;
 
 public class BattleMainManagerScript : MonoBehaviour {
   private SpawnPool spawnPool;
   private GameObject player;
-  private List<EnemyUnitScript> enemies = new List<EnemyUnitScript>();
-  private static readonly float TIME_BETWEEN_SPAWNS = 1;
+  private readonly Dictionary<Guid, EnemyUnitScript> enemies = new Dictionary<Guid, EnemyUnitScript>();
+  private const float TIME_BETWEEN_SPAWNS = 1;
   private float timeToNextSpawn = TIME_BETWEEN_SPAWNS;
 
   // Start is called before the first frame update
@@ -28,14 +30,14 @@ public class BattleMainManagerScript : MonoBehaviour {
     var verticalSize = Camera.main.orthographicSize;
     var horizontalSize = verticalSize * Screen.width / Screen.height;
     var distance = Mathf.Sqrt(Mathf.Pow(verticalSize, 2) + Mathf.Pow(horizontalSize, 2)) + 0.1f;
-    newEnemy.transform.position = Random.insideUnitCircle.normalized * distance;
-    enemies.Add(newEnemy);
+    newEnemy.transform.position = UnityEngine.Random.insideUnitCircle.normalized * distance;
+    enemies[newEnemy.Identifier] = newEnemy;
     timeToNextSpawn = TIME_BETWEEN_SPAWNS;
   }
 
   private void moveEnemies() {
     var playerPosition = player.transform.position;
-    foreach (var enemy in enemies) {
+    foreach (var enemy in enemies.Values) {
       rotateTowards(enemy.transform, playerPosition, 15.0f);
       var movementSpeed = Time.deltaTime * 1.5f;
       var direction = enemy.transform.rotation * Vector3.right;
@@ -51,9 +53,37 @@ public class BattleMainManagerScript : MonoBehaviour {
     toRotate.rotation = Quaternion.RotateTowards(toRotate.rotation, targetRotation, rotateSpeed * Time.deltaTime);
   }
 
+  private EnemyUnitScript findEnemyInRange(float weaponRange) {
+    return enemies.Values.FirstOrDefault(enemy => Vector3.Distance(enemy.transform.position, player.transform.position) < weaponRange);
+  }
+
+  private void shootEnemies() {
+    foreach (var weapon in Player.Instance.Weapons) {
+      weapon.timeToNextShot -= Time.deltaTime;
+      if (weapon.timeToNextShot <= 0) {
+        var enemyInRange = findEnemyInRange(weapon.config.range);
+        if (enemyInRange == null) {
+          continue;
+        }
+
+        switch (weapon.config.behavior) {
+          case ShotBehavior.Beam:
+
+            break;
+          case ShotBehavior.Direct:
+
+            break;
+        }
+
+        weapon.timeToNextShot = weapon.config.timeBetweenShots;
+      }
+    }
+  }
+
   // Update is called once per frame
   void Update() {
     spawnEnemyIfNeeded();
     moveEnemies();
+    shootEnemies();
   }
 }

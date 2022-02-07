@@ -1,0 +1,4 @@
+[submodule "Assets/Scripts/UnityBase"]
+	path = Assets/Scripts/UnityBase
+	url = https://github.com/nihohit/UnityBase
+	branch = main

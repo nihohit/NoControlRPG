@@ -12,10 +12,6 @@ public class Player {
       new WeaponInstance {
         config = WeaponConfig.MACHINE_GUN,
         timeToNextShot = 0
-      },
-      new WeaponInstance {
-        config = WeaponConfig.MACHINE_GUN,
-        timeToNextShot = 0
       }
     }
   };

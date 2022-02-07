@@ -1,17 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
+using Assets.Scripts.Base;
 using UnityEngine;
 
 public class SpawnPool : MonoBehaviour {
   private readonly List<EnemyUnitScript> units = new List<EnemyUnitScript>();
   private GameObject unitResource;
+  private readonly Dictionary<string, GameObject> shotResources = new Dictionary<string, GameObject>();
+  private readonly Dictionary<string, List<ShotScript>> shots = new Dictionary<string, List<ShotScript>>();
 
-  private void returnToPool<TType>(TType item, List<TType> pool) where TType : MonoBehaviour {
+  private void ReturnToPool<TType>(TType item, List<TType> pool) where TType : MonoBehaviour {
     pool.Add(item);
     item.gameObject.SetActive(false);
   }
 
-  private TType getFromPool<TType>(List<TType> pool, GameObject resource) where TType : MonoBehaviour {
+  private TType GetFromPool<TType>(List<TType> pool, GameObject resource) where TType : MonoBehaviour {
     if (pool.Count > 0) {
       var result = pool[pool.Count - 1];
       pool.RemoveAt(pool.Count - 1);
@@ -22,11 +25,28 @@ public class SpawnPool : MonoBehaviour {
   }
 
   public EnemyUnitScript GetUnit() {
-    return getFromPool(units, unitResource);
+    return GetFromPool(units, unitResource);
   }
 
   public void ReturnUnit(EnemyUnitScript unit) {
-    returnToPool(unit, units);
+    ReturnToPool(unit, units);
+  }
+
+  private static List<ShotScript> CreateShotLise() {
+    return new List<ShotScript>();
+  }
+
+  private List<ShotScript> GetShotList(string shotName) {
+    return shots.TryGetOrAdd(shotName, CreateShotLise);
+  }
+
+  public ShotScript GetShot(string shotName) {
+    var resource = shotResources.TryGetOrAdd(shotName, () => Resources.Load<GameObject>("prefabs/Shot"));
+    return GetFromPool(GetShotList(shotName), resource);
+  }
+
+  public void ReturnShot(ShotScript shot) {
+    ReturnToPool(shot, GetShotList(shot.ShotName));
   }
 
   public void Start() {
