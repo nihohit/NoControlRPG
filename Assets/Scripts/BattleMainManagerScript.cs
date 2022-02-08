@@ -8,8 +8,10 @@ public class BattleMainManagerScript : MonoBehaviour {
   private SpawnPool spawnPool;
   private GameObject player;
   private readonly Dictionary<Guid, EnemyUnitScript> enemies = new Dictionary<Guid, EnemyUnitScript>();
+  private readonly List<ShotScript> shots = new List<ShotScript>();
   private const float TIME_BETWEEN_SPAWNS = 1;
   private float timeToNextSpawn = TIME_BETWEEN_SPAWNS;
+  private readonly int enemyLayerMask = LayerMask.NameToLayer("enemies");
 
   // Start is called before the first frame update
   void Start() {
@@ -71,7 +73,10 @@ public class BattleMainManagerScript : MonoBehaviour {
 
             break;
           case ShotBehavior.Direct:
-
+            var shot = spawnPool.GetShot(weapon.config.shotImageName);
+            shots.Add(shot);
+            shot.Init(enemyLayerMask, player.transform.position, weapon.config);
+            shot.transform.rotation
             break;
         }
 
