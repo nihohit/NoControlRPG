@@ -46,7 +46,7 @@ public class SpawnPool : MonoBehaviour {
   }
 
   public void ReturnShot(ShotScript shot) {
-    ReturnToPool(shot, GetShotList(shot.ShotName));
+    ReturnToPool(shot, GetShotList(shot.Config.shotImageName));
   }
 
   public void Start() {

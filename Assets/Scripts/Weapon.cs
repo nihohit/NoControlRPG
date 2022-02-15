@@ -15,11 +15,11 @@ public class WeaponConfig {
   };
 
   public static WeaponConfig MACHINE_GUN = new WeaponConfig {
-    range = 1.5f,
+    range = 4f,
     shotImageName = "VisualEffects/Incendiary Gun",
     behavior = ShotBehavior.Direct,
     timeBetweenShots = 1.5f,
-    shotMovementSpeed = 3f,
+    shotMovementSpeed = 6f,
   };
 }
 
