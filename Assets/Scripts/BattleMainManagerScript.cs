@@ -12,6 +12,10 @@ public class BattleMainManagerScript : MonoBehaviour {
   private const float TIME_BETWEEN_SPAWNS = 1;
   private float timeToNextSpawn = TIME_BETWEEN_SPAWNS;
   private int enemyLayerMask;
+  private enum Mode { Battle, Inventory }
+  private Mode mode;
+
+  private UIManagerScript uiManager;
 
   private readonly List<ShotScript> shotsToRelease = new();
   private readonly List<EnemyUnitScript> enemiesToRelease = new();
@@ -21,6 +25,36 @@ public class BattleMainManagerScript : MonoBehaviour {
     spawnPool = GetComponent<SpawnPool>();
     player = GameObject.Find("Player").gameObject;
     enemyLayerMask = LayerMask.NameToLayer("enemies");
+    uiManager = GameObject.Find("Canvas").GetComponent<UIManagerScript>();
+
+    SwitchToInventory();
+  }
+
+  public void SwitchContext() {
+    switch (mode) {
+      case Mode.Battle:
+        SwitchToInventory();
+        break;
+      case Mode.Inventory:
+        SwitchToBattle();
+        break;
+    }
+  }
+
+  private void SwitchToBattle() {
+    mode = Mode.Battle;
+    uiManager.ToBattleMode();
+  }
+
+  private void SwitchToInventory() {
+    releaseAllEntities();
+    mode = Mode.Inventory;
+    uiManager.ToInventoryMode();
+  }
+
+  private void releaseAllEntities() {
+    shotsToRelease.AddRange(shots.Values);
+    enemiesToRelease.AddRange(enemies.Values);
   }
 
   internal void ShotHit(ShotScript shotScript, EnemyUnitScript enemy) {
@@ -99,6 +133,10 @@ public class BattleMainManagerScript : MonoBehaviour {
   // Update is called once per frame
   void Update() {
     releaseEntities();
+
+    if (mode != Mode.Battle) {
+      return;
+    }
     spawnEnemyIfNeeded();
     moveEnemies();
     moveShots();
