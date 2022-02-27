@@ -25,7 +25,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     spawnPool = GetComponent<SpawnPool>();
     player = GameObject.Find("Player").gameObject;
     enemyLayerMask = LayerMask.NameToLayer("enemies");
-    uiManager = GameObject.Find("Canvas").GetComponent<UIManagerScript>();
+    uiManager = GameObject.FindObjectOfType<UIManagerScript>();
 
     SwitchToInventory();
   }
@@ -121,7 +121,7 @@ public class BattleMainManagerScript : MonoBehaviour {
           var shot = spawnPool.GetShot(weapon.config.shotImageName);
           shots[shot.Identifier] = shot;
           shot.transform.position = player.transform.position;
-          shot.Init(enemyLayerMask, player.transform.position, weapon.config, this);
+          shot.Init(enemyLayerMask, player.transform.position, weapon.config);
           shot.transform.RotateTowards(enemyInRange.transform.position, 360);
           break;
       }

@@ -12,7 +12,7 @@ public class UIManagerScript : MonoBehaviour {
   // Start is called before the first frame update
   void Awake() {
     switchContextText = transform.Find("SwitchContext").transform.Find("Text").GetComponent<TMPro.TMP_Text>();
-    mainManager = GameObject.Find("Manager").GetComponent<BattleMainManagerScript>();
+    mainManager = GameObject.FindObjectOfType<BattleMainManagerScript>();
     inventoryUIHolder = transform.Find("inventory").gameObject;
   }
 

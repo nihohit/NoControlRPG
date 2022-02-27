@@ -10,11 +10,14 @@ public class ShotScript : MonoBehaviour {
 
   private bool alreadyHit;
 
-  public void Init(int layer, Vector3 startPoint, WeaponConfig config, BattleMainManagerScript manager) {
+  private void Awake() {
+    manager = FindObjectOfType<BattleMainManagerScript>();
+  }
+
+  public void Init(int layer, Vector3 startPoint, WeaponConfig config) {
     gameObject.layer = layer;
     StartPoint = startPoint;
     Config = config;
-    this.manager = manager;
     alreadyHit = false;
   }
 
