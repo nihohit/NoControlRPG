@@ -9,8 +9,11 @@ public class UnequippedButtonScript : MonoBehaviour {
   private Button button;
   private Image spriteRenderer;
 
-  public void LoadEquipment(string iconName, TextureHandler textureHandler) {
-    textureHandler.UpdateTexture(iconName, spriteRenderer, "Images/InventoryItems");
+  private WeaponInstance equipment;
+
+  public void LoadEquipment(WeaponInstance weapon, TextureHandler textureHandler) {
+    this.equipment = weapon;
+    textureHandler.UpdateTexture(weapon?.config?.equipmentImageName ?? "Empty", spriteRenderer, "Images/InventoryItems");
   }
 
   // Start is called before the first frame update

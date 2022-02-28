@@ -31,10 +31,9 @@ public class UIManagerScript : MonoBehaviour {
     inventoryUIHolder.SetActive(true);
     buttons.ForEach((button, index) => {
       if (index < 16) {
-        button.gameObject.SetActive(true);
-        button.LoadEquipment((index + 1).ToString(), textureHandler);
+        button.LoadEquipment(new WeaponInstance { config = WeaponConfig.LASER }, textureHandler);
       } else {
-        button.gameObject.SetActive(false);
+        button.LoadEquipment(null, textureHandler);
       }
     });
   }
