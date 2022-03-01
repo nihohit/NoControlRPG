@@ -4,7 +4,7 @@ using Assets.Scripts.UnityBase;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UnequippedButtonScript : MonoBehaviour {
+public class EquipmentButtonScript : MonoBehaviour {
   private UIManagerScript manager;
   private Button button;
   private Image spriteRenderer;

@@ -12,7 +12,7 @@ public class UIManagerScript : MonoBehaviour {
   private BattleMainManagerScript mainManager;
   private GameObject inventoryUIHolder;
 
-  private UnequippedButtonScript[] buttons;
+  private EquipmentButtonScript[] buttons;
 
   private TextureHandler textureHandler = new();
 
@@ -21,7 +21,7 @@ public class UIManagerScript : MonoBehaviour {
     switchContextText = transform.Find("SwitchContext").transform.Find("Text").GetComponent<TMPro.TMP_Text>();
     mainManager = GameObject.FindObjectOfType<BattleMainManagerScript>();
     inventoryUIHolder = transform.Find("inventory").gameObject;
-    buttons = FindObjectsOfType<UnequippedButtonScript>()
+    buttons = FindObjectsOfType<EquipmentButtonScript>()
       .OrderBy(button => (-button.transform.position.y) * 100000 + button.transform.position.x)
       .ToArray();
   }
@@ -47,7 +47,7 @@ public class UIManagerScript : MonoBehaviour {
     mainManager.SwitchContext();
   }
 
-  public void InventoryButtonSelected(UnequippedButtonScript button) {
+  public void InventoryButtonSelected(EquipmentButtonScript button) {
     Debug.Log("clicked " + button.gameObject.name);
   }
 }
