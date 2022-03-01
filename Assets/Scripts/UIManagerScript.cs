@@ -5,6 +5,7 @@ using Assets.Scripts.UnityBase;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using System;
 
 public class UIManagerScript : MonoBehaviour {
   private TMPro.TMP_Text switchContextText;
@@ -12,7 +13,8 @@ public class UIManagerScript : MonoBehaviour {
   private BattleMainManagerScript mainManager;
   private GameObject inventoryUIHolder;
 
-  private EquipmentButtonScript[] buttons;
+  private EquipmentButtonScript[] equippedItemsButtons;
+  private EquipmentButtonScript[] availableItemsItemsButtons;
 
   private TextureHandler textureHandler = new();
 
@@ -21,7 +23,15 @@ public class UIManagerScript : MonoBehaviour {
     switchContextText = transform.Find("SwitchContext").transform.Find("Text").GetComponent<TMPro.TMP_Text>();
     mainManager = GameObject.FindObjectOfType<BattleMainManagerScript>();
     inventoryUIHolder = transform.Find("inventory").gameObject;
-    buttons = FindObjectsOfType<EquipmentButtonScript>()
+    var equippedItems = GameObject.Find("Equipped Items");
+    equippedItemsButtons = GameObject
+      .Find("Equipped Items")
+      .GetComponentsInChildren<EquipmentButtonScript>()
+      .OrderBy(button => (-button.transform.position.y) * 100000 + button.transform.position.x)
+      .ToArray();
+    availableItemsItemsButtons = GameObject
+      .Find("Available Items")
+      .GetComponentsInChildren<EquipmentButtonScript>()
       .OrderBy(button => (-button.transform.position.y) * 100000 + button.transform.position.x)
       .ToArray();
   }
@@ -29,9 +39,16 @@ public class UIManagerScript : MonoBehaviour {
   public void ToInventoryMode() {
     switchContextText.text = "Launch to battle";
     inventoryUIHolder.SetActive(true);
-    buttons.ForEach((button, index) => {
+    availableItemsItemsButtons.ForEach((button, index) => {
       if (index < 16) {
         button.LoadEquipment(new WeaponInstance { config = WeaponConfig.LASER }, textureHandler);
+      } else {
+        button.LoadEquipment(null, textureHandler);
+      }
+    });
+    equippedItemsButtons.ForEach((button, index) => {
+      if (index < 2) {
+        button.LoadEquipment(new WeaponInstance { config = WeaponConfig.MACHINE_GUN }, textureHandler);
       } else {
         button.LoadEquipment(null, textureHandler);
       }
