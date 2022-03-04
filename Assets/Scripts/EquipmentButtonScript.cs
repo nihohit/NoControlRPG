@@ -9,10 +9,10 @@ public class EquipmentButtonScript : MonoBehaviour {
   private Button button;
   private Image spriteRenderer;
 
-  private WeaponInstance equipment;
+  public WeaponInstance Equipment { get; private set; }
 
   public void LoadEquipment(WeaponInstance weapon, TextureHandler textureHandler) {
-    this.equipment = weapon;
+    Equipment = weapon;
     textureHandler.UpdateTexture(weapon?.config?.equipmentImageName ?? "Empty", spriteRenderer, "Images/InventoryItems");
   }
 

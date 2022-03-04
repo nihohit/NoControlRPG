@@ -18,6 +18,8 @@ public class UIManagerScript : MonoBehaviour {
 
   private TextureHandler textureHandler = new();
 
+  private EquipmentButtonScript selectedButton = null;
+
   // Start is called before the first frame update
   void Awake() {
     switchContextText = transform.Find("SwitchContext").transform.Find("Text").GetComponent<TMPro.TMP_Text>();
@@ -66,5 +68,15 @@ public class UIManagerScript : MonoBehaviour {
 
   public void InventoryButtonSelected(EquipmentButtonScript button) {
     Debug.Log("clicked " + button.gameObject.name);
+    if (selectedButton == null) {
+      selectedButton = button;
+      selectedButton.GetComponent<Button>().Select();
+    } else {
+      var switchedEquipment = selectedButton.Equipment;
+      selectedButton.LoadEquipment(button.Equipment, textureHandler);
+      button.LoadEquipment(switchedEquipment, textureHandler);
+      //selectedButton.GetComponent<Button>().();
+      selectedButton = null;
+    }
   }
 }
