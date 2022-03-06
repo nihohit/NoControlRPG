@@ -10,7 +10,7 @@ public class WeaponConfig {
 
   public static WeaponConfig LASER = new WeaponConfig {
     range = 2,
-    shotImageName = "VisualEffects/Heat Beam",
+    shotImageName = "Heat Beam",
     equipmentImageName = "Laser",
     behavior = ShotBehavior.Beam,
     timeBetweenShots = 2.5f
@@ -18,11 +18,29 @@ public class WeaponConfig {
 
   public static WeaponConfig MACHINE_GUN = new WeaponConfig {
     range = 4f,
-    shotImageName = "VisualEffects/Incendiary Gun",
+    shotImageName = "IncendiaryGun",
     equipmentImageName = "IncendiaryGun",
     behavior = ShotBehavior.Direct,
     timeBetweenShots = 1.5f,
     shotMovementSpeed = 6f,
+  };
+
+  public static WeaponConfig FLAMER = new WeaponConfig {
+    range = 5f,
+    shotImageName = "Flamer",
+    equipmentImageName = "Flamer",
+    behavior = ShotBehavior.Direct,
+    timeBetweenShots = 2.0f,
+    shotMovementSpeed = 8f,
+  };
+
+  public static WeaponConfig MISSILE = new WeaponConfig {
+    range = 10f,
+    shotImageName = "Missile",
+    equipmentImageName = "Missile",
+    behavior = ShotBehavior.Direct,
+    timeBetweenShots = 2.0f,
+    shotMovementSpeed = 7f,
   };
 }
 

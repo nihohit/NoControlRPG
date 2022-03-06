@@ -14,7 +14,7 @@ public class UIManagerScript : MonoBehaviour {
   private GameObject inventoryUIHolder;
 
   private EquipmentButtonScript[] equippedItemsButtons;
-  private EquipmentButtonScript[] availableItemsItemsButtons;
+  private EquipmentButtonScript[] availableItemsButtons;
 
   private TextureHandler textureHandler = new();
 
@@ -31,33 +31,36 @@ public class UIManagerScript : MonoBehaviour {
       .GetComponentsInChildren<EquipmentButtonScript>()
       .OrderBy(button => (-button.transform.position.y) * 100000 + button.transform.position.x)
       .ToArray();
-    availableItemsItemsButtons = GameObject
+    availableItemsButtons = GameObject
       .Find("Available Items")
       .GetComponentsInChildren<EquipmentButtonScript>()
       .OrderBy(button => (-button.transform.position.y) * 100000 + button.transform.position.x)
       .ToArray();
   }
 
-  public void ToInventoryMode() {
-    switchContextText.text = "Launch to battle";
-    inventoryUIHolder.SetActive(true);
-    availableItemsItemsButtons.ForEach((button, index) => {
-      if (index < 16) {
-        button.LoadEquipment(new WeaponInstance { config = WeaponConfig.LASER }, textureHandler);
-      } else {
-        button.LoadEquipment(null, textureHandler);
-      }
-    });
-    equippedItemsButtons.ForEach((button, index) => {
-      if (index < 2) {
-        button.LoadEquipment(new WeaponInstance { config = WeaponConfig.MACHINE_GUN }, textureHandler);
-      } else {
-        button.LoadEquipment(null, textureHandler);
-      }
+  private void SetupButtons(List<WeaponInstance> equipment, IEnumerable<EquipmentButtonScript> buttons) {
+    buttons.ForEach((button, index) => {
+      button.LoadEquipment(index < equipment.Count ? equipment[index] : null, textureHandler);
     });
   }
 
+  public void ToInventoryMode() {
+    switchContextText.text = "Launch to battle";
+    inventoryUIHolder.SetActive(true);
+    SetupButtons(Player.Instance.AvailableItems, availableItemsButtons);
+    SetupButtons(Player.Instance.Weapons, equippedItemsButtons);
+  }
+
+  public List<WeaponInstance> ButtonsToEquipment(IEnumerable<EquipmentButtonScript> buttons) {
+    return buttons
+      .Where(button => button.Equipment != null)
+      .Select(button => button.Equipment)
+      .ToList();
+  }
+
   public void ToBattleMode() {
+    Player.Instance.AvailableItems = ButtonsToEquipment(availableItemsButtons);
+    Player.Instance.Weapons = ButtonsToEquipment(equippedItemsButtons);
     switchContextText.text = "Return to Base";
     inventoryUIHolder.SetActive(false);
   }
