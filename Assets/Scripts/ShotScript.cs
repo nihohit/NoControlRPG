@@ -1,4 +1,5 @@
 using System;
+using Assets.Scripts.UnityBase;
 using UnityEngine;
 
 public class ShotScript : MonoBehaviour {
@@ -7,14 +8,20 @@ public class ShotScript : MonoBehaviour {
   public Vector3 StartPoint { get; private set; }
 
   private BattleMainManagerScript manager;
+  private SpriteRenderer spriteRenderer;
 
   private bool alreadyHit;
 
   private void Awake() {
     manager = FindObjectOfType<BattleMainManagerScript>();
+    spriteRenderer = GetComponent<SpriteRenderer>();
   }
 
-  public void Init(int layer, Vector3 startPoint, WeaponConfig config) {
+  public void Init(int layer, Vector3 startPoint, WeaponConfig config, TextureHandler textureHandler) {
+    if (Config == null || Config.shotImageName != config.shotImageName) {
+      textureHandler.UpdateTexture(config.shotImageName, spriteRenderer, "Images/VisualEffects");
+      gameObject.name = config.shotImageName;
+    }
     gameObject.layer = layer;
     StartPoint = startPoint;
     Config = config;

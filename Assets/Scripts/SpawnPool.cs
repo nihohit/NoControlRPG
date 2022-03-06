@@ -32,12 +32,12 @@ public class SpawnPool : MonoBehaviour {
     ReturnToPool(unit, units);
   }
 
-  private static List<ShotScript> CreateShotLise() {
+  private static List<ShotScript> CreateShotList() {
     return new List<ShotScript>();
   }
 
   private List<ShotScript> GetShotList(string shotName) {
-    return shots.TryGetOrAdd(shotName, CreateShotLise);
+    return shots.TryGetOrAdd(shotName, CreateShotList);
   }
 
   public ShotScript GetShot(string shotName) {

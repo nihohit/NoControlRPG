@@ -19,6 +19,7 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   private readonly List<ShotScript> shotsToRelease = new();
   private readonly List<EnemyUnitScript> enemiesToRelease = new();
+  private readonly TextureHandler textureHandler = new();
 
   // Start is called before the first frame update
   void Start() {
@@ -121,7 +122,7 @@ public class BattleMainManagerScript : MonoBehaviour {
           var shot = spawnPool.GetShot(weapon.config.shotImageName);
           shots[shot.Identifier] = shot;
           shot.transform.position = player.transform.position;
-          shot.Init(enemyLayerMask, player.transform.position, weapon.config);
+          shot.Init(enemyLayerMask, player.transform.position, weapon.config, textureHandler);
           shot.transform.RotateTowards(enemyInRange.transform.position, 360);
           break;
       }
