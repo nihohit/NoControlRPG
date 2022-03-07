@@ -36,9 +36,9 @@ public class ShotScript : MonoBehaviour {
     if (alreadyHit) {
       return;
     }
-    alreadyHit = true;
     var enemy = other.gameObject.GetComponent<EnemyUnitScript>();
     if (enemy != null) {
+      alreadyHit = true;
       manager.ShotHit(this, enemy);
     }
   }
