@@ -114,17 +114,14 @@ public class BattleMainManagerScript : MonoBehaviour {
         continue;
       }
 
-      switch (weapon.config.behavior) {
-        case ShotBehavior.Beam:
+      if (weapon.config is BeamWeaponConfig) {
 
-          break;
-        case ShotBehavior.Direct:
-          var shot = spawnPool.GetShot(weapon.config.shotImageName);
-          shots[shot.Identifier] = shot;
-          shot.transform.position = player.transform.position;
-          shot.Init(enemyLayerMask, player.transform.position, weapon.config, textureHandler);
-          shot.transform.RotateTowards(enemyInRange.transform.position, 360);
-          break;
+      } else if (weapon.config is BulletWeaponConfig) {
+        var shot = spawnPool.GetShot(weapon.config.shotImageName);
+        shots[shot.Identifier] = shot;
+        shot.transform.position = player.transform.position;
+        shot.Init(enemyLayerMask, player.transform.position, weapon.config as BulletWeaponConfig, textureHandler);
+        shot.transform.RotateTowards(enemyInRange.transform.position, 360);
       }
 
       weapon.timeToNextShot = weapon.config.timeBetweenShots;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ShotScript : MonoBehaviour {
   public Guid Identifier = Guid.NewGuid();
-  public WeaponConfig Config { get; private set; }
+  public BulletWeaponConfig Config { get; private set; }
   public Vector3 StartPoint { get; private set; }
 
   private BattleMainManagerScript manager;
@@ -17,7 +17,7 @@ public class ShotScript : MonoBehaviour {
     spriteRenderer = GetComponent<SpriteRenderer>();
   }
 
-  public void Init(int layer, Vector3 startPoint, WeaponConfig config, TextureHandler textureHandler) {
+  public void Init(int layer, Vector3 startPoint, BulletWeaponConfig config, TextureHandler textureHandler) {
     if (Config == null || Config.shotImageName != config.shotImageName) {
       textureHandler.UpdateTexture(config.shotImageName, spriteRenderer, "Images/VisualEffects");
       gameObject.name = config.shotImageName;
