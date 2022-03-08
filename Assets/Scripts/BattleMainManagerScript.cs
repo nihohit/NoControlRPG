@@ -8,7 +8,8 @@ public class BattleMainManagerScript : MonoBehaviour {
   private SpawnPool spawnPool;
   private GameObject player;
   private readonly Dictionary<Guid, EnemyUnitScript> enemies = new();
-  private readonly Dictionary<Guid, ShotScript> shots = new();
+  private readonly Dictionary<Guid, BulletScript> bullets = new();
+  private readonly Dictionary<Guid, BeamScript> beams = new();
   private const float TIME_BETWEEN_SPAWNS = 1;
   private float timeToNextSpawn = TIME_BETWEEN_SPAWNS;
   private int enemyLayerMask;
@@ -17,7 +18,8 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   private UIManagerScript uiManager;
 
-  private readonly List<ShotScript> shotsToRelease = new();
+  private readonly List<BulletScript> bulletsToRelease = new();
+  private readonly List<BeamScript> beamsToRelease = new();
   private readonly List<EnemyUnitScript> enemiesToRelease = new();
   private readonly TextureHandler textureHandler = new();
 
@@ -54,12 +56,12 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private void releaseAllEntities() {
-    shotsToRelease.AddRange(shots.Values);
+    bulletsToRelease.AddRange(bullets.Values);
     enemiesToRelease.AddRange(enemies.Values);
   }
 
-  internal void ShotHit(ShotScript shotScript, EnemyUnitScript enemy) {
-    shotsToRelease.Add(shotScript);
+  internal void BulletHit(BulletScript shotScript, EnemyUnitScript enemy) {
+    bulletsToRelease.Add(shotScript);
     enemiesToRelease.Add(enemy);
   }
 
@@ -94,11 +96,11 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private void moveShots() {
-    foreach (var shot in shots.Values) {
+    foreach (var shot in bullets.Values) {
       // TODO - consider using RigidBody's movement function, instead of using kinematic rigidbodies.
       shot.gameObject.MoveForwards(shot.Config.shotMovementSpeed);
       if (!shot.InRange()) {
-        shotsToRelease.Add(shot);
+        bulletsToRelease.Add(shot);
       }
     }
   }
@@ -115,10 +117,14 @@ public class BattleMainManagerScript : MonoBehaviour {
       }
 
       if (weapon.config is BeamWeaponConfig) {
-
+        var shot = spawnPool.GetBeam(weapon.config.shotImageName);
+        beams[shot.Identifier] = shot;
+        shot.transform.position = player.transform.position;
+        shot.Init(enemyLayerMask, weapon.config as BeamWeaponConfig, textureHandler, Time.fixedTime);
+        shot.transform.RotateTowards(enemyInRange.transform.position, 360);
       } else if (weapon.config is BulletWeaponConfig) {
-        var shot = spawnPool.GetShot(weapon.config.shotImageName);
-        shots[shot.Identifier] = shot;
+        var shot = spawnPool.GetBullet(weapon.config.shotImageName);
+        bullets[shot.Identifier] = shot;
         shot.transform.position = player.transform.position;
         shot.Init(enemyLayerMask, player.transform.position, weapon.config as BulletWeaponConfig, textureHandler);
         shot.transform.RotateTowards(enemyInRange.transform.position, 360);
@@ -142,11 +148,11 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private void releaseEntities() {
-    foreach (var shot in shotsToRelease) {
-      shots.Remove(shot.Identifier);
-      spawnPool.ReturnShot(shot);
+    foreach (var bullet in bulletsToRelease) {
+      bullets.Remove(bullet.Identifier);
+      spawnPool.ReturnBullet(bullet);
     }
-    shotsToRelease.Clear();
+    bulletsToRelease.Clear();
 
     foreach (var enemy in enemiesToRelease) {
       enemies.Remove(enemy.Identifier);

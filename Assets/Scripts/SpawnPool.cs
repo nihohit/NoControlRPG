@@ -6,8 +6,10 @@ using UnityEngine;
 public class SpawnPool : MonoBehaviour {
   private readonly List<EnemyUnitScript> units = new List<EnemyUnitScript>();
   private GameObject unitResource;
-  private readonly Dictionary<string, GameObject> shotResources = new Dictionary<string, GameObject>();
-  private readonly Dictionary<string, List<ShotScript>> shots = new Dictionary<string, List<ShotScript>>();
+  private GameObject bulletResource;
+  private readonly Dictionary<string, List<BulletScript>> bullets = new Dictionary<string, List<BulletScript>>();
+  private GameObject beamResource;
+  private readonly Dictionary<string, List<BeamScript>> beams = new Dictionary<string, List<BeamScript>>();
 
   private void ReturnToPool<TType>(TType item, List<TType> pool) where TType : MonoBehaviour {
     pool.Add(item);
@@ -32,21 +34,35 @@ public class SpawnPool : MonoBehaviour {
     ReturnToPool(unit, units);
   }
 
-  private static List<ShotScript> CreateShotList() {
-    return new List<ShotScript>();
+  private static List<T> CreateShotList<T>() {
+    return new List<T>();
   }
 
-  private List<ShotScript> GetShotList(string shotName) {
-    return shots.TryGetOrAdd(shotName, CreateShotList);
+  private List<T> GetShotList<T>(string shotName, Dictionary<string, List<T>> shotDictionary) {
+    return shotDictionary.TryGetOrAdd(shotName, CreateShotList<T>);
   }
 
-  public ShotScript GetShot(string shotName) {
-    var resource = shotResources.TryGetOrAdd(shotName, () => Resources.Load<GameObject>("prefabs/Shot"));
-    return GetFromPool(GetShotList(shotName), resource);
+  public BulletScript GetBullet(string bulletName) {
+    if (bulletResource == null) {
+      bulletResource = Resources.Load<GameObject>("prefabs/Shot");
+    }
+    return GetFromPool(GetShotList(bulletName, bullets), bulletResource);
   }
 
-  public void ReturnShot(ShotScript shot) {
-    ReturnToPool(shot, GetShotList(shot.Config.shotImageName));
+  public void ReturnBullet(BulletScript shot) {
+    ReturnToPool(shot, GetShotList(shot.Config.shotImageName, bullets));
+  }
+
+  public BeamScript GetBeam(string beamName) {
+    if (beamResource == null) {
+      beamResource = Resources.Load<GameObject>("prefabs/Beam");
+    }
+    return GetFromPool(GetShotList(beamName, beams), beamResource);
+  }
+
+
+  public void ReturnBeam(BeamScript beam) {
+    ReturnToPool(beam, GetShotList(beam.Config.shotImageName, beams));
   }
 
   public void Start() {
