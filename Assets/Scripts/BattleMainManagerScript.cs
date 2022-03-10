@@ -105,6 +105,8 @@ public class BattleMainManagerScript : MonoBehaviour {
     }
   }
 
+  private const float BEAM_SCALE = 0.1f;
+
   private void shootEnemies() {
     foreach (var weapon in Player.Instance.Weapons) {
       weapon.timeToNextShot -= Time.deltaTime;
@@ -121,7 +123,9 @@ public class BattleMainManagerScript : MonoBehaviour {
         beams[shot.Identifier] = shot;
         shot.transform.position = player.transform.position;
         shot.Init(enemyLayerMask, weapon.config as BeamWeaponConfig, textureHandler, Time.fixedTime);
+        shot.transform.localScale = new Vector3(weapon.config.range * BEAM_SCALE, BEAM_SCALE, BEAM_SCALE);
         shot.transform.RotateTowards(enemyInRange.transform.position, 360);
+        shot.transform.position = player.transform.position + (enemyInRange.transform.position - player.transform.position).normalized * weapon.config.range / 2;
       } else if (weapon.config is BulletWeaponConfig) {
         var shot = spawnPool.GetBullet(weapon.config.shotImageName);
         bullets[shot.Identifier] = shot;
