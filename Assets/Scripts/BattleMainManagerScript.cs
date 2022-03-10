@@ -65,6 +65,10 @@ public class BattleMainManagerScript : MonoBehaviour {
     enemiesToRelease.Add(enemy);
   }
 
+  internal void BeamHit(BeamScript beamScript, EnemyUnitScript enemy) {
+    enemiesToRelease.Add(enemy);
+  }
+
   private void spawnEnemyIfNeeded() {
     const int TARGET_NUMBER_OF_ENEMIES = 50;
     if (enemies.Count >= TARGET_NUMBER_OF_ENEMIES) {

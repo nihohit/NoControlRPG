@@ -9,4 +9,10 @@ public class BeamScript : ShotScript<BeamWeaponConfig> {
     Lifetime = config.beamCoherenceTime;
   }
 
+  void OnTriggerStay2D(Collider2D other) {
+    var enemy = other.gameObject.GetComponent<EnemyUnitScript>();
+    if (enemy != null) {
+      manager.BeamHit(this, enemy);
+    }
+  }
 }
