@@ -103,6 +103,13 @@ public class BattleMainManagerScript : MonoBehaviour {
         bulletsToRelease.Add(shot);
       }
     }
+
+    foreach (var beam in beams.Values) {
+      beam.Lifetime -= Time.deltaTime;
+      if (beam.Lifetime <= 0f) {
+        beamsToRelease.Add(beam);
+      }
+    }
   }
 
   private const float BEAM_SCALE = 0.1f;
@@ -122,7 +129,7 @@ public class BattleMainManagerScript : MonoBehaviour {
         var shot = spawnPool.GetBeam(weapon.config.shotImageName);
         beams[shot.Identifier] = shot;
         shot.transform.position = player.transform.position;
-        shot.Init(enemyLayerMask, weapon.config as BeamWeaponConfig, textureHandler, Time.fixedTime);
+        shot.Init(enemyLayerMask, weapon.config as BeamWeaponConfig, textureHandler);
         shot.transform.localScale = new Vector3(weapon.config.range * BEAM_SCALE, BEAM_SCALE, BEAM_SCALE);
         shot.transform.RotateTowards(enemyInRange.transform.position, 360);
         shot.transform.position = player.transform.position + (enemyInRange.transform.position - player.transform.position).normalized * weapon.config.range / 2;
@@ -163,5 +170,11 @@ public class BattleMainManagerScript : MonoBehaviour {
       spawnPool.ReturnUnit(enemy);
     }
     enemiesToRelease.Clear();
+
+    foreach (var beam in beamsToRelease) {
+      beams.Remove(beam.Identifier);
+      spawnPool.ReturnBeam(beam);
+    }
+    beamsToRelease.Clear();
   }
 }

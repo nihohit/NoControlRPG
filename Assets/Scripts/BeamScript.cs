@@ -2,11 +2,11 @@ using Assets.Scripts.UnityBase;
 using UnityEngine;
 
 public class BeamScript : ShotScript<BeamWeaponConfig> {
-  public float StartTime { get; private set; }
+  public float Lifetime { get; set; }
 
-  public void Init(int layer, BeamWeaponConfig config, TextureHandler textureHandler, float startTime) {
+  new public void Init(int layer, BeamWeaponConfig config, TextureHandler textureHandler) {
     base.Init(layer, config, textureHandler);
-    StartTime = startTime;
+    Lifetime = config.beamCoherenceTime;
   }
 
 }

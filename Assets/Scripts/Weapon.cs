@@ -9,6 +9,7 @@ public abstract class WeaponConfig {
     shotImageName = "Heat Beam",
     equipmentImageName = "Laser",
     timeBetweenShots = 2.5f,
+    beamCoherenceTime = 0.5f
   };
 
   public static BulletWeaponConfig MACHINE_GUN = new() {
@@ -24,6 +25,7 @@ public abstract class WeaponConfig {
     shotImageName = "Flamer",
     equipmentImageName = "Flamer",
     timeBetweenShots = 2.0f,
+    beamCoherenceTime = 1f
   };
 
   public static BulletWeaponConfig MISSILE = new() {
