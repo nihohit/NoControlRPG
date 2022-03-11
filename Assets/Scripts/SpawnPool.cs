@@ -63,7 +63,9 @@ public class SpawnPool : MonoBehaviour {
       var resource = Instantiate(baseResource);
       var spriteRenderer = resource.GetComponent<SpriteRenderer>();
       textureHandler.UpdateTexture(objectName, spriteRenderer, "Images/VisualEffects");
-      gameObject.name = objectName;
+      var collider = resource.gameObject.AddComponent<PolygonCollider2D>();
+      collider.isTrigger = true;
+      resource.gameObject.name = objectName;
       resource.SetActive(false);
       return resource;
     });
