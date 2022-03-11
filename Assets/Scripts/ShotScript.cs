@@ -15,11 +15,7 @@ public class ShotScript<T> : MonoBehaviour where T : WeaponConfig {
     spriteRenderer = GetComponent<SpriteRenderer>();
   }
 
-  protected void Init(int layer, T config, TextureHandler textureHandler) {
-    if (Config == null || Config.shotImageName != config.shotImageName) {
-      textureHandler.UpdateTexture(config.shotImageName, spriteRenderer, "Images/VisualEffects");
-      gameObject.name = config.shotImageName;
-    }
+  protected void Init(int layer, T config) {
     gameObject.layer = layer;
     Config = config;
   }

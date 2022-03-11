@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Assets.Scripts.Base;
+using Assets.Scripts.UnityBase;
 using UnityEngine;
 
 public class SpawnPool : MonoBehaviour {
@@ -9,12 +10,13 @@ public class SpawnPool : MonoBehaviour {
   private GameObject beamBaseResource;
 
 
-  private Dictionary<string, GameObject> bulletResources = new Dictionary<string, GameObject>();
-  private Dictionary<string, GameObject> beamResources = new Dictionary<string, GameObject>();
+  private Dictionary<string, GameObject> bulletResources = new();
+  private Dictionary<string, GameObject> beamResources = new();
 
-  private readonly List<EnemyUnitScript> unitsPool = new List<EnemyUnitScript>();
-  private readonly Dictionary<string, List<BulletScript>> bulletPools = new Dictionary<string, List<BulletScript>>();
-  private readonly Dictionary<string, List<BeamScript>> beamPools = new Dictionary<string, List<BeamScript>>();
+  private readonly List<EnemyUnitScript> unitsPool = new();
+  private readonly Dictionary<string, List<BulletScript>> bulletPools = new();
+  private readonly Dictionary<string, List<BeamScript>> beamPools = new();
+  private readonly TextureHandler textureHandler = new();
 
   private void ReturnToPool<TType>(TType item, List<TType> pool) where TType : MonoBehaviour {
     pool.Add(item);
@@ -59,6 +61,9 @@ public class SpawnPool : MonoBehaviour {
   private GameObject GetObjectResource(string objectName, Dictionary<string, GameObject> resourcesDictionary, GameObject baseResource) {
     return resourcesDictionary.TryGetOrAdd(objectName, () => {
       var resource = Instantiate(baseResource);
+      var spriteRenderer = resource.GetComponent<SpriteRenderer>();
+      textureHandler.UpdateTexture(objectName, spriteRenderer, "Images/VisualEffects");
+      gameObject.name = objectName;
       resource.SetActive(false);
       return resource;
     });

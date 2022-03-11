@@ -21,7 +21,6 @@ public class BattleMainManagerScript : MonoBehaviour {
   private readonly List<BulletScript> bulletsToRelease = new();
   private readonly List<BeamScript> beamsToRelease = new();
   private readonly List<EnemyUnitScript> enemiesToRelease = new();
-  private readonly TextureHandler textureHandler = new();
 
   // Start is called before the first frame update
   void Start() {
@@ -133,7 +132,7 @@ public class BattleMainManagerScript : MonoBehaviour {
         var shot = spawnPool.GetBeam(weapon.config.shotImageName);
         beams[shot.Identifier] = shot;
         shot.transform.position = player.transform.position;
-        shot.Init(enemyLayerMask, weapon.config as BeamWeaponConfig, textureHandler);
+        shot.Init(enemyLayerMask, weapon.config as BeamWeaponConfig);
         shot.transform.localScale = new Vector3(weapon.config.range * BEAM_SCALE, BEAM_SCALE, BEAM_SCALE);
         shot.transform.RotateTowards(enemyInRange.transform.position, 360);
         shot.transform.position = player.transform.position + (enemyInRange.transform.position - player.transform.position).normalized * weapon.config.range / 2;
@@ -141,7 +140,7 @@ public class BattleMainManagerScript : MonoBehaviour {
         var shot = spawnPool.GetBullet(weapon.config.shotImageName);
         bullets[shot.Identifier] = shot;
         shot.transform.position = player.transform.position;
-        shot.Init(enemyLayerMask, player.transform.position, weapon.config as BulletWeaponConfig, textureHandler);
+        shot.Init(enemyLayerMask, player.transform.position, weapon.config as BulletWeaponConfig);
         shot.transform.RotateTowards(enemyInRange.transform.position, 360);
       }
 

@@ -9,8 +9,8 @@ public class BulletScript : ShotScript<BulletWeaponConfig> {
   public bool InRange() {
     return Vector3.Distance(StartPoint, transform.position) < Config.range;
   }
-  public void Init(int layer, Vector3 startPoint, BulletWeaponConfig config, TextureHandler textureHandler) {
-    base.Init(layer, config, textureHandler);
+  public void Init(int layer, Vector3 startPoint, BulletWeaponConfig config) {
+    base.Init(layer, config);
     StartPoint = startPoint;
     alreadyHit = false;
   }
