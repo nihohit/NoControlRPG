@@ -12,8 +12,9 @@ public class SpawnPool : MonoBehaviour {
 
   private Dictionary<string, GameObject> bulletResources = new();
   private Dictionary<string, GameObject> beamResources = new();
+  private Dictionary<string, GameObject> unitResources = new();
 
-  private readonly List<EnemyUnitScript> unitsPool = new();
+  private readonly Dictionary<string, List<EnemyUnitScript>> unitPools = new();
   private readonly Dictionary<string, List<BulletScript>> bulletPools = new();
   private readonly Dictionary<string, List<BeamScript>> beamPools = new();
   private readonly TextureHandler textureHandler = new();
@@ -42,14 +43,6 @@ public class SpawnPool : MonoBehaviour {
     unitBaseResource = Resources.Load<GameObject>("prefabs/EnemyUnit");
   }
 
-  public EnemyUnitScript GetUnit() {
-    return GetFromPool(unitsPool, unitBaseResource);
-  }
-
-  public void ReturnUnit(EnemyUnitScript unit) {
-    ReturnToPool(unit, unitsPool);
-  }
-
   private static List<T> CreateList<T>() {
     return new List<T>();
   }
@@ -58,11 +51,11 @@ public class SpawnPool : MonoBehaviour {
     return poolsDictionary.TryGetOrAdd(objectName, CreateList<T>);
   }
 
-  private GameObject GetObjectResource(string objectName, Dictionary<string, GameObject> resourcesDictionary, GameObject baseResource) {
+  private GameObject GetObjectResource(string objectName, Dictionary<string, GameObject> resourcesDictionary, GameObject baseResource, string spriteFolder) {
     return resourcesDictionary.TryGetOrAdd(objectName, () => {
       var resource = Instantiate(baseResource);
       var spriteRenderer = resource.GetComponent<SpriteRenderer>();
-      textureHandler.UpdateTexture(objectName, spriteRenderer, "Images/VisualEffects");
+      textureHandler.UpdateTexture(objectName, spriteRenderer, spriteFolder);
       var collider = resource.gameObject.AddComponent<PolygonCollider2D>();
       collider.isTrigger = true;
       resource.gameObject.name = objectName;
@@ -71,14 +64,14 @@ public class SpawnPool : MonoBehaviour {
     });
   }
 
-  private T GetObject<T>(string objectName, Dictionary<string, GameObject> resourcesDictionary, GameObject baseResource, Dictionary<string, List<T>> availableObjectsDictionary) where T : MonoBehaviour {
+  private T GetObject<T>(string objectName, Dictionary<string, GameObject> resourcesDictionary, GameObject baseResource, Dictionary<string, List<T>> availableObjectsDictionary, string spriteFolder) where T : MonoBehaviour {
     var availableObjects = GetAvailableObjectsPool(objectName, availableObjectsDictionary);
-    var resource = GetObjectResource(objectName, resourcesDictionary, baseResource);
+    var resource = GetObjectResource(objectName, resourcesDictionary, baseResource, spriteFolder);
     return GetFromPool<T>(availableObjects, resource);
   }
 
   public BulletScript GetBullet(string bulletName) {
-    return GetObject(bulletName, bulletResources, bulletBaseResource, bulletPools);
+    return GetObject(bulletName, bulletResources, bulletBaseResource, bulletPools, "Images/VisualEffects");
   }
 
   public void ReturnBullet(BulletScript shot) {
@@ -86,11 +79,19 @@ public class SpawnPool : MonoBehaviour {
   }
 
   public BeamScript GetBeam(string beamName) {
-    return GetObject(beamName, beamResources, beamBaseResource, beamPools);
+    return GetObject(beamName, beamResources, beamBaseResource, beamPools, "Images/VisualEffects");
   }
 
 
   public void ReturnBeam(BeamScript beam) {
     ReturnToPool(beam, GetAvailableObjectsPool(beam.Config.shotImageName, beamPools));
+  }
+
+  public EnemyUnitScript GetUnit() {
+    return GetObject("ScoutMech", unitResources, unitBaseResource, unitPools, "Images/Entities");
+  }
+
+  public void ReturnUnit(EnemyUnitScript unit) {
+    ReturnToPool(unit, GetAvailableObjectsPool(unit.gameObject.name, unitPools)); ;
   }
 }
