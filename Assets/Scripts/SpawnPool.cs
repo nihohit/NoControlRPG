@@ -4,12 +4,17 @@ using Assets.Scripts.Base;
 using UnityEngine;
 
 public class SpawnPool : MonoBehaviour {
-  private readonly List<EnemyUnitScript> units = new List<EnemyUnitScript>();
-  private GameObject unitResource;
-  private GameObject bulletResource;
-  private readonly Dictionary<string, List<BulletScript>> bullets = new Dictionary<string, List<BulletScript>>();
-  private GameObject beamResource;
-  private readonly Dictionary<string, List<BeamScript>> beams = new Dictionary<string, List<BeamScript>>();
+  private GameObject unitBaseResource;
+  private GameObject bulletBaseResource;
+  private GameObject beamBaseResource;
+
+
+  private Dictionary<string, GameObject> bulletResources = new Dictionary<string, GameObject>();
+  private Dictionary<string, GameObject> beamResources = new Dictionary<string, GameObject>();
+
+  private readonly List<EnemyUnitScript> unitsPool = new List<EnemyUnitScript>();
+  private readonly Dictionary<string, List<BulletScript>> bulletPools = new Dictionary<string, List<BulletScript>>();
+  private readonly Dictionary<string, List<BeamScript>> beamPools = new Dictionary<string, List<BeamScript>>();
 
   private void ReturnToPool<TType>(TType item, List<TType> pool) where TType : MonoBehaviour {
     pool.Add(item);
@@ -22,50 +27,63 @@ public class SpawnPool : MonoBehaviour {
       pool.RemoveAt(pool.Count - 1);
       result.gameObject.SetActive(true);
       return result;
+    } else {
+      var result = Instantiate(resource).GetComponent<TType>();
+      result.gameObject.SetActive(true);
+      return result;
     }
-    return Instantiate(resource).GetComponent<TType>();
+  }
+
+  private void Awake() {
+    bulletBaseResource = Resources.Load<GameObject>("prefabs/Shot");
+    beamBaseResource = Resources.Load<GameObject>("prefabs/Beam");
+    unitBaseResource = Resources.Load<GameObject>("prefabs/EnemyUnit");
   }
 
   public EnemyUnitScript GetUnit() {
-    return GetFromPool(units, unitResource);
+    return GetFromPool(unitsPool, unitBaseResource);
   }
 
   public void ReturnUnit(EnemyUnitScript unit) {
-    ReturnToPool(unit, units);
+    ReturnToPool(unit, unitsPool);
   }
 
-  private static List<T> CreateShotList<T>() {
+  private static List<T> CreateList<T>() {
     return new List<T>();
   }
 
-  private List<T> GetShotList<T>(string shotName, Dictionary<string, List<T>> shotDictionary) {
-    return shotDictionary.TryGetOrAdd(shotName, CreateShotList<T>);
+  private List<T> GetAvailableObjectsPool<T>(string objectName, Dictionary<string, List<T>> poolsDictionary) {
+    return poolsDictionary.TryGetOrAdd(objectName, CreateList<T>);
+  }
+
+  private GameObject GetObjectResource(string objectName, Dictionary<string, GameObject> resourcesDictionary, GameObject baseResource) {
+    return resourcesDictionary.TryGetOrAdd(objectName, () => {
+      var resource = Instantiate(baseResource);
+      resource.SetActive(false);
+      return resource;
+    });
+  }
+
+  private T GetObject<T>(string objectName, Dictionary<string, GameObject> resourcesDictionary, GameObject baseResource, Dictionary<string, List<T>> availableObjectsDictionary) where T : MonoBehaviour {
+    var availableObjects = GetAvailableObjectsPool(objectName, availableObjectsDictionary);
+    var resource = GetObjectResource(objectName, resourcesDictionary, baseResource);
+    return GetFromPool<T>(availableObjects, resource);
   }
 
   public BulletScript GetBullet(string bulletName) {
-    if (bulletResource == null) {
-      bulletResource = Resources.Load<GameObject>("prefabs/Shot");
-    }
-    return GetFromPool(GetShotList(bulletName, bullets), bulletResource);
+    return GetObject(bulletName, bulletResources, bulletBaseResource, bulletPools);
   }
 
   public void ReturnBullet(BulletScript shot) {
-    ReturnToPool(shot, GetShotList(shot.Config.shotImageName, bullets));
+    ReturnToPool(shot, GetAvailableObjectsPool(shot.Config.shotImageName, bulletPools));
   }
 
   public BeamScript GetBeam(string beamName) {
-    if (beamResource == null) {
-      beamResource = Resources.Load<GameObject>("prefabs/Beam");
-    }
-    return GetFromPool(GetShotList(beamName, beams), beamResource);
+    return GetObject(beamName, beamResources, beamBaseResource, beamPools);
   }
 
 
   public void ReturnBeam(BeamScript beam) {
-    ReturnToPool(beam, GetShotList(beam.Config.shotImageName, beams));
-  }
-
-  public void Start() {
-    unitResource = Resources.Load<GameObject>("prefabs/EnemyUnit");
+    ReturnToPool(beam, GetAvailableObjectsPool(beam.Config.shotImageName, beamPools));
   }
 }
