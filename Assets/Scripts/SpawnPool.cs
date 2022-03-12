@@ -56,6 +56,8 @@ public class SpawnPool : MonoBehaviour {
       var resource = Instantiate(baseResource);
       var spriteRenderer = resource.GetComponent<SpriteRenderer>();
       textureHandler.UpdateTexture(objectName, spriteRenderer, spriteFolder);
+      // If this becomes a perf problem, try using this: 
+      // https://github.com/j-bbr/PolygonColliderSimplification/tree/master/Assets/Collider2D%20Optimization
       var collider = resource.gameObject.AddComponent<PolygonCollider2D>();
       collider.isTrigger = true;
       resource.gameObject.name = objectName;
