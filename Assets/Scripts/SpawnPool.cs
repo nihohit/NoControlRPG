@@ -9,14 +9,15 @@ public class SpawnPool : MonoBehaviour {
   private GameObject bulletBaseResource;
   private GameObject beamBaseResource;
 
-
   private Dictionary<string, GameObject> bulletResources = new();
   private Dictionary<string, GameObject> beamResources = new();
   private Dictionary<string, GameObject> unitResources = new();
+  private Dictionary<string, GameObject> explosionResources = new();
 
   private readonly Dictionary<string, List<EnemyUnitScript>> unitPools = new();
   private readonly Dictionary<string, List<BulletScript>> bulletPools = new();
   private readonly Dictionary<string, List<BeamScript>> beamPools = new();
+  private readonly Dictionary<string, List<ExplosionScript>> explosionPools = new();
   private readonly TextureHandler textureHandler = new();
 
   private void ReturnToPool<TType>(TType item, List<TType> pool) where TType : MonoBehaviour {
@@ -32,6 +33,7 @@ public class SpawnPool : MonoBehaviour {
       return result;
     } else {
       var result = Instantiate(resource).GetComponent<TType>();
+      result.gameObject.name = resource.gameObject.name;
       result.gameObject.SetActive(true);
       return result;
     }
@@ -72,6 +74,7 @@ public class SpawnPool : MonoBehaviour {
     return GetFromPool<T>(availableObjects, resource);
   }
 
+
   public BulletScript GetBullet(string bulletName) {
     return GetObject(bulletName, bulletResources, bulletBaseResource, bulletPools, "Images/VisualEffects");
   }
@@ -95,5 +98,23 @@ public class SpawnPool : MonoBehaviour {
 
   public void ReturnUnit(EnemyUnitScript unit) {
     ReturnToPool(unit, GetAvailableObjectsPool(unit.gameObject.name, unitPools)); ;
+  }
+
+  private void SpawnExplosion(Vector3 position, string explosionName) {
+    if (!explosionResources.TryGetValue(explosionName, out var resource)) {
+      resource = Resources.Load<GameObject>($"effects/{explosionName}");
+      explosionResources[explosionName] = resource;
+    }
+    var explosion = GetFromPool(GetAvailableObjectsPool(explosionName, explosionPools), resource);
+    explosion.StartExplosion();
+    explosion.transform.position = position;
+  }
+
+  public void SpawnUnitExplosion(Vector3 position) {
+    SpawnExplosion(position, "UnitExplosion");
+  }
+
+  public void ExplosionDone(ExplosionScript explosion) {
+    ReturnToPool(explosion, GetAvailableObjectsPool(explosion.gameObject.name, explosionPools));
   }
 }

@@ -169,6 +169,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     bulletsToRelease.Clear();
 
     foreach (var enemy in enemiesToRelease) {
+      spawnPool.SpawnUnitExplosion(enemy.transform.position);
       enemies.Remove(enemy.Identifier);
       spawnPool.ReturnUnit(enemy);
     }
