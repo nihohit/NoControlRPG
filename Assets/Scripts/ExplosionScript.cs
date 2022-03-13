@@ -2,34 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
 
 public class ExplosionScript : MonoBehaviour {
-  private float duration;
-  private ParticleSystem[] particles;
+  private ParticleCallbackScript[] particles;
   private SpawnPool spawnPool;
+
+  private int callbacksCalled;
 
   // Start is called before the first frame update
   void Awake() {
-    particles = GetComponentsInChildren<ParticleSystem>();
-    foreach (var particle in particles) {
-      particle.Pause();
-    }
-    duration = particles.Max(particle => particle.main.duration);
     spawnPool = FindObjectOfType<SpawnPool>();
+    particles = GetComponentsInChildren<ParticleSystem>()
+      .Select(system => system.gameObject.AddComponent<ParticleCallbackScript>())
+      .ToArray();
+    foreach (var particle in particles) {
+      void callback(ParticleCallbackScript caller) {
+        if (++callbacksCalled == particles.Length) {
+          spawnPool.ExplosionDone(this);
+        }
+      }
+      particle.Callback = callback;
+    }
   }
 
   internal void StartExplosion() {
-    StartCoroutine(ReportFinished());
+    callbacksCalled = 0;
     foreach (var particle in particles) {
-      particle.Simulate(0, true, true);
-      //   particle.Clear();
-      //   particle.time = 0f;
-      particle.Play();
+      particle.RestartParticle();
     }
-  }
-
-  private IEnumerator ReportFinished() {
-    yield return new WaitForSeconds(duration);
-    spawnPool.ExplosionDone(this);
   }
 }
