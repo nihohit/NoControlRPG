@@ -1,5 +1,3 @@
-using System;
-using Assets.Scripts.UnityBase;
 using UnityEngine;
 
 public class BulletScript : ShotScript<BulletWeaponConfig> {

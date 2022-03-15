@@ -12,7 +12,6 @@ public class BattleMainManagerScript : MonoBehaviour {
   private readonly Dictionary<Guid, BeamScript> beams = new();
   private const float TIME_BETWEEN_SPAWNS = 1;
   private float timeToNextSpawn = TIME_BETWEEN_SPAWNS;
-  private int enemyLayerMask;
   private enum Mode { Battle, Inventory }
   private Mode mode;
 
@@ -26,7 +25,6 @@ public class BattleMainManagerScript : MonoBehaviour {
   void Start() {
     spawnPool = GetComponent<SpawnPool>();
     player = GameObject.Find("Player").gameObject;
-    enemyLayerMask = LayerMask.NameToLayer("enemies");
     uiManager = GameObject.FindObjectOfType<UIManagerScript>();
 
     SwitchToInventory();
@@ -68,7 +66,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     enemiesToRelease.Add(enemy);
   }
 
-  private void spawnEnemyIfNeeded() {
+  private void SpawnEnemyIfNeeded() {
     const int TARGET_NUMBER_OF_ENEMIES = 50;
     if (enemies.Count >= TARGET_NUMBER_OF_ENEMIES) {
       return;
@@ -86,7 +84,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     timeToNextSpawn = TIME_BETWEEN_SPAWNS;
   }
 
-  private void moveEnemies() {
+  private void MoveEnemies() {
     var playerPosition = player.transform.position;
     foreach (var enemy in enemies.Values) {
       enemy.transform.RotateTowards(playerPosition, 15.0f * Time.deltaTime);
@@ -94,11 +92,11 @@ public class BattleMainManagerScript : MonoBehaviour {
     }
   }
 
-  private EnemyUnitScript findEnemyInRange(float weaponRange) {
+  private EnemyUnitScript FindEnemyInRange(float weaponRange) {
     return enemies.Values.FirstOrDefault(enemy => Vector3.Distance(enemy.transform.position, player.transform.position) < weaponRange);
   }
 
-  private void moveShots() {
+  private void MoveShots() {
     foreach (var shot in bullets.Values) {
       // TODO - consider using RigidBody's movement function, instead of using kinematic rigidbodies.
       shot.gameObject.MoveForwards(shot.Config.shotMovementSpeed);
@@ -117,13 +115,13 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   private const float BEAM_SCALE = 0.1f;
 
-  private void shootEnemies() {
+  private void ShootEnemies() {
     foreach (var weapon in Player.Instance.Weapons) {
       weapon.timeToNextShot -= Time.deltaTime;
       if (weapon.timeToNextShot > 0) {
         continue;
       }
-      var enemyInRange = findEnemyInRange(weapon.config.range);
+      var enemyInRange = FindEnemyInRange(weapon.config.range);
       if (enemyInRange == null) {
         continue;
       }
@@ -148,20 +146,25 @@ public class BattleMainManagerScript : MonoBehaviour {
     }
   }
 
+  private void ShootPlayer() {
+
+  }
+
   // Update is called once per frame
   void Update() {
-    releaseEntities();
+    ReleaseEntities();
 
     if (mode != Mode.Battle) {
       return;
     }
-    spawnEnemyIfNeeded();
-    moveEnemies();
-    moveShots();
-    shootEnemies();
+    SpawnEnemyIfNeeded();
+    MoveEnemies();
+    ShootEnemies();
+    ShootPlayer();
+    MoveShots();
   }
 
-  private void releaseEntities() {
+  private void ReleaseEntities() {
     foreach (var bullet in bulletsToRelease) {
       bullets.Remove(bullet.Identifier);
       spawnPool.ReturnBullet(bullet);

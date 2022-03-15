@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Assets.Scripts.Base;
 using Assets.Scripts.UnityBase;
@@ -9,10 +8,10 @@ public class SpawnPool : MonoBehaviour {
   private GameObject bulletBaseResource;
   private GameObject beamBaseResource;
 
-  private Dictionary<string, GameObject> bulletResources = new();
-  private Dictionary<string, GameObject> beamResources = new();
-  private Dictionary<string, GameObject> unitResources = new();
-  private Dictionary<string, GameObject> explosionResources = new();
+  private readonly Dictionary<string, GameObject> bulletResources = new();
+  private readonly Dictionary<string, GameObject> beamResources = new();
+  private readonly Dictionary<string, GameObject> unitResources = new();
+  private readonly Dictionary<string, GameObject> explosionResources = new();
 
   private readonly Dictionary<string, List<EnemyUnitScript>> unitPools = new();
   private readonly Dictionary<string, List<BulletScript>> bulletPools = new();
@@ -27,7 +26,7 @@ public class SpawnPool : MonoBehaviour {
 
   private TType GetFromPool<TType>(List<TType> pool, GameObject resource) where TType : MonoBehaviour {
     if (pool.Count > 0) {
-      var result = pool[pool.Count - 1];
+      var result = pool[^1];
       pool.RemoveAt(pool.Count - 1);
       result.gameObject.SetActive(true);
       return result;
@@ -71,7 +70,7 @@ public class SpawnPool : MonoBehaviour {
   private T GetObject<T>(string objectName, Dictionary<string, GameObject> resourcesDictionary, GameObject baseResource, Dictionary<string, List<T>> availableObjectsDictionary, string spriteFolder) where T : MonoBehaviour {
     var availableObjects = GetAvailableObjectsPool(objectName, availableObjectsDictionary);
     var resource = GetObjectResource(objectName, resourcesDictionary, baseResource, spriteFolder);
-    return GetFromPool<T>(availableObjects, resource);
+    return GetFromPool(availableObjects, resource);
   }
 
 

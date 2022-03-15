@@ -1,4 +1,3 @@
-using Assets.Scripts.UnityBase;
 using UnityEngine;
 
 public class BeamScript : ShotScript<BeamWeaponConfig> {

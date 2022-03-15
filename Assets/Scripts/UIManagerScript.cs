@@ -1,11 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using Assets.Scripts.Base;
 using Assets.Scripts.UnityBase;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
-using System;
 
 public class UIManagerScript : MonoBehaviour {
   private TMPro.TMP_Text switchContextText;
@@ -16,7 +14,7 @@ public class UIManagerScript : MonoBehaviour {
   private EquipmentButtonScript[] equippedItemsButtons;
   private EquipmentButtonScript[] availableItemsButtons;
 
-  private TextureHandler textureHandler = new();
+  private readonly TextureHandler textureHandler = new();
 
   private EquipmentButtonScript selectedButton = null;
 

@@ -1,5 +1,4 @@
 using System;
-using Assets.Scripts.UnityBase;
 using UnityEngine;
 
 public class ShotScript<T> : MonoBehaviour where T : WeaponConfig {

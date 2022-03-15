@@ -4,7 +4,7 @@ public class Player {
   public List<WeaponInstance> Weapons { set; get; }
   public List<WeaponInstance> AvailableItems { set; get; }
 
-  public static readonly Player Instance = new Player {
+  public static readonly Player Instance = new() {
     Weapons = new List<WeaponInstance>{
       new WeaponInstance {
         config = WeaponConfig.MACHINE_GUN,
