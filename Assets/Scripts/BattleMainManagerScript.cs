@@ -132,7 +132,7 @@ public class BattleMainManagerScript : MonoBehaviour {
         var shot = spawnPool.GetBeam(weapon.config.shotImageName);
         beams[shot.Identifier] = shot;
         shot.transform.position = player.transform.position;
-        shot.Init(enemyLayerMask, weapon.config as BeamWeaponConfig);
+        shot.Init(player.gameObject, weapon.config as BeamWeaponConfig);
         shot.transform.localScale = new Vector3(weapon.config.range * BEAM_SCALE, BEAM_SCALE, BEAM_SCALE);
         shot.transform.RotateTowards(enemyInRange.transform.position, 360);
         shot.transform.position = player.transform.position + (enemyInRange.transform.position - player.transform.position).normalized * weapon.config.range / 2;
@@ -140,7 +140,7 @@ public class BattleMainManagerScript : MonoBehaviour {
         var shot = spawnPool.GetBullet(weapon.config.shotImageName);
         bullets[shot.Identifier] = shot;
         shot.transform.position = player.transform.position;
-        shot.Init(enemyLayerMask, player.transform.position, weapon.config as BulletWeaponConfig);
+        shot.Init(player.gameObject, player.transform.position, weapon.config as BulletWeaponConfig);
         shot.transform.RotateTowards(enemyInRange.transform.position, 360);
       }
 

@@ -9,14 +9,14 @@ public class BulletScript : ShotScript<BulletWeaponConfig> {
   public bool InRange() {
     return Vector3.Distance(StartPoint, transform.position) < Config.range;
   }
-  public void Init(int layer, Vector3 startPoint, BulletWeaponConfig config) {
-    base.Init(layer, config);
+  public void Init(GameObject shooter, Vector3 startPoint, BulletWeaponConfig config) {
+    base.Init(shooter, config);
     StartPoint = startPoint;
     alreadyHit = false;
   }
 
   private void OnTriggerEnter2D(Collider2D other) {
-    if (alreadyHit) {
+    if (other.gameObject == Shooter || alreadyHit) {
       return;
     }
     var enemy = other.gameObject.GetComponent<EnemyUnitScript>();
