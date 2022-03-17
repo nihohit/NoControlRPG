@@ -3,18 +3,24 @@ using UnityEngine;
 public class BeamScript : ShotScript<BeamWeaponConfig> {
   public float Lifetime { get; set; }
 
-  new public void Init(GameObject shooter, BeamWeaponConfig config) {
+  public GameObject Target { get; private set; }
+
+  public string OriginalTargetIdentifier { get; private set; }
+
+  public void Init(GameObject shooter, BeamWeaponConfig config, GameObject target) {
     base.Init(shooter, config);
     Lifetime = config.beamCoherenceTime;
+    Target = target;
   }
 
   public void OnTriggerStay2D(Collider2D other) {
     if (other.gameObject == Shooter) {
       return;
     }
-    var enemy = other.gameObject.GetComponent<EnemyUnitScript>();
-    if (enemy != null) {
-      manager.BeamHit(this, enemy);
+    if (other.gameObject.tag == "Enemy") {
+      manager.BeamHitEnemy(this, other.gameObject);
+    } else if (other.gameObject.tag == "Player") {
+      manager.BeamHitPlayer(this, other.gameObject);
     }
   }
 }

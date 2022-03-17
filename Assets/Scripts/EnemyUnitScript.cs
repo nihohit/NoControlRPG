@@ -6,7 +6,12 @@ public class EnemyUnitScript : MonoBehaviour {
 
   public float Health { get; set; }
 
-  public void Init(float health) {
-    Health = health;
+  public WeaponInstance Weapon { get; private set; }
+
+  public void Init(EnemyConfig config) {
+    Health = config.Health;
+    Weapon = new WeaponInstance {
+      config = config.Weapon
+    };
   }
 }

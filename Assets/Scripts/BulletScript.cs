@@ -17,10 +17,12 @@ public class BulletScript : ShotScript<BulletWeaponConfig> {
     if (other.gameObject == Shooter || alreadyHit) {
       return;
     }
-    var enemy = other.gameObject.GetComponent<EnemyUnitScript>();
-    if (enemy != null) {
+    if (other.gameObject.tag == "Enemy") {
       alreadyHit = true;
-      manager.BulletHit(this, enemy);
+      manager.BulletHitEnemy(this, other.gameObject);
+    } else if (other.gameObject.tag == "Player") {
+      alreadyHit = true;
+      manager.BulletHitPlayer(this, other.gameObject);
     }
   }
 }

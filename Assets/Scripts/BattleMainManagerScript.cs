@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Linq;
 using System;
 using Assets.Scripts.UnityBase;
+using Assets.Scripts.Base;
 
 public class BattleMainManagerScript : MonoBehaviour {
   private SpawnPool spawnPool;
@@ -47,23 +48,30 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private void SwitchToInventory() {
-    releaseAllEntities();
+    ReleaseAllEntities();
     mode = Mode.Inventory;
     uiManager.ToInventoryMode();
   }
 
-  private void releaseAllEntities() {
+  private void ReleaseAllEntities() {
     bulletsToRelease.AddRange(bullets.Values);
     enemiesToRelease.AddRange(enemies.Values);
   }
 
-  internal void BulletHit(BulletScript shotScript, EnemyUnitScript enemy) {
+  internal void BulletHitEnemy(BulletScript shotScript, GameObject enemy) {
     bulletsToRelease.Add(shotScript);
-    enemiesToRelease.Add(enemy);
+    enemiesToRelease.Add(enemy.GetComponent<EnemyUnitScript>());
   }
 
-  internal void BeamHit(BeamScript beamScript, EnemyUnitScript enemy) {
-    enemiesToRelease.Add(enemy);
+  internal void BulletHitPlayer(BulletScript shotScript, GameObject player) {
+    bulletsToRelease.Add(shotScript);
+  }
+
+  internal void BeamHitPlayer(BeamScript beamScript, GameObject player) {
+  }
+
+  internal void BeamHitEnemy(BeamScript beamScript, GameObject enemy) {
+    enemiesToRelease.Add(enemy.GetComponent<EnemyUnitScript>());
   }
 
   private void SpawnEnemyIfNeeded() {
@@ -80,6 +88,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     var horizontalSize = verticalSize * Screen.width / Screen.height;
     var distance = Mathf.Sqrt(Mathf.Pow(verticalSize, 2) + Mathf.Pow(horizontalSize, 2)) + 0.1f;
     newEnemy.transform.position = UnityEngine.Random.insideUnitCircle.normalized * distance;
+    newEnemy.Init(new EnemyConfig(1f, Randomiser.NextBool() ? WeaponConfig.MACHINE_GUN : WeaponConfig.LASER));
     enemies[newEnemy.Identifier] = newEnemy;
     timeToNextSpawn = TIME_BETWEEN_SPAWNS;
   }
@@ -96,6 +105,13 @@ public class BattleMainManagerScript : MonoBehaviour {
     return enemies.Values.FirstOrDefault(enemy => Vector3.Distance(enemy.transform.position, player.transform.position) < weaponRange);
   }
 
+  private void AdjustBeamPosition(BeamScript beam, float rotationSpeed) {
+    // If position isn't moved far from target before rotation, the rotation will go nuts.
+    beam.transform.position = beam.Shooter.transform.position;
+    beam.transform.RotateTowards(beam.Target.transform.position, rotationSpeed);
+    beam.transform.position += beam.transform.right.normalized * beam.Config.range / 2;
+  }
+
   private void MoveShots() {
     foreach (var shot in bullets.Values) {
       // TODO - consider using RigidBody's movement function, instead of using kinematic rigidbodies.
@@ -107,13 +123,45 @@ public class BattleMainManagerScript : MonoBehaviour {
 
     foreach (var beam in beams.Values) {
       beam.Lifetime -= Time.deltaTime;
-      if (beam.Lifetime <= 0f) {
+      if (beam.Lifetime <= 0f || !beam.Shooter.activeSelf) {
         beamsToRelease.Add(beam);
+      } else if (beam.Target.activeSelf) {
+        AdjustBeamPosition(beam, 360);
       }
     }
   }
 
   private const float BEAM_SCALE = 0.1f;
+
+  private void CreateBullet(GameObject shooter, BulletWeaponConfig weapon, Vector3 to) {
+    var bullet = spawnPool.GetBullet(weapon.shotImageName);
+    bullets[bullet.Identifier] = bullet;
+    bullet.transform.position = shooter.transform.position;
+    bullet.Init(shooter, shooter.transform.position, weapon);
+    bullet.transform.RotateTowards(to, 360);
+  }
+
+  private void CreateBeam(GameObject shooter, BeamWeaponConfig weapon, GameObject target) {
+    var beam = spawnPool.GetBeam(weapon.shotImageName);
+    beams[beam.Identifier] = beam;
+    beam.transform.position = shooter.transform.position;
+    beam.Init(shooter, weapon, target);
+    beam.transform.localScale = new Vector3(weapon.range * BEAM_SCALE, BEAM_SCALE, BEAM_SCALE);
+    AdjustBeamPosition(beam, 360);
+  }
+
+  private void CreateShot(GameObject shooter, WeaponConfig weapon, GameObject target) {
+    if (weapon is BeamWeaponConfig beam) {
+      CreateBeam(shooter, beam, target);
+    } else if (weapon is BulletWeaponConfig bullet) {
+      CreateBullet(shooter, bullet, target.transform.position);
+    }
+  }
+
+  private void ShootWeapon(GameObject shooter, WeaponInstance weapon, GameObject target) {
+    CreateShot(shooter, weapon.config, target);
+    weapon.timeToNextShot = weapon.config.timeBetweenShots;
+  }
 
   private void ShootEnemies() {
     foreach (var weapon in Player.Instance.Weapons) {
@@ -126,28 +174,19 @@ public class BattleMainManagerScript : MonoBehaviour {
         continue;
       }
 
-      if (weapon.config is BeamWeaponConfig) {
-        var shot = spawnPool.GetBeam(weapon.config.shotImageName);
-        beams[shot.Identifier] = shot;
-        shot.transform.position = player.transform.position;
-        shot.Init(player.gameObject, weapon.config as BeamWeaponConfig);
-        shot.transform.localScale = new Vector3(weapon.config.range * BEAM_SCALE, BEAM_SCALE, BEAM_SCALE);
-        shot.transform.RotateTowards(enemyInRange.transform.position, 360);
-        shot.transform.position = player.transform.position + (enemyInRange.transform.position - player.transform.position).normalized * weapon.config.range / 2;
-      } else if (weapon.config is BulletWeaponConfig) {
-        var shot = spawnPool.GetBullet(weapon.config.shotImageName);
-        bullets[shot.Identifier] = shot;
-        shot.transform.position = player.transform.position;
-        shot.Init(player.gameObject, player.transform.position, weapon.config as BulletWeaponConfig);
-        shot.transform.RotateTowards(enemyInRange.transform.position, 360);
-      }
-
-      weapon.timeToNextShot = weapon.config.timeBetweenShots;
+      ShootWeapon(player, weapon, enemyInRange.gameObject);
     }
   }
 
   private void ShootPlayer() {
-
+    foreach (var enemy in enemies.Values) {
+      var weapon = enemy.Weapon;
+      weapon.timeToNextShot -= Time.deltaTime;
+      if (weapon.timeToNextShot > 0 || Vector3.Distance(enemy.transform.position, player.transform.position) > weapon.config.range) {
+        continue;
+      }
+      ShootWeapon(enemy.gameObject, weapon, player);
+    }
   }
 
   // Update is called once per frame
