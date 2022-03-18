@@ -2,29 +2,52 @@ public abstract class WeaponConfig {
   public float range;
   public string shotImageName;
   public string equipmentImageName;
-  public float timeBetweenShots;
+  public float timeBetweenShotsInSeconds;
 
   public static BeamWeaponConfig LASER = new() {
     range = 2,
     shotImageName = "Heat Beam",
     equipmentImageName = "Laser",
-    timeBetweenShots = 2.5f,
+    timeBetweenShotsInSeconds = 2.5f,
     beamCoherenceTime = 0.5f
   };
 
-  public static BulletWeaponConfig MACHINE_GUN = new() {
-    range = 4f,
-    shotImageName = "IncendiaryGun",
+  public static BulletWeaponConfig RIFLE = new() {
+    range = 7f,
+    shotImageName = "Bullet",
     equipmentImageName = "IncendiaryGun",
-    timeBetweenShots = 1.5f,
+    timeBetweenShotsInSeconds = 1.5f,
     shotMovementSpeed = 6f,
+  };
+
+  public static BulletWeaponConfig MACHINE_GUN = new() {
+    range = 6f,
+    shotImageName = "Bullet",
+    equipmentImageName = "MachineGun",
+    timeBetweenShotsInSeconds = 1.5f,
+    shotMovementSpeed = 6f,
+    numberOfSalvosPerShot = 4,
+    timeBetweenSalvosInSeconds = 0.2f,
+    shotSpreadInDegrees = 5,
+  };
+
+  public static BulletWeaponConfig TWO_SHOT_SHOTGUN = new() {
+    range = 4f,
+    shotImageName = "ShotgunPellet",
+    equipmentImageName = "Shotgun",
+    timeBetweenShotsInSeconds = 1.5f,
+    numberOfBulletsPerSalvo = 5,
+    shotMovementSpeed = 8f,
+    numberOfSalvosPerShot = 3,
+    timeBetweenSalvosInSeconds = 1.0f / 30f,
+    shotSpreadInDegrees = 10,
   };
 
   public static BeamWeaponConfig FLAMER = new() {
     range = 5f,
     shotImageName = "Flamer",
     equipmentImageName = "Flamer",
-    timeBetweenShots = 2.0f,
+    timeBetweenShotsInSeconds = 2.0f,
     beamCoherenceTime = 1f
   };
 
@@ -32,14 +55,20 @@ public abstract class WeaponConfig {
     range = 10f,
     shotImageName = "Missile",
     equipmentImageName = "Missile",
-    timeBetweenShots = 2.0f,
+    timeBetweenShotsInSeconds = 2.0f,
     shotMovementSpeed = 7f,
   };
 }
 
 public class BulletWeaponConfig : WeaponConfig {
   public float shotMovementSpeed;
-  public float damage;
+  public float damagePerBullet;
+
+  public int numberOfSalvosPerShot = 1;
+  public int numberOfBulletsPerSalvo = 1;
+  public float timeBetweenSalvosInSeconds = 0;
+  public float shotSpreadInDegrees = 0;
+
 }
 
 public class BeamWeaponConfig : WeaponConfig {

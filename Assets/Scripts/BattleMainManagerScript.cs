@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using System.Linq;
 using System;
@@ -18,9 +19,9 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   private UIManagerScript uiManager;
 
-  private readonly List<BulletScript> bulletsToRelease = new();
-  private readonly List<BeamScript> beamsToRelease = new();
-  private readonly List<EnemyUnitScript> enemiesToRelease = new();
+  private readonly HashSet<BulletScript> bulletsToRelease = new();
+  private readonly HashSet<BeamScript> beamsToRelease = new();
+  private readonly HashSet<EnemyUnitScript> enemiesToRelease = new();
 
   // Start is called before the first frame update
   void Start() {
@@ -54,8 +55,9 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private void ReleaseAllEntities() {
-    bulletsToRelease.AddRange(bullets.Values);
-    enemiesToRelease.AddRange(enemies.Values);
+    bullets.Values.ForEach(bullet => bulletsToRelease.Add(bullet));
+    beams.Values.ForEach(beam => beamsToRelease.Add(beam));
+    enemies.Values.ForEach(enemy => enemiesToRelease.Add(enemy));
   }
 
   internal void BulletHitEnemy(BulletScript shotScript, GameObject enemy) {
@@ -88,7 +90,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     var horizontalSize = verticalSize * Screen.width / Screen.height;
     var distance = Mathf.Sqrt(Mathf.Pow(verticalSize, 2) + Mathf.Pow(horizontalSize, 2)) + 0.1f;
     newEnemy.transform.position = UnityEngine.Random.insideUnitCircle.normalized * distance;
-    newEnemy.Init(new EnemyConfig(1f, Randomiser.NextBool() ? WeaponConfig.MACHINE_GUN : WeaponConfig.LASER));
+    newEnemy.Init(new EnemyConfig(1f, Randomiser.NextBool() ? WeaponConfig.RIFLE : WeaponConfig.LASER));
     enemies[newEnemy.Identifier] = newEnemy;
     timeToNextSpawn = TIME_BETWEEN_SPAWNS;
   }
@@ -138,7 +140,25 @@ public class BattleMainManagerScript : MonoBehaviour {
     bullets[bullet.Identifier] = bullet;
     bullet.transform.position = shooter.transform.position;
     bullet.Init(shooter, shooter.transform.position, weapon);
-    bullet.transform.RotateTowards(to, 360);
+    bullet.transform.RotateTowards(to, 360, (float)Randomiser.NextDouble(-weapon.shotSpreadInDegrees, weapon.shotSpreadInDegrees));
+  }
+
+  private void ShootBulletsSalvo(GameObject shooter, BulletWeaponConfig weapon, Vector3 to) {
+    for (int i = 0; i < weapon.numberOfBulletsPerSalvo; ++i) {
+      CreateBullet(shooter, weapon, to);
+    }
+  }
+
+  private IEnumerator ShootBulletsSalvos(GameObject shooter, BulletWeaponConfig weapon, Vector3 to) {
+    int salvoCount = weapon.numberOfSalvosPerShot;
+    while (true) {
+      ShootBulletsSalvo(shooter, weapon, to);
+      if (--salvoCount > 0) {
+        yield return new WaitForSeconds(weapon.timeBetweenSalvosInSeconds);
+      } else {
+        yield break;
+      }
+    }
   }
 
   private void CreateBeam(GameObject shooter, BeamWeaponConfig weapon, GameObject target) {
@@ -154,13 +174,13 @@ public class BattleMainManagerScript : MonoBehaviour {
     if (weapon is BeamWeaponConfig beam) {
       CreateBeam(shooter, beam, target);
     } else if (weapon is BulletWeaponConfig bullet) {
-      CreateBullet(shooter, bullet, target.transform.position);
+      StartCoroutine(ShootBulletsSalvos(shooter, bullet, target.transform.position));
     }
   }
 
   private void ShootWeapon(GameObject shooter, WeaponInstance weapon, GameObject target) {
     CreateShot(shooter, weapon.config, target);
-    weapon.timeToNextShot = weapon.config.timeBetweenShots;
+    weapon.timeToNextShot = weapon.config.timeBetweenShotsInSeconds;
   }
 
   private void ShootEnemies() {

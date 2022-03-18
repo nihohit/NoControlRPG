@@ -9,6 +9,10 @@ public class Player {
       new WeaponInstance {
         config = WeaponConfig.MACHINE_GUN,
         timeToNextShot = 0
+      },
+      new WeaponInstance {
+        config = WeaponConfig.TWO_SHOT_SHOTGUN,
+        timeToNextShot = 0
       }
     },
     AvailableItems = new List<WeaponInstance>{
@@ -25,7 +29,7 @@ public class Player {
         timeToNextShot = 0
       },
       new WeaponInstance {
-        config = WeaponConfig.MACHINE_GUN,
+        config = WeaponConfig.RIFLE,
         timeToNextShot = 0
       }
     }
