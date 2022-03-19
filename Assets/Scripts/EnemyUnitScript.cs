@@ -10,8 +10,6 @@ public class EnemyUnitScript : MonoBehaviour {
 
   public void Init(EnemyConfig config) {
     Health = config.Health;
-    Weapon = new WeaponInstance {
-      config = config.Weapon
-    };
+    Weapon = new WeaponInstance(config.Weapon);
   }
 }
