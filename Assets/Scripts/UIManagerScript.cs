@@ -68,7 +68,6 @@ public class UIManagerScript : MonoBehaviour {
   }
 
   public void InventoryButtonSelected(EquipmentButtonScript button) {
-    Debug.Log("clicked " + button.gameObject.name);
     if (selectedButton == null) {
       selectedButton = button;
       selectedButton.GetComponent<Button>().Select();

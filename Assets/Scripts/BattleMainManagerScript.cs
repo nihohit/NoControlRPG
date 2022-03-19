@@ -21,7 +21,6 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   private readonly HashSet<BulletScript> bulletsToRelease = new();
   private readonly HashSet<BeamScript> beamsToRelease = new();
-  private readonly HashSet<EnemyUnitScript> enemiesToRelease = new();
 
   // Start is called before the first frame update
   void Start() {
@@ -57,12 +56,13 @@ public class BattleMainManagerScript : MonoBehaviour {
   private void ReleaseAllEntities() {
     bullets.Values.ForEach(bullet => bulletsToRelease.Add(bullet));
     beams.Values.ForEach(beam => beamsToRelease.Add(beam));
-    enemies.Values.ForEach(enemy => enemiesToRelease.Add(enemy));
+    // pretty ugly hack, but it works
+    enemies.Values.ForEach(enemy => enemy.Health = 0);
   }
 
   internal void BulletHitEnemy(BulletScript shotScript, GameObject enemy) {
     bulletsToRelease.Add(shotScript);
-    enemiesToRelease.Add(enemy.GetComponent<EnemyUnitScript>());
+    enemy.GetComponent<EnemyUnitScript>().Health -= shotScript.Config.damagePerBullet;
   }
 
   internal void BulletHitPlayer(BulletScript shotScript, GameObject player) {
@@ -73,7 +73,7 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   internal void BeamHitEnemy(BeamScript beamScript, GameObject enemy) {
-    enemiesToRelease.Add(enemy.GetComponent<EnemyUnitScript>());
+    enemy.GetComponent<EnemyUnitScript>().Health -= beamScript.Config.damagePerSecond * Time.deltaTime;
   }
 
   private void SpawnEnemyIfNeeded() {
@@ -90,7 +90,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     var horizontalSize = verticalSize * Screen.width / Screen.height;
     var distance = Mathf.Sqrt(Mathf.Pow(verticalSize, 2) + Mathf.Pow(horizontalSize, 2)) + 0.1f;
     newEnemy.transform.position = UnityEngine.Random.insideUnitCircle.normalized * distance;
-    newEnemy.Init(new EnemyConfig(1f, Randomiser.NextBool() ? WeaponConfig.RIFLE : WeaponConfig.LASER));
+    newEnemy.Init(new EnemyConfig(3f, Randomiser.NextBool() ? WeaponConfig.RIFLE : WeaponConfig.LASER));
     enemies[newEnemy.Identifier] = newEnemy;
     timeToNextSpawn = TIME_BETWEEN_SPAWNS;
   }
@@ -230,9 +230,10 @@ public class BattleMainManagerScript : MonoBehaviour {
     }
     bulletsToRelease.Clear();
 
-    foreach (var enemy in enemiesToRelease) {
+    var enemiesToRelease = enemies.Where(pair => pair.Value.Health <= 0).ToList();
+    foreach (var (key, enemy) in enemiesToRelease) {
       spawnPool.SpawnUnitExplosion(enemy.transform.position);
-      enemies.Remove(enemy.Identifier);
+      enemies.Remove(key);
       spawnPool.ReturnUnit(enemy);
     }
     enemiesToRelease.Clear();
