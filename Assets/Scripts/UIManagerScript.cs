@@ -4,6 +4,7 @@ using Assets.Scripts.UnityBase;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using System.Collections.ObjectModel;
 
 public class UIManagerScript : MonoBehaviour {
   private TMPro.TMP_Text switchContextText;
@@ -57,8 +58,7 @@ public class UIManagerScript : MonoBehaviour {
   }
 
   public void ToBattleMode() {
-    Player.Instance.AvailableItems = ButtonsToEquipment(availableItemsButtons);
-    Player.Instance.Weapons = ButtonsToEquipment(equippedItemsButtons);
+    Player.Instance.StartRound(ButtonsToEquipment(equippedItemsButtons), ButtonsToEquipment(availableItemsButtons), Player.INITIAL_HEALTH);
     switchContextText.text = "Return to Base";
     inventoryUIHolder.SetActive(false);
   }
