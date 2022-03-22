@@ -67,9 +67,11 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   internal void BulletHitPlayer(BulletScript shotScript, GameObject player) {
     bulletsToRelease.Add(shotScript);
+    Player.Instance.CurrentHealth -= shotScript.Config.damagePerBullet;
   }
 
   internal void BeamHitPlayer(BeamScript beamScript, GameObject player) {
+    Player.Instance.CurrentHealth -= beamScript.Config.damagePerSecond * Time.deltaTime;
   }
 
   internal void BeamHitEnemy(BeamScript beamScript, GameObject enemy) {
@@ -216,6 +218,11 @@ public class BattleMainManagerScript : MonoBehaviour {
     if (mode != Mode.Battle) {
       return;
     }
+
+    if (Player.Instance.CurrentHealth <= 0) {
+      SwitchToInventory();
+    }
+
     SpawnEnemyIfNeeded();
     MoveEnemies();
     ShootEnemies();
