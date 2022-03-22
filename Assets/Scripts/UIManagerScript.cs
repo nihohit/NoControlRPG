@@ -36,7 +36,7 @@ public class UIManagerScript : MonoBehaviour {
       .ToArray();
   }
 
-  private void SetupButtons(List<WeaponInstance> equipment, IEnumerable<EquipmentButtonScript> buttons) {
+  private void SetupButtons(ReadOnlyCollection<WeaponInstance> equipment, IEnumerable<EquipmentButtonScript> buttons) {
     buttons.ForEach((button, index) => {
       button.LoadEquipment(index < equipment.Count ? equipment[index] : null, textureHandler);
     });
@@ -49,11 +49,11 @@ public class UIManagerScript : MonoBehaviour {
     SetupButtons(Player.Instance.Weapons, equippedItemsButtons);
   }
 
-  public List<WeaponInstance> ButtonsToEquipment(IEnumerable<EquipmentButtonScript> buttons) {
+  public ReadOnlyCollection<WeaponInstance> ButtonsToEquipment(IEnumerable<EquipmentButtonScript> buttons) {
     return buttons
       .Where(button => button.Equipment != null)
       .Select(button => button.Equipment)
-      .ToList();
+      .ToReadOnlyCollection();
   }
 
   public void ToBattleMode() {
