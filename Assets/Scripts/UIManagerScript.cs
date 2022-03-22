@@ -11,6 +11,8 @@ public class UIManagerScript : MonoBehaviour {
 
   private BattleMainManagerScript mainManager;
   private GameObject inventoryUIHolder;
+  private GameObject battleUIHolder;
+  private Image healthBar;
 
   private EquipmentButtonScript[] equippedItemsButtons;
   private EquipmentButtonScript[] availableItemsButtons;
@@ -24,6 +26,8 @@ public class UIManagerScript : MonoBehaviour {
     switchContextText = transform.Find("SwitchContext").transform.Find("Text").GetComponent<TMPro.TMP_Text>();
     mainManager = GameObject.FindObjectOfType<BattleMainManagerScript>();
     inventoryUIHolder = transform.Find("inventory").gameObject;
+    battleUIHolder = transform.Find("BattleUI").gameObject;
+    healthBar = GameObject.Find("HealthBar").GetComponent<Image>();
     var equippedItems = GameObject.Find("Equipped Items");
     equippedItemsButtons = GameObject
       .Find("Equipped Items")
@@ -46,6 +50,7 @@ public class UIManagerScript : MonoBehaviour {
   public void ToInventoryMode() {
     switchContextText.text = "Launch to battle";
     inventoryUIHolder.SetActive(true);
+    battleUIHolder.SetActive(false);
     SetupButtons(Player.Instance.AvailableItems, availableItemsButtons);
     SetupButtons(Player.Instance.Weapons, equippedItemsButtons);
   }
@@ -61,6 +66,12 @@ public class UIManagerScript : MonoBehaviour {
     Player.Instance.StartRound(ButtonsToEquipment(equippedItemsButtons), ButtonsToEquipment(availableItemsButtons), Player.INITIAL_HEALTH);
     switchContextText.text = "Return to Base";
     inventoryUIHolder.SetActive(false);
+    battleUIHolder.SetActive(true);
+  }
+
+  public void UpdatePlayerHealthOverlay() {
+    healthBar.fillAmount = Player.Instance.CurrentHealth / Player.Instance.FullHealth;
+    Debug.Log($"{Player.Instance.CurrentHealth} / {Player.Instance.FullHealth} = {Player.Instance.CurrentHealth / Player.Instance.FullHealth}");
   }
 
   public void SwitchContextPressed() {
@@ -75,7 +86,6 @@ public class UIManagerScript : MonoBehaviour {
       var switchedEquipment = selectedButton.Equipment;
       selectedButton.LoadEquipment(button.Equipment, textureHandler);
       button.LoadEquipment(switchedEquipment, textureHandler);
-      //selectedButton.GetComponent<Button>().();
       selectedButton = null;
     }
   }
