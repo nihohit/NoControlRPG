@@ -228,6 +228,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     ShootEnemies();
     ShootPlayer();
     MoveShots();
+    uiManager.UpdatePlayerHealthOverlay();
   }
 
   private void ReleaseEntities() {
