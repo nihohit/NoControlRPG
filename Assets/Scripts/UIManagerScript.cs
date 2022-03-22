@@ -71,7 +71,6 @@ public class UIManagerScript : MonoBehaviour {
 
   public void UpdatePlayerHealthOverlay() {
     healthBar.fillAmount = Player.Instance.CurrentHealth / Player.Instance.FullHealth;
-    Debug.Log($"{Player.Instance.CurrentHealth} / {Player.Instance.FullHealth} = {Player.Instance.CurrentHealth / Player.Instance.FullHealth}");
   }
 
   public void SwitchContextPressed() {
