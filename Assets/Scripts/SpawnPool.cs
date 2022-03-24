@@ -91,8 +91,8 @@ public class SpawnPool : MonoBehaviour {
     ReturnToPool(beam, GetAvailableObjectsPool(beam.Config.shotImageName, beamPools));
   }
 
-  public EnemyUnitScript GetUnit() {
-    return GetObject("ScoutMech", unitResources, unitBaseResource, unitPools, "Images/Entities");
+  public EnemyUnitScript GetUnit(string enemyName) {
+    return GetObject(enemyName, unitResources, unitBaseResource, unitPools, "Images/Entities");
   }
 
   public void ReturnUnit(EnemyUnitScript unit) {
