@@ -22,6 +22,13 @@ public class BattleMainManagerScript : MonoBehaviour {
   private readonly HashSet<BulletScript> bulletsToRelease = new();
   private readonly HashSet<BeamScript> beamsToRelease = new();
 
+  private readonly List<EnemyConfig> enemyConfigs = new() {
+    new EnemyConfig(3f, "ScoutMech", 1.5f, WeaponConfig.TWO_SHOT_SHOTGUN),
+    new EnemyConfig(3f, "ScoutMech", 1.5f, WeaponConfig.FLAMER),
+    new EnemyConfig(5f, "HeavyMech", 1f, WeaponConfig.RIFLE),
+    new EnemyConfig(5f, "HeavyMech", 1f, WeaponConfig.MISSILE)
+  };
+
   // Start is called before the first frame update
   void Start() {
     spawnPool = GetComponent<SpawnPool>();
@@ -87,12 +94,13 @@ public class BattleMainManagerScript : MonoBehaviour {
     if (timeToNextSpawn > 0) {
       return;
     }
-    var newEnemy = spawnPool.GetUnit();
+    var config = enemyConfigs[0];
+    var newEnemy = spawnPool.GetUnit(config.ImageName);
     var verticalSize = Camera.main.orthographicSize;
     var horizontalSize = verticalSize * Screen.width / Screen.height;
     var distance = Mathf.Sqrt(Mathf.Pow(verticalSize, 2) + Mathf.Pow(horizontalSize, 2)) + 0.1f;
     newEnemy.transform.position = UnityEngine.Random.insideUnitCircle.normalized * distance;
-    newEnemy.Init(new EnemyConfig(3f, Randomiser.NextBool() ? WeaponConfig.RIFLE : WeaponConfig.LASER));
+    newEnemy.Init(config);
     enemies[newEnemy.Identifier] = newEnemy;
     timeToNextSpawn = TIME_BETWEEN_SPAWNS;
   }
