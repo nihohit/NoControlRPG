@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public class BeamScript : ShotScript<BeamWeaponConfig> {
+public class BeamScript : ShotScript<BeamInstance> {
   public float Lifetime { get; set; }
 
   public GameObject Target { get; private set; }
 
   public string OriginalTargetIdentifier { get; private set; }
 
-  public void Init(GameObject shooter, BeamWeaponConfig config, GameObject target) {
+  public void Init(GameObject shooter, BeamInstance config, GameObject target) {
     base.Init(shooter, config);
     Lifetime = config.beamCoherenceTime;
     Target = target;

@@ -7,11 +7,11 @@ public class EquipmentButtonScript : MonoBehaviour {
   private Button button;
   private Image spriteRenderer;
 
-  public WeaponInstance Equipment { get; private set; }
+  public WeaponBase Equipment { get; private set; }
 
-  public void LoadEquipment(WeaponInstance weapon, TextureHandler textureHandler) {
+  public void LoadEquipment(WeaponBase weapon, TextureHandler textureHandler) {
     Equipment = weapon;
-    textureHandler.UpdateTexture(weapon?.config?.equipmentImageName ?? "Empty", spriteRenderer, "Images/InventoryItems");
+    textureHandler.UpdateTexture(weapon?.Config?.equipmentImageName ?? "Empty", spriteRenderer, "Images/InventoryItems");
   }
 
   // Start is called before the first frame update

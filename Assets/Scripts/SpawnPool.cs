@@ -79,7 +79,7 @@ public class SpawnPool : MonoBehaviour {
   }
 
   public void ReturnBullet(BulletScript shot) {
-    ReturnToPool(shot, GetAvailableObjectsPool(shot.Config.shotImageName, bulletPools));
+    ReturnToPool(shot, GetAvailableObjectsPool(shot.Weapon.Config.shotImageName, bulletPools));
   }
 
   public BeamScript GetBeam(string beamName) {
@@ -88,7 +88,7 @@ public class SpawnPool : MonoBehaviour {
 
 
   public void ReturnBeam(BeamScript beam) {
-    ReturnToPool(beam, GetAvailableObjectsPool(beam.Config.shotImageName, beamPools));
+    ReturnToPool(beam, GetAvailableObjectsPool(beam.Weapon.Config.shotImageName, beamPools));
   }
 
   public EnemyUnitScript GetUnit(string enemyName) {
