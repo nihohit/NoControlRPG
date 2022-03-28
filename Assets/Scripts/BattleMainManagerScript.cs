@@ -23,10 +23,10 @@ public class BattleMainManagerScript : MonoBehaviour {
   private readonly HashSet<BeamScript> beamsToRelease = new();
 
   private readonly List<EnemyConfig> enemyConfigs = new() {
-    new EnemyConfig(3f, "ScoutMech", 1.5f, WeaponConfig.TWO_SHOT_SHOTGUN),
-    new EnemyConfig(3f, "ScoutMech", 1.5f, WeaponConfig.FLAMER),
-    new EnemyConfig(5f, "HeavyMech", 1f, WeaponConfig.RIFLE),
-    new EnemyConfig(5f, "HeavyMech", 1f, WeaponConfig.MISSILE)
+    new EnemyConfig(LevelBasedValue.ConstantValue(3f), "ScoutMech", LevelBasedValue.ConstantValue(15f), WeaponConfig.TWO_SHOT_SHOTGUN),
+    new EnemyConfig(LevelBasedValue.ConstantValue(3f), "ScoutMech", LevelBasedValue.ConstantValue(15f), WeaponConfig.FLAMER),
+    new EnemyConfig(LevelBasedValue.ConstantValue(5f), "HeavyMech", LevelBasedValue.ConstantValue(10f), WeaponConfig.RIFLE),
+    new EnemyConfig(LevelBasedValue.ConstantValue(5f), "HeavyMech", LevelBasedValue.ConstantValue(10f), WeaponConfig.MISSILE)
   };
 
   // Start is called before the first frame update
@@ -108,7 +108,7 @@ public class BattleMainManagerScript : MonoBehaviour {
   private void MoveEnemies() {
     var playerPosition = player.transform.position;
     foreach (var enemy in enemies.Values) {
-      enemy.transform.RotateTowards(playerPosition, 15.0f * Time.deltaTime);
+      enemy.transform.RotateTowards(playerPosition, enemy.Speed * Time.deltaTime);
       enemy.gameObject.MoveForwards(1.5f);
     }
   }
