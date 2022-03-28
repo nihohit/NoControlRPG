@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
 
-public class ShotScript<T> : MonoBehaviour where T : WeaponConfig {
+public class ShotScript<T> : MonoBehaviour where T : WeaponBase {
   public Guid Identifier = Guid.NewGuid();
-  public T Config { get; protected set; }
+  public T Weapon { get; protected set; }
 
   public GameObject Shooter { get; private set; }
   protected BattleMainManagerScript manager;
@@ -13,8 +13,8 @@ public class ShotScript<T> : MonoBehaviour where T : WeaponConfig {
     manager = FindObjectOfType<BattleMainManagerScript>();
   }
 
-  protected void Init(GameObject shooter, T config) {
-    Config = config;
+  protected void Init(GameObject shooter, T weapon) {
+    Weapon = weapon;
     Shooter = shooter;
   }
 }

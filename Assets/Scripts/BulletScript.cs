@@ -1,14 +1,14 @@
 using UnityEngine;
 
-public class BulletScript : ShotScript<BulletWeaponConfig> {
+public class BulletScript : ShotScript<BulletWeaponInstance> {
   private bool alreadyHit;
   public Vector3 StartPoint { get; private set; }
 
   public bool InRange() {
-    return Vector3.Distance(StartPoint, transform.position) < Config.range;
+    return Vector3.Distance(StartPoint, transform.position) < Weapon.range;
   }
-  public void Init(GameObject shooter, Vector3 startPoint, BulletWeaponConfig config) {
-    base.Init(shooter, config);
+  public void Init(GameObject shooter, Vector3 startPoint, BulletWeaponInstance weapon) {
+    base.Init(shooter, weapon);
     StartPoint = startPoint;
     alreadyHit = false;
   }

@@ -1,3 +1,35 @@
+using UnityEngine;
+
+public class LevelBasedValue {
+  private readonly float constant;
+  private readonly float linearCoefficient;
+  private readonly float exponentValue;
+  private readonly float exponentCoefficient;
+
+  public static LevelBasedValue ConstantValue(float constant) {
+    return new LevelBasedValue(constant);
+  }
+
+  public static LevelBasedValue LinearValue(float coefficient) {
+    return new LevelBasedValue(linearCoefficient: coefficient);
+  }
+
+  public static LevelBasedValue ExponentialValue(float value, float coefficient) {
+    return new LevelBasedValue(exponentValue: value, exponentCoefficient: coefficient);
+  }
+
+  public LevelBasedValue(float constant = 0, float linearCoefficient = 0, float exponentValue = 0, float exponentCoefficient = 0) {
+    this.constant = constant;
+    this.linearCoefficient = linearCoefficient;
+    this.exponentCoefficient = exponentCoefficient;
+    this.exponentValue = exponentValue;
+  }
+
+  public float getLevelValue(float level) {
+    return constant + level * linearCoefficient + Mathf.Pow(level, exponentValue) * exponentCoefficient;
+  }
+}
+
 public class EnemyConfig {
   public EnemyConfig(float health, string imageName, float speed, WeaponConfig weapon) {
     Health = health;

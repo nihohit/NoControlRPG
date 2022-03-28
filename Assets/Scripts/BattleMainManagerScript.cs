@@ -69,20 +69,20 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   internal void BulletHitEnemy(BulletScript shotScript, GameObject enemy) {
     bulletsToRelease.Add(shotScript);
-    enemy.GetComponent<EnemyUnitScript>().Health -= shotScript.Config.damagePerBullet;
+    enemy.GetComponent<EnemyUnitScript>().Health -= shotScript.Weapon.damagePerBullet;
   }
 
   internal void BulletHitPlayer(BulletScript shotScript, GameObject player) {
     bulletsToRelease.Add(shotScript);
-    Player.Instance.CurrentHealth -= shotScript.Config.damagePerBullet;
+    Player.Instance.CurrentHealth -= shotScript.Weapon.damagePerBullet;
   }
 
   internal void BeamHitPlayer(BeamScript beamScript, GameObject player) {
-    Player.Instance.CurrentHealth -= beamScript.Config.damagePerSecond * Time.deltaTime;
+    Player.Instance.CurrentHealth -= beamScript.Weapon.damagePerSecond * Time.deltaTime;
   }
 
   internal void BeamHitEnemy(BeamScript beamScript, GameObject enemy) {
-    enemy.GetComponent<EnemyUnitScript>().Health -= beamScript.Config.damagePerSecond * Time.deltaTime;
+    enemy.GetComponent<EnemyUnitScript>().Health -= beamScript.Weapon.damagePerSecond * Time.deltaTime;
   }
 
   private void SpawnEnemyIfNeeded() {
@@ -100,7 +100,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     var horizontalSize = verticalSize * Screen.width / Screen.height;
     var distance = Mathf.Sqrt(Mathf.Pow(verticalSize, 2) + Mathf.Pow(horizontalSize, 2)) + 0.1f;
     newEnemy.transform.position = UnityEngine.Random.insideUnitCircle.normalized * distance;
-    newEnemy.Init(config);
+    newEnemy.Init(config, 1f);
     enemies[newEnemy.Identifier] = newEnemy;
     timeToNextSpawn = TIME_BETWEEN_SPAWNS;
   }
@@ -121,13 +121,13 @@ public class BattleMainManagerScript : MonoBehaviour {
     // If position isn't moved far from target before rotation, the rotation will go nuts.
     beam.transform.position = beam.Shooter.transform.position;
     beam.transform.RotateTowards(beam.Target.transform.position, rotationSpeed);
-    beam.transform.position += beam.transform.right.normalized * beam.Config.range / 2;
+    beam.transform.position += beam.transform.right.normalized * beam.Weapon.range / 2;
   }
 
   private void MoveShots() {
     foreach (var shot in bullets.Values) {
       // TODO - consider using RigidBody's movement function, instead of using kinematic rigidbodies.
-      shot.gameObject.MoveForwards(shot.Config.shotMovementSpeed);
+      shot.gameObject.MoveForwards(shot.Weapon.shotMovementSpeed);
       if (!shot.InRange()) {
         bulletsToRelease.Add(shot);
       }
@@ -145,34 +145,34 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   private const float BEAM_SCALE = 0.1f;
 
-  private void CreateBullet(GameObject shooter, BulletWeaponConfig weapon, Vector3 to) {
-    var bullet = spawnPool.GetBullet(weapon.shotImageName);
+  private void CreateBullet(GameObject shooter, BulletWeaponInstance weapon, Vector3 to) {
+    var bullet = spawnPool.GetBullet(weapon.SpecializedConfig.shotImageName);
     bullets[bullet.Identifier] = bullet;
     bullet.transform.position = shooter.transform.position;
     bullet.Init(shooter, shooter.transform.position, weapon);
-    bullet.transform.RotateTowards(to, 360, (float)Randomiser.NextDouble(-weapon.shotSpreadInDegrees, weapon.shotSpreadInDegrees));
+    bullet.transform.RotateTowards(to, 360, (float)Randomiser.NextDouble(-weapon.SpecializedConfig.shotSpreadInDegrees, weapon.SpecializedConfig.shotSpreadInDegrees));
   }
 
-  private void ShootBulletsSalvo(GameObject shooter, BulletWeaponConfig weapon, Vector3 to) {
-    for (int i = 0; i < weapon.numberOfBulletsPerSalvo; ++i) {
+  private void ShootBulletsSalvo(GameObject shooter, BulletWeaponInstance weapon, Vector3 to) {
+    for (int i = 0; i < weapon.SpecializedConfig.numberOfBulletsPerSalvo; ++i) {
       CreateBullet(shooter, weapon, to);
     }
   }
 
-  private IEnumerator ShootBulletsSalvos(GameObject shooter, BulletWeaponConfig weapon, Vector3 to) {
-    int salvoCount = weapon.numberOfSalvosPerShot;
+  private IEnumerator ShootBulletsSalvos(GameObject shooter, BulletWeaponInstance weapon, Vector3 to) {
+    int salvoCount = weapon.SpecializedConfig.numberOfSalvosPerShot;
     while (true) {
       ShootBulletsSalvo(shooter, weapon, to);
       if (--salvoCount > 0) {
-        yield return new WaitForSeconds(weapon.timeBetweenSalvosInSeconds);
+        yield return new WaitForSeconds(weapon.SpecializedConfig.timeBetweenSalvosInSeconds);
       } else {
         yield break;
       }
     }
   }
 
-  private void CreateBeam(GameObject shooter, BeamWeaponConfig weapon, GameObject target) {
-    var beam = spawnPool.GetBeam(weapon.shotImageName);
+  private void CreateBeam(GameObject shooter, BeamInstance weapon, GameObject target) {
+    var beam = spawnPool.GetBeam(weapon.SpecializedConfig.shotImageName);
     beams[beam.Identifier] = beam;
     beam.transform.position = shooter.transform.position;
     beam.Init(shooter, weapon, target);
@@ -180,17 +180,17 @@ public class BattleMainManagerScript : MonoBehaviour {
     AdjustBeamPosition(beam, 360);
   }
 
-  private void CreateShot(GameObject shooter, WeaponConfig weapon, GameObject target) {
-    if (weapon is BeamWeaponConfig beam) {
+  private void CreateShot(GameObject shooter, WeaponBase weapon, GameObject target) {
+    if (weapon is BeamInstance beam) {
       CreateBeam(shooter, beam, target);
-    } else if (weapon is BulletWeaponConfig bullet) {
+    } else if (weapon is BulletWeaponInstance bullet) {
       StartCoroutine(ShootBulletsSalvos(shooter, bullet, target.transform.position));
     }
   }
 
-  private void ShootWeapon(GameObject shooter, WeaponInstance weapon, GameObject target) {
-    CreateShot(shooter, weapon.config, target);
-    weapon.timeToNextShot = weapon.config.timeBetweenShotsInSeconds;
+  private void ShootWeapon(GameObject shooter, WeaponBase weapon, GameObject target) {
+    CreateShot(shooter, weapon, target);
+    weapon.timeToNextShot = weapon.timeBetweenShotsInSeconds;
   }
 
   private void ShootEnemies() {
@@ -199,7 +199,7 @@ public class BattleMainManagerScript : MonoBehaviour {
       if (weapon.timeToNextShot > 0) {
         continue;
       }
-      var enemyInRange = FindEnemyInRange(weapon.config.range);
+      var enemyInRange = FindEnemyInRange(weapon.range);
       if (enemyInRange == null) {
         continue;
       }
@@ -212,7 +212,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     foreach (var enemy in enemies.Values) {
       var weapon = enemy.Weapon;
       weapon.timeToNextShot -= Time.deltaTime;
-      if (weapon.timeToNextShot > 0 || Vector3.Distance(enemy.transform.position, player.transform.position) > weapon.config.range) {
+      if (weapon.timeToNextShot > 0 || Vector3.Distance(enemy.transform.position, player.transform.position) > weapon.range) {
         continue;
       }
       ShootWeapon(enemy.gameObject, weapon, player);

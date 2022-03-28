@@ -1,86 +1,86 @@
 public abstract class WeaponConfig {
-  protected WeaponConfig(float range, string shotImageName, string equipmentImageName, float timeBetweenShotsInSeconds) {
+  protected WeaponConfig(LevelBasedValue range, string shotImageName, string equipmentImageName, LevelBasedValue timeBetweenShotsInSeconds) {
     this.range = range;
     this.shotImageName = shotImageName;
     this.equipmentImageName = equipmentImageName;
     this.timeBetweenShotsInSeconds = timeBetweenShotsInSeconds;
   }
 
-  public readonly float range;
+  public readonly LevelBasedValue range;
   public readonly string shotImageName;
   public readonly string equipmentImageName;
-  public readonly float timeBetweenShotsInSeconds;
+  public readonly LevelBasedValue timeBetweenShotsInSeconds;
 
   public static BeamWeaponConfig LASER = new(
-    range: 2,
+    range: LevelBasedValue.ConstantValue(2),
     shotImageName: "Heat Beam",
     equipmentImageName: "Laser",
-    timeBetweenShotsInSeconds: 2.5f,
-    beamCoherenceTime: 0.5f,
-    damagePerSecond: 2f
+    timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.5f),
+    beamCoherenceTime: LevelBasedValue.ConstantValue(0.5f),
+    damagePerSecond: LevelBasedValue.ConstantValue(2f)
   );
 
   public static BulletWeaponConfig RIFLE = new(
-    range: 7f,
+    range: LevelBasedValue.ConstantValue(7f),
     shotImageName: "Bullet",
     equipmentImageName: "IncendiaryGun",
-    timeBetweenShotsInSeconds: 1.5f,
-    shotMovementSpeed: 6f,
-    damagePerBullet: 2
+    timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(1.5f),
+    shotMovementSpeed: LevelBasedValue.ConstantValue(6f),
+    damagePerBullet: LevelBasedValue.ConstantValue(2)
   );
 
   public static BulletWeaponConfig MACHINE_GUN = new(
-    range: 6f,
+    range: LevelBasedValue.ConstantValue(6f),
     shotImageName: "Bullet",
     equipmentImageName: "MachineGun",
-    timeBetweenShotsInSeconds: 1.5f,
-    shotMovementSpeed: 6f,
+    timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(1.5f),
+    shotMovementSpeed: LevelBasedValue.ConstantValue(6f),
     numberOfSalvosPerShot: 4,
     timeBetweenSalvosInSeconds: 0.2f,
     shotSpreadInDegrees: 5,
-    damagePerBullet: 1
+    damagePerBullet: LevelBasedValue.ConstantValue(1)
   );
 
   public static BulletWeaponConfig TWO_SHOT_SHOTGUN = new(
-    range: 4f,
+    range: LevelBasedValue.ConstantValue(4f),
     shotImageName: "ShotgunPellet",
     equipmentImageName: "Shotgun",
-    timeBetweenShotsInSeconds: 1.5f,
+    timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(1.5f),
     numberOfBulletsPerSalvo: 5,
-    shotMovementSpeed: 8f,
+    shotMovementSpeed: LevelBasedValue.ConstantValue(8f),
     numberOfSalvosPerShot: 3,
     timeBetweenSalvosInSeconds: 1.0f / 30f,
     shotSpreadInDegrees: 10,
-    damagePerBullet: 0.5f
+    damagePerBullet: LevelBasedValue.ConstantValue(0.5f)
   );
 
   public static BeamWeaponConfig FLAMER = new(
-    range: 5f,
+    range: LevelBasedValue.ConstantValue(5f),
     shotImageName: "Flamer",
     equipmentImageName: "Flamer",
-    timeBetweenShotsInSeconds: 2.0f,
-    beamCoherenceTime: 1f,
-    damagePerSecond: 1f
+    timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.0f),
+    beamCoherenceTime: LevelBasedValue.ConstantValue(1f),
+    damagePerSecond: LevelBasedValue.ConstantValue(1f)
   );
 
   public static BulletWeaponConfig MISSILE = new(
-    range: 10f,
+    range: LevelBasedValue.ConstantValue(10f),
     shotImageName: "Missile",
     equipmentImageName: "Missile",
-    timeBetweenShotsInSeconds: 2.0f,
-    shotMovementSpeed: 7f,
-    damagePerBullet: 1
+    timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.0f),
+    shotMovementSpeed: LevelBasedValue.ConstantValue(7f),
+    damagePerBullet: LevelBasedValue.ConstantValue(1)
   );
 }
 
 public class BulletWeaponConfig : WeaponConfig {
   public BulletWeaponConfig(
-    float range,
+    LevelBasedValue range,
     string shotImageName,
     string equipmentImageName,
-    float timeBetweenShotsInSeconds,
-    float shotMovementSpeed,
-    float damagePerBullet,
+    LevelBasedValue timeBetweenShotsInSeconds,
+    LevelBasedValue shotMovementSpeed,
+    LevelBasedValue damagePerBullet,
     int numberOfSalvosPerShot = 1,
     int numberOfBulletsPerSalvo = 1,
     float timeBetweenSalvosInSeconds = 0f,
@@ -92,37 +92,67 @@ public class BulletWeaponConfig : WeaponConfig {
     this.timeBetweenSalvosInSeconds = timeBetweenSalvosInSeconds;
     this.shotSpreadInDegrees = shotSpreadInDegrees;
   }
-  public readonly float shotMovementSpeed;
-  public readonly float damagePerBullet;
+  public readonly LevelBasedValue shotMovementSpeed;
+  public readonly LevelBasedValue damagePerBullet;
   public readonly int numberOfBulletsPerSalvo;
   public readonly float timeBetweenSalvosInSeconds;
 
   public readonly int numberOfSalvosPerShot;
-  public readonly float shotSpreadInDegrees = 0;
+  public readonly float shotSpreadInDegrees = 0f;
 
 }
 
 public class BeamWeaponConfig : WeaponConfig {
   public BeamWeaponConfig(
-    float range,
+    LevelBasedValue range,
     string shotImageName,
     string equipmentImageName,
-    float timeBetweenShotsInSeconds,
-    float damagePerSecond,
-    float beamCoherenceTime) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds) {
+    LevelBasedValue timeBetweenShotsInSeconds,
+    LevelBasedValue damagePerSecond,
+    LevelBasedValue beamCoherenceTime) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds) {
     this.damagePerSecond = damagePerSecond;
     this.beamCoherenceTime = beamCoherenceTime;
   }
 
-  public readonly float damagePerSecond;
-  public readonly float beamCoherenceTime;
+  public readonly LevelBasedValue damagePerSecond;
+  public readonly LevelBasedValue beamCoherenceTime;
 }
 
-public class WeaponInstance {
-  public WeaponInstance(WeaponConfig config) {
-    this.config = config;
-  }
-
-  public readonly WeaponConfig config;
+public abstract class WeaponBase {
   public float timeToNextShot = 0f;
+  public WeaponConfig Config { get; private set; }
+  public readonly float timeBetweenShotsInSeconds;
+  public readonly float range;
+  protected WeaponBase(WeaponConfig config, float level) {
+    Config = config;
+    this.timeBetweenShotsInSeconds = config.timeBetweenShotsInSeconds.getLevelValue(level);
+    this.range = config.range.getLevelValue(level);
+  }
+}
+
+public abstract class WeaponInstance<T> : WeaponBase where T : WeaponConfig {
+  public readonly T SpecializedConfig;
+  protected WeaponInstance(T config, float level) : base(config, level) {
+    SpecializedConfig = config;
+  }
+}
+
+public class BeamInstance : WeaponInstance<BeamWeaponConfig> {
+  public readonly float damagePerSecond;
+  public readonly float beamCoherenceTime;
+
+  public BeamInstance(BeamWeaponConfig config, float level) : base(config, level) {
+    this.beamCoherenceTime = config.beamCoherenceTime.getLevelValue(level);
+    this.damagePerSecond = config.damagePerSecond.getLevelValue(level);
+  }
+}
+
+public class BulletWeaponInstance : WeaponInstance<BulletWeaponConfig> {
+  public readonly float shotMovementSpeed;
+  public readonly float damagePerBullet;
+
+  public BulletWeaponInstance(BulletWeaponConfig config, float level) : base(config, level) {
+    this.shotMovementSpeed = config.shotMovementSpeed.getLevelValue(level);
+    this.damagePerBullet = config.damagePerBullet.getLevelValue(level);
+  }
 }
