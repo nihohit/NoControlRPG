@@ -18,15 +18,16 @@ public class BattleMainManagerScript : MonoBehaviour {
   private Mode mode;
 
   private UIManagerScript uiManager;
+  private float roundStartTime;
 
   private readonly HashSet<BulletScript> bulletsToRelease = new();
   private readonly HashSet<BeamScript> beamsToRelease = new();
 
   private readonly List<EnemyConfig> enemyConfigs = new() {
-    new EnemyConfig(LevelBasedValue.ConstantValue(3f), "ScoutMech", LevelBasedValue.ConstantValue(15f), WeaponConfig.TWO_SHOT_SHOTGUN),
-    new EnemyConfig(LevelBasedValue.ConstantValue(3f), "ScoutMech", LevelBasedValue.ConstantValue(15f), WeaponConfig.FLAMER),
-    new EnemyConfig(LevelBasedValue.ConstantValue(5f), "HeavyMech", LevelBasedValue.ConstantValue(10f), WeaponConfig.RIFLE),
-    new EnemyConfig(LevelBasedValue.ConstantValue(5f), "HeavyMech", LevelBasedValue.ConstantValue(10f), WeaponConfig.MISSILE)
+    new EnemyConfig(new LevelBasedValue(constant: 2f, linearCoefficient: 1), "ScoutMech", LevelBasedValue.ConstantValue(15f), WeaponConfig.TWO_SHOT_SHOTGUN),
+    new EnemyConfig(new LevelBasedValue(constant: 2f, linearCoefficient: 1), "ScoutMech", LevelBasedValue.ConstantValue(15f), WeaponConfig.FLAMER),
+    new EnemyConfig(new LevelBasedValue(constant: 4f, linearCoefficient: 1.5f), "HeavyMech", LevelBasedValue.ConstantValue(10f), WeaponConfig.RIFLE),
+    new EnemyConfig(new LevelBasedValue(constant: 4f, linearCoefficient: 1.5f), "HeavyMech", LevelBasedValue.ConstantValue(10f), WeaponConfig.MISSILE)
   };
 
   // Start is called before the first frame update
@@ -52,6 +53,7 @@ public class BattleMainManagerScript : MonoBehaviour {
   private void SwitchToBattle() {
     mode = Mode.Battle;
     uiManager.ToBattleMode();
+    roundStartTime = Time.timeSinceLevelLoad;
   }
 
   private void SwitchToInventory() {
@@ -85,6 +87,11 @@ public class BattleMainManagerScript : MonoBehaviour {
     enemy.GetComponent<EnemyUnitScript>().Health -= beamScript.Weapon.damagePerSecond * Time.deltaTime;
   }
 
+  private float LevelBasedOnTime() {
+    // level increases by 1 every 10 seconds.
+    return (Time.timeSinceLevelLoad - roundStartTime) / 10f;
+  }
+
   private void SpawnEnemyIfNeeded() {
     const int TARGET_NUMBER_OF_ENEMIES = 50;
     if (enemies.Count >= TARGET_NUMBER_OF_ENEMIES) {
@@ -100,7 +107,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     var horizontalSize = verticalSize * Screen.width / Screen.height;
     var distance = Mathf.Sqrt(Mathf.Pow(verticalSize, 2) + Mathf.Pow(horizontalSize, 2)) + 0.1f;
     newEnemy.transform.position = UnityEngine.Random.insideUnitCircle.normalized * distance;
-    newEnemy.Init(config, 1f);
+    newEnemy.Init(config, LevelBasedOnTime());
     enemies[newEnemy.Identifier] = newEnemy;
     timeToNextSpawn = TIME_BETWEEN_SPAWNS;
   }
