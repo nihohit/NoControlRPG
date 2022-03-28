@@ -94,7 +94,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     if (timeToNextSpawn > 0) {
       return;
     }
-    var config = enemyConfigs[0];
+    var config = enemyConfigs.ChooseRandomValue();
     var newEnemy = spawnPool.GetUnit(config.ImageName);
     var verticalSize = Camera.main.orthographicSize;
     var horizontalSize = verticalSize * Screen.width / Screen.height;
