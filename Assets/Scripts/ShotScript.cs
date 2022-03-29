@@ -1,4 +1,5 @@
 using System;
+using Assets.Scripts.Base;
 using UnityEngine;
 
 public class ShotScript<T> : MonoBehaviour where T : WeaponBase {
@@ -7,7 +8,6 @@ public class ShotScript<T> : MonoBehaviour where T : WeaponBase {
 
   public GameObject Shooter { get; private set; }
   protected BattleMainManagerScript manager;
-
 
   private void Awake() {
     manager = FindObjectOfType<BattleMainManagerScript>();
