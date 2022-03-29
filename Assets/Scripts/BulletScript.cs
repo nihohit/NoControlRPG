@@ -1,8 +1,10 @@
+using Assets.Scripts.Base;
 using UnityEngine;
 
 public class BulletScript : ShotScript<BulletWeaponInstance> {
   private bool alreadyHit;
   public Vector3 StartPoint { get; private set; }
+  public float Speed { get; private set; }
 
   public bool InRange() {
     return Vector3.Distance(StartPoint, transform.position) < Weapon.range;
@@ -11,6 +13,7 @@ public class BulletScript : ShotScript<BulletWeaponInstance> {
     base.Init(shooter, weapon);
     StartPoint = startPoint;
     alreadyHit = false;
+    Speed = (float)Randomiser.NextDouble(weapon.shotMinMovementSpeed, weapon.shotMaxMovementSpeed);
   }
 
   private void OnTriggerEnter2D(Collider2D other) {

@@ -134,7 +134,7 @@ public class BattleMainManagerScript : MonoBehaviour {
   private void MoveShots() {
     foreach (var shot in bullets.Values) {
       // TODO - consider using RigidBody's movement function, instead of using kinematic rigidbodies.
-      shot.gameObject.MoveForwards(shot.Weapon.shotMovementSpeed);
+      shot.gameObject.MoveForwards(shot.Speed);
       if (!shot.InRange()) {
         bulletsToRelease.Add(shot);
       }
