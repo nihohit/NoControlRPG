@@ -153,25 +153,25 @@ public class BattleMainManagerScript : MonoBehaviour {
   private const float BEAM_SCALE = 0.1f;
 
   private void CreateBullet(GameObject shooter, BulletWeaponInstance weapon, Vector3 to) {
-    var bullet = spawnPool.GetBullet(weapon.SpecializedConfig.shotImageName);
+    var bullet = spawnPool.GetBullet(weapon.Config.shotImageName);
     bullets[bullet.Identifier] = bullet;
     bullet.transform.position = shooter.transform.position;
     bullet.Init(shooter, shooter.transform.position, weapon);
-    bullet.transform.RotateTowards(to, 360, (float)Randomiser.NextDouble(-weapon.SpecializedConfig.shotSpreadInDegrees, weapon.SpecializedConfig.shotSpreadInDegrees));
+    bullet.transform.RotateTowards(to, 360, (float)Randomiser.NextDouble(-weapon.Config.shotSpreadInDegrees, weapon.Config.shotSpreadInDegrees));
   }
 
   private void ShootBulletsSalvo(GameObject shooter, BulletWeaponInstance weapon, Vector3 to) {
-    for (int i = 0; i < weapon.SpecializedConfig.numberOfBulletsPerSalvo; ++i) {
+    for (int i = 0; i < weapon.Config.numberOfBulletsPerSalvo; ++i) {
       CreateBullet(shooter, weapon, to);
     }
   }
 
   private IEnumerator ShootBulletsSalvos(GameObject shooter, BulletWeaponInstance weapon, Vector3 to) {
-    int salvoCount = weapon.SpecializedConfig.numberOfSalvosPerShot;
+    int salvoCount = weapon.Config.numberOfSalvosPerShot;
     while (true) {
       ShootBulletsSalvo(shooter, weapon, to);
       if (--salvoCount > 0) {
-        yield return new WaitForSeconds(weapon.SpecializedConfig.timeBetweenSalvosInSeconds);
+        yield return new WaitForSeconds(weapon.Config.timeBetweenSalvosInSeconds);
       } else {
         yield break;
       }
@@ -179,7 +179,7 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private void CreateBeam(GameObject shooter, BeamInstance weapon, GameObject target) {
-    var beam = spawnPool.GetBeam(weapon.SpecializedConfig.shotImageName);
+    var beam = spawnPool.GetBeam(weapon.Config.shotImageName);
     beams[beam.Identifier] = beam;
     beam.transform.position = shooter.transform.position;
     beam.Init(shooter, weapon, target);
