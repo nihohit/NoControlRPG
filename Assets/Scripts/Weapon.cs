@@ -157,9 +157,9 @@ public abstract class WeaponBase {
 }
 
 public abstract class WeaponInstance<T> : WeaponBase where T : WeaponConfig {
-  public readonly T SpecializedConfig;
+  public new readonly T Config;
   protected WeaponInstance(T config, float level) : base(config, level) {
-    SpecializedConfig = config;
+    Config = config;
   }
 }
 
