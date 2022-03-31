@@ -1,14 +1,12 @@
-public abstract class WeaponConfig {
-  protected WeaponConfig(LevelBasedValue range, string shotImageName, string equipmentImageName, LevelBasedValue timeBetweenShotsInSeconds) {
+public abstract class WeaponConfig : EquipmentConfigBase {
+  protected WeaponConfig(LevelBasedValue range, string shotImageName, string equipmentImageName, LevelBasedValue timeBetweenShotsInSeconds) : base(equipmentImageName) {
     this.range = range;
     this.shotImageName = shotImageName;
-    this.equipmentImageName = equipmentImageName;
     this.timeBetweenShotsInSeconds = timeBetweenShotsInSeconds;
   }
 
   public readonly LevelBasedValue range;
   public readonly string shotImageName;
-  public readonly string equipmentImageName;
   public readonly LevelBasedValue timeBetweenShotsInSeconds;
 
   public static BeamWeaponConfig LASER = new(
@@ -144,16 +142,18 @@ public class BeamWeaponConfig : WeaponConfig {
   public readonly LevelBasedValue beamCoherenceTime;
 }
 
-public abstract class WeaponBase {
+public abstract class WeaponBase : EquipmentBase {
   public float timeToNextShot = 0f;
-  public WeaponConfig Config { get; private set; }
+  public new WeaponConfig Config { get; private set; }
   public readonly float timeBetweenShotsInSeconds;
   public readonly float range;
-  protected WeaponBase(WeaponConfig config, float level) {
+  protected WeaponBase(WeaponConfig config, float level) : base(config) {
     Config = config;
     this.timeBetweenShotsInSeconds = config.timeBetweenShotsInSeconds.getLevelValue(level);
     this.range = config.range.getLevelValue(level);
   }
+
+  override public EquipmentType Type { get { return EquipmentType.Weapon; } }
 }
 
 public abstract class WeaponInstance<T> : WeaponBase where T : WeaponConfig {
