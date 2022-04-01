@@ -3,26 +3,35 @@ using System.Collections.ObjectModel;
 using Assets.Scripts.Base;
 
 public class Player {
-  public ReadOnlyCollection<WeaponBase> Weapons { private set; get; }
-  public ReadOnlyCollection<WeaponBase> AvailableItems { private set; get; }
+  public WeaponBase Weapon1 { get; private set; }
+  public WeaponBase Weapon2 { get; private set; }
+  public ReactorInstance Reactor { get; private set; }
+  public ShieldInstance Shield { get; private set; }
+  public TargetingSystemInstance TargetingSystem { get; private set; }
+  public ReadOnlyCollection<EquipmentBase> AvailableItems { private set; get; }
 
   public static readonly float INITIAL_HEALTH = 100f;
   public float FullHealth { get; private set; }
   public float CurrentHealth { get; set; }
 
-  public void StartRound(ReadOnlyCollection<WeaponBase> weapons, ReadOnlyCollection<WeaponBase> availableItems, float newHealth) {
-    Weapons = weapons;
+  public void StartRound(WeaponBase weapon1, WeaponBase weapon2, ReactorInstance reactor, ShieldInstance shield, TargetingSystemInstance targetingSystem, ReadOnlyCollection<EquipmentBase> availableItems, float newHealth) {
+    Weapon1 = weapon1;
+    Weapon2 = weapon2;
+    Reactor = reactor;
+    Shield = shield;
+    TargetingSystem = targetingSystem;
     AvailableItems = availableItems;
     CurrentHealth = newHealth;
     FullHealth = newHealth;
   }
 
   public static readonly Player Instance = new() {
-    Weapons = new List<WeaponBase>{
-      new BulletWeaponInstance(WeaponConfig.MACHINE_GUN, 1f),
-      new BulletWeaponInstance(WeaponConfig.TWO_SHOT_SHOTGUN, 1f)
-    }.ToReadOnlyCollection(),
-    AvailableItems = new List<WeaponBase>{
+    Weapon1 = new BulletWeaponInstance(WeaponConfig.MACHINE_GUN, 1f),
+    Weapon2 = new BulletWeaponInstance(WeaponConfig.TWO_SHOT_SHOTGUN, 1f),
+    Reactor = new ReactorInstance(ReactorConfig.DEFAULT, 1),
+    Shield = new ShieldInstance(ShieldConfig.DEFAULT, 1),
+    TargetingSystem = new TargetingSystemInstance(TargetingSystemConfig.DEFAULT, 1),
+    AvailableItems = new List<EquipmentBase>{
       new BulletWeaponInstance(WeaponConfig.MISSILE, 1f),
       new BeamInstance(WeaponConfig.FLAMER, 1f),
       new BeamInstance(WeaponConfig.LASER, 1f),

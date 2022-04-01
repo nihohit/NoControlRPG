@@ -20,6 +20,12 @@ public class ShieldConfig : EquipmentConfigBase {
   public LevelBasedValue Strength { get; private set; }
   public LevelBasedValue RechargeRate { get; private set; }
   public LevelBasedValue TimeBeforeRecharge { get; private set; }
+
+  public static ShieldConfig DEFAULT = new("Shield",
+    strength: LevelBasedValue.LinearValue(1),
+    rechargeRate: LevelBasedValue.LinearValue(1),
+    timeBeforeRecharge: LevelBasedValue.LinearValue(1)
+  );
 }
 
 public class ReactorConfig : EquipmentConfigBase {
@@ -30,10 +36,17 @@ public class ReactorConfig : EquipmentConfigBase {
 
   public LevelBasedValue MaxEnergyLevel { get; private set; }
   public LevelBasedValue RechargeRate { get; private set; }
+
+  public static ReactorConfig DEFAULT = new("Reactor",
+    maxEnergyLevel: LevelBasedValue.LinearValue(1),
+    rechargeRate: LevelBasedValue.LinearValue(1)
+  );
 }
 
 public class TargetingSystemConfig : EquipmentConfigBase {
   public TargetingSystemConfig(string equipmentImageName) : base(equipmentImageName) { }
+
+  public static TargetingSystemConfig DEFAULT = new("TargetingSystem");
 }
 
 public abstract class EquipmentBase {
