@@ -8,7 +8,8 @@ public enum EquipmentButtonBehavior { MustMaintainType, MustBeEquippedAndMaintai
 public class EquipmentButtonScript : MonoBehaviour {
   private UIManagerScript manager;
   private Button button;
-  private Image spriteRenderer;
+  private Image equipmentImage;
+  private Image backgroundImage;
 
   public EquipmentBase Equipment { get; private set; }
   public EquipmentButtonBehavior Behavior;
@@ -29,6 +30,16 @@ public class EquipmentButtonScript : MonoBehaviour {
         Behavior == EquipmentButtonBehavior.MustBeEquippedAndMaintainType;
   }
 
+  private Color ColorForType(EquipmentType type) {
+    return type switch {
+      EquipmentType.Weapon => Color.red,
+      EquipmentType.Shield => Color.blue,
+      EquipmentType.TargetingSystem => Color.grey,
+      EquipmentType.Reactor => Color.yellow,
+      _ => Color.white,
+    };
+  }
+
   public void LoadEquipment(EquipmentBase equipment, TextureHandler textureHandler) {
     if (!IsNotNullOrButtonCanContainNull(equipment)) {
       throw new ArgumentException("Can't unequip from this button");
@@ -38,15 +49,25 @@ public class EquipmentButtonScript : MonoBehaviour {
     }
 
     Equipment = equipment;
-    textureHandler.UpdateTexture(equipment?.Config?.equipmentImageName ?? "Empty", spriteRenderer, "Images/InventoryItems");
+    if (equipment is null) {
+      equipmentImage.gameObject.SetActive(false);
+      backgroundImage.color = MustMaintainType() ? ColorForType(RequiredEquipmentType) : Color.white;
+    } else {
+      equipmentImage.gameObject.SetActive(true);
+      textureHandler.UpdateTexture(equipment.Config.equipmentImageName, equipmentImage, "Images/InventoryItems");
+      backgroundImage.color = ColorForType(equipment.Type);
+    }
   }
+
+
 
   // Start is called before the first frame update
   void Awake() {
     manager = GameObject.FindObjectOfType<UIManagerScript>();
     button = GetComponent<Button>();
     button.onClick.AddListener(OnClick);
-    spriteRenderer = GetComponent<Image>();
+    equipmentImage = transform.Find("EquipmentImage").GetComponent<Image>();
+    backgroundImage = GetComponent<Image>();
   }
 
   private void OnClick() {
