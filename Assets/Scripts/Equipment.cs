@@ -22,8 +22,8 @@ public class ShieldConfig : EquipmentConfigBase {
   public LevelBasedValue TimeBeforeRecharge { get; private set; }
 
   public static ShieldConfig DEFAULT = new("Shield",
-    strength: LevelBasedValue.LinearValue(1),
-    rechargeRate: LevelBasedValue.LinearValue(1),
+    strength: LevelBasedValue.LinearValue(10),
+    rechargeRate: LevelBasedValue.LinearValue(0.5f),
     timeBeforeRecharge: LevelBasedValue.LinearValue(1)
   );
 }
@@ -61,13 +61,13 @@ public class ShieldInstance : EquipmentBase {
   public ShieldInstance(ShieldConfig config, float level) : base(config) {
     MaxStrength = config.Strength.getLevelValue(level);
     CurrentStrength = MaxStrength;
-    RechargeRate = config.RechargeRate.getLevelValue(level);
+    RechargeRatePerSecond = config.RechargeRate.getLevelValue(level);
     TimeBeforeRecharge = config.TimeBeforeRecharge.getLevelValue(level);
   }
 
   override public EquipmentType Type { get { return EquipmentType.Shield; } }
   public float MaxStrength { get; private set; }
-  public float RechargeRate { get; private set; }
+  public float RechargeRatePerSecond { get; private set; }
   public float TimeBeforeRecharge { get; private set; }
   public float TimeBeforeNextRecharge { get; set; }
   public float CurrentStrength { get; set; }

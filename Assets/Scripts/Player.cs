@@ -18,7 +18,11 @@ public class Player {
     Weapon1 = weapon1;
     Weapon2 = weapon2;
     Reactor = reactor;
+
     Shield = shield;
+    Shield.CurrentStrength = Shield.MaxStrength;
+    Shield.TimeBeforeNextRecharge = 0;
+
     TargetingSystem = targetingSystem;
     AvailableItems = availableItems;
     CurrentHealth = newHealth;

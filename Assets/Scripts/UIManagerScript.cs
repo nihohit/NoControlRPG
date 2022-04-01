@@ -13,6 +13,7 @@ public class UIManagerScript : MonoBehaviour {
   private GameObject inventoryUIHolder;
   private GameObject battleUIHolder;
   private Image healthBar;
+  private Image shieldBar;
 
   private Dictionary<EquipmentType, List<EquipmentButtonScript>> equippedItemsButtons;
   private EquipmentButtonScript[] availableItemsButtons;
@@ -28,6 +29,7 @@ public class UIManagerScript : MonoBehaviour {
     inventoryUIHolder = transform.Find("inventory").gameObject;
     battleUIHolder = transform.Find("BattleUI").gameObject;
     healthBar = GameObject.Find("HealthBar").GetComponent<Image>();
+    shieldBar = GameObject.Find("ShieldBar").GetComponent<Image>();
     var equippedItems = GameObject.Find("Equipped Items");
     equippedItemsButtons = GameObject
       .Find("Equipped Items")
@@ -85,8 +87,9 @@ public class UIManagerScript : MonoBehaviour {
     battleUIHolder.SetActive(true);
   }
 
-  public void UpdatePlayerHealthOverlay() {
+  public void UpdateUIOverlay() {
     healthBar.fillAmount = Player.Instance.CurrentHealth / Player.Instance.FullHealth;
+    shieldBar.fillAmount = Player.Instance.Shield.CurrentStrength / Player.Instance.Shield.MaxStrength;
   }
 
   public void SwitchContextPressed() {
