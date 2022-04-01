@@ -200,19 +200,22 @@ public class BattleMainManagerScript : MonoBehaviour {
     weapon.timeToNextShot = weapon.timeBetweenShotsInSeconds;
   }
 
-  private void ShootEnemies() {
-    foreach (var weapon in Player.Instance.Weapons) {
-      weapon.timeToNextShot -= Time.deltaTime;
-      if (weapon.timeToNextShot > 0) {
-        continue;
-      }
-      var enemyInRange = FindEnemyInRange(weapon.range);
-      if (enemyInRange == null) {
-        continue;
-      }
-
-      ShootWeapon(player, weapon, enemyInRange.gameObject);
+  private void TryShootWeapon(WeaponBase weapon) {
+    weapon.timeToNextShot -= Time.deltaTime;
+    if (weapon.timeToNextShot > 0) {
+      return;
     }
+    var enemyInRange = FindEnemyInRange(weapon.range);
+    if (enemyInRange == null) {
+      return;
+    }
+
+    ShootWeapon(player, weapon, enemyInRange.gameObject);
+  }
+
+  private void ShootEnemies() {
+    TryShootWeapon(Player.Instance.Weapon1);
+    TryShootWeapon(Player.Instance.Weapon2);
   }
 
   private void ShootPlayer() {
