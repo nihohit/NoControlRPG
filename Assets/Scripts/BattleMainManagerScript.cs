@@ -62,6 +62,16 @@ public class BattleMainManagerScript : MonoBehaviour {
     uiManager.ToInventoryMode();
   }
 
+  private void HitPlayer(float damage) {
+    var shield = Player.Instance.Shield;
+    shield.TimeBeforeNextRecharge = shield.TimeBeforeRecharge;
+    if (shield.CurrentStrength > 0) {
+      shield.CurrentStrength = Mathf.Max(0f, shield.CurrentStrength - damage);
+    } else {
+      Player.Instance.CurrentHealth -= damage;
+    }
+  }
+
   private void ReleaseAllEntities() {
     bullets.Values.ForEach(bullet => bulletsToRelease.Add(bullet));
     beams.Values.ForEach(beam => beamsToRelease.Add(beam));
@@ -76,11 +86,11 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   internal void BulletHitPlayer(BulletScript shotScript, GameObject player) {
     bulletsToRelease.Add(shotScript);
-    Player.Instance.CurrentHealth -= shotScript.Weapon.damagePerBullet;
+    HitPlayer(shotScript.Weapon.damagePerBullet);
   }
 
   internal void BeamHitPlayer(BeamScript beamScript, GameObject player) {
-    Player.Instance.CurrentHealth -= beamScript.Weapon.damagePerSecond * Time.deltaTime;
+    HitPlayer(beamScript.Weapon.damagePerSecond * Time.deltaTime);
   }
 
   internal void BeamHitEnemy(BeamScript beamScript, GameObject enemy) {
@@ -246,7 +256,17 @@ public class BattleMainManagerScript : MonoBehaviour {
     ShootEnemies();
     ShootPlayer();
     MoveShots();
-    uiManager.UpdatePlayerHealthOverlay();
+    RechargeShield();
+    uiManager.UpdateUIOverlay();
+  }
+
+  private void RechargeShield() {
+    var shield = Player.Instance.Shield;
+    if (shield.TimeBeforeNextRecharge > 0) {
+      shield.TimeBeforeNextRecharge = Mathf.Max(shield.TimeBeforeNextRecharge - Time.deltaTime, 0);
+    } else {
+      shield.CurrentStrength = Mathf.Min(shield.CurrentStrength + shield.RechargeRatePerSecond * Time.deltaTime, shield.MaxStrength);
+    }
   }
 
   private void ReleaseEntities() {
