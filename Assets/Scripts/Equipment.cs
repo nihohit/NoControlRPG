@@ -1,4 +1,5 @@
-using UnityEngine;
+using System.Reflection;
+using System.Text;
 
 public enum EquipmentType { Weapon, Reactor, Shield, TargetingSystem }
 
@@ -55,6 +56,37 @@ public abstract class EquipmentBase {
   }
   public abstract EquipmentType Type { get; }
   public EquipmentConfigBase Config { get; }
+
+  protected string FormattedPropertyName(PropertyInfo propertyInfo) {
+    if (string.IsNullOrEmpty(propertyInfo.Name)) return string.Empty;
+
+    StringBuilder stringBuilder = new StringBuilder();
+
+    for (int i = 0; i < propertyInfo.Name.Length; i++) {
+      stringBuilder.Append(char.ToLower(propertyInfo.Name[i]));
+
+      int nextChar = i + 1;
+      if (nextChar < propertyInfo.Name.Length && char.IsUpper(propertyInfo.Name[nextChar]) && !char.IsUpper(propertyInfo.Name[i])) {
+        stringBuilder.Append(" ");
+      }
+    }
+
+    return stringBuilder.ToString();
+  }
+
+  protected virtual string PropertyInfoToString(PropertyInfo propertyInfo) {
+    return $"{FormattedPropertyName(propertyInfo)}: {propertyInfo.GetValue(this)}";
+  }
+
+  public override string ToString() {
+    var stringBuilder = new StringBuilder();
+    foreach (var propertyInfo in this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)) {
+      if (!propertyInfo.CanWrite && propertyInfo.Name != "Type" && propertyInfo.Name != "Config") {
+        stringBuilder.AppendLine(PropertyInfoToString(propertyInfo));
+      }
+    }
+    return stringBuilder.ToString();
+  }
 }
 
 public class ShieldInstance : EquipmentBase {
