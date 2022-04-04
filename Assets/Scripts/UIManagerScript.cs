@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using System.Collections.ObjectModel;
+using TMPro;
 
 public class UIManagerScript : MonoBehaviour {
   private TMPro.TMP_Text switchContextText;
@@ -21,6 +22,8 @@ public class UIManagerScript : MonoBehaviour {
   private readonly TextureHandler textureHandler = new();
 
   private EquipmentButtonScript selectedButton = null;
+  private GameObject itemTextBackground;
+  private TMP_Text itemText;
 
   // Start is called before the first frame update
   void Awake() {
@@ -42,6 +45,9 @@ public class UIManagerScript : MonoBehaviour {
       .GetComponentsInChildren<EquipmentButtonScript>()
       .OrderBy(button => (-button.transform.position.y) * 100000 + button.transform.position.x)
       .ToArray();
+    itemTextBackground = GameObject.Find("TextBackground").gameObject;
+    itemText = itemTextBackground.GetComponentInChildren<TMPro.TMP_Text>();
+    itemTextBackground.SetActive(false);
   }
 
   private void SetupAvailableButtons(ReadOnlyCollection<EquipmentBase> equipment, IEnumerable<EquipmentButtonScript> buttons) {
@@ -96,20 +102,29 @@ public class UIManagerScript : MonoBehaviour {
     mainManager.SwitchContext();
   }
 
+  private void SetSelectedItemText(EquipmentButtonScript button) {
+    selectedButton = button;
+    var equipment = selectedButton?.Equipment;
+    itemTextBackground.SetActive(equipment != null);
+    itemText.text = equipment?.ToString() ?? "";
+  }
+
   public void InventoryButtonSelected(EquipmentButtonScript button) {
     if (selectedButton == null) {
       selectedButton = button;
       selectedButton.GetComponent<Button>().Select();
+      SetSelectedItemText(button);
     } else {
       var switchedEquipment = selectedButton.Equipment;
       if (!button.IsValidEquipment(switchedEquipment) ||
           !selectedButton.IsValidEquipment(button.Equipment)) {
+        SetSelectedItemText(button);
         //TODO maybe add some feedback?
         return;
       }
       selectedButton.LoadEquipment(button.Equipment, textureHandler);
       button.LoadEquipment(switchedEquipment, textureHandler);
-      selectedButton = null;
+      SetSelectedItemText(null);
     }
   }
 }
