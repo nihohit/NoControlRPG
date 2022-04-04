@@ -17,9 +17,9 @@ public class ShieldConfig : EquipmentConfigBase {
     TimeBeforeRecharge = timeBeforeRecharge;
   }
 
-  public LevelBasedValue Strength { get; private set; }
-  public LevelBasedValue RechargeRate { get; private set; }
-  public LevelBasedValue TimeBeforeRecharge { get; private set; }
+  public LevelBasedValue Strength { get; }
+  public LevelBasedValue RechargeRate { get; }
+  public LevelBasedValue TimeBeforeRecharge { get; }
 
   public static ShieldConfig DEFAULT = new("Shield",
     strength: LevelBasedValue.LinearValue(10),
@@ -34,8 +34,8 @@ public class ReactorConfig : EquipmentConfigBase {
     RechargeRate = rechargeRate;
   }
 
-  public LevelBasedValue MaxEnergyLevel { get; private set; }
-  public LevelBasedValue RechargeRate { get; private set; }
+  public LevelBasedValue MaxEnergyLevel { get; }
+  public LevelBasedValue RechargeRate { get; }
 
   public static ReactorConfig DEFAULT = new("Reactor",
     maxEnergyLevel: LevelBasedValue.LinearValue(1),
@@ -54,7 +54,7 @@ public abstract class EquipmentBase {
     this.Config = config;
   }
   public abstract EquipmentType Type { get; }
-  public EquipmentConfigBase Config { get; private set; }
+  public EquipmentConfigBase Config { get; }
 }
 
 public class ShieldInstance : EquipmentBase {
@@ -66,9 +66,9 @@ public class ShieldInstance : EquipmentBase {
   }
 
   override public EquipmentType Type { get { return EquipmentType.Shield; } }
-  public float MaxStrength { get; private set; }
-  public float RechargeRatePerSecond { get; private set; }
-  public float TimeBeforeRecharge { get; private set; }
+  public float MaxStrength { get; }
+  public float RechargeRatePerSecond { get; }
+  public float TimeBeforeRecharge { get; }
   public float TimeBeforeNextRecharge { get; set; }
   public float CurrentStrength { get; set; }
 }
@@ -80,9 +80,9 @@ public class ReactorInstance : EquipmentBase {
     RechargeRate = config.RechargeRate.getLevelValue(level);
   }
   override public EquipmentType Type { get { return EquipmentType.Reactor; } }
-  public float MaxEnergyLevel { get; private set; }
-  public float CurrentEnergyLevel { get; private set; }
-  public float RechargeRate { get; private set; }
+  public float MaxEnergyLevel { get; }
+  public float CurrentEnergyLevel { get; set; }
+  public float RechargeRate { get; }
 }
 
 public class TargetingSystemInstance : EquipmentBase {
