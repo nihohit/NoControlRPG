@@ -119,10 +119,10 @@ public class BulletWeaponConfig : WeaponConfig {
 
   public readonly LevelBasedValue damagePerBullet;
   public readonly int numberOfBulletsPerSalvo;
-  public readonly float timeBetweenSalvosInSeconds;
+  public float timeBetweenSalvosInSeconds { get; }
 
   public readonly int numberOfSalvosPerShot;
-  public readonly float shotSpreadInDegrees = 0f;
+  public float shotSpreadInDegrees { get; }
 
 }
 
@@ -144,9 +144,9 @@ public class BeamWeaponConfig : WeaponConfig {
 
 public abstract class WeaponBase : EquipmentBase {
   public float timeToNextShot = 0f;
-  public new WeaponConfig Config { get; private set; }
-  public readonly float timeBetweenShotsInSeconds;
-  public readonly float range;
+  public new WeaponConfig Config { get; }
+  public float timeBetweenShotsInSeconds { get; }
+  public float range { get; }
   protected WeaponBase(WeaponConfig config, float level) : base(config) {
     Config = config;
     this.timeBetweenShotsInSeconds = config.timeBetweenShotsInSeconds.getLevelValue(level);
@@ -164,8 +164,8 @@ public abstract class WeaponInstance<T> : WeaponBase where T : WeaponConfig {
 }
 
 public class BeamInstance : WeaponInstance<BeamWeaponConfig> {
-  public readonly float damagePerSecond;
-  public readonly float beamCoherenceTime;
+  public float damagePerSecond { get; }
+  public float beamCoherenceTime { get; }
 
   public BeamInstance(BeamWeaponConfig config, float level) : base(config, level) {
     this.beamCoherenceTime = config.beamCoherenceTime.getLevelValue(level);
@@ -174,9 +174,9 @@ public class BeamInstance : WeaponInstance<BeamWeaponConfig> {
 }
 
 public class BulletWeaponInstance : WeaponInstance<BulletWeaponConfig> {
-  public readonly float shotMaxMovementSpeed;
-  public readonly float shotMinMovementSpeed;
-  public readonly float damagePerBullet;
+  public float shotMaxMovementSpeed { get; }
+  public float shotMinMovementSpeed { get; }
+  public float damagePerBullet { get; }
 
   public BulletWeaponInstance(BulletWeaponConfig config, float level) : base(config, level) {
     this.shotMaxMovementSpeed = config.shotMaxMovementSpeed.getLevelValue(level);
