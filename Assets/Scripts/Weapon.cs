@@ -1,5 +1,5 @@
 public abstract class WeaponConfig : EquipmentConfigBase {
-  protected WeaponConfig(LevelBasedValue range, string shotImageName, string equipmentImageName, LevelBasedValue timeBetweenShotsInSeconds) : base(equipmentImageName) {
+  protected WeaponConfig(LevelBasedValue range, string shotImageName, string equipmentImageName, LevelBasedValue timeBetweenShotsInSeconds, string itemDisplayName) : base(equipmentImageName, itemDisplayName) {
     this.range = range;
     this.shotImageName = shotImageName;
     this.timeBetweenShotsInSeconds = timeBetweenShotsInSeconds;
@@ -15,7 +15,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     equipmentImageName: "Laser",
     timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.5f),
     beamCoherenceTime: LevelBasedValue.ConstantValue(0.5f),
-    damagePerSecond: LevelBasedValue.ConstantValue(2f)
+    damagePerSecond: LevelBasedValue.ConstantValue(2f),
+    itemDisplayName: "Laser beam"
   );
 
   public static BulletWeaponConfig RIFLE = new(
@@ -24,7 +25,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     equipmentImageName: "IncendiaryGun",
     timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(1.5f),
     shotMovementSpeed: LevelBasedValue.ConstantValue(6f),
-    damagePerBullet: LevelBasedValue.ConstantValue(2)
+    damagePerBullet: LevelBasedValue.ConstantValue(2),
+    itemDisplayName: "Rifle"
   );
 
   public static BulletWeaponConfig MACHINE_GUN = new(
@@ -36,7 +38,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     numberOfSalvosPerShot: 4,
     timeBetweenSalvosInSeconds: 0.2f,
     shotSpreadInDegrees: 5,
-    damagePerBullet: LevelBasedValue.ConstantValue(1)
+    damagePerBullet: LevelBasedValue.ConstantValue(1),
+    itemDisplayName: "Machine gun"
   );
 
   public static BulletWeaponConfig TWO_SHOT_SHOTGUN = new(
@@ -50,7 +53,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     numberOfSalvosPerShot: 3,
     timeBetweenSalvosInSeconds: 1.0f / 30f,
     shotSpreadInDegrees: 10,
-    damagePerBullet: LevelBasedValue.ConstantValue(0.5f)
+    damagePerBullet: LevelBasedValue.ConstantValue(0.5f),
+    itemDisplayName: "Two-shot shotgun"
   );
 
   public static BeamWeaponConfig FLAMER = new(
@@ -59,7 +63,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     equipmentImageName: "Flamer",
     timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.0f),
     beamCoherenceTime: LevelBasedValue.ConstantValue(1f),
-    damagePerSecond: LevelBasedValue.ConstantValue(1f)
+    damagePerSecond: LevelBasedValue.ConstantValue(1f),
+    itemDisplayName: "Flamer"
   );
 
   public static BulletWeaponConfig MISSILE = new(
@@ -68,7 +73,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     equipmentImageName: "Missile",
     timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.0f),
     shotMovementSpeed: LevelBasedValue.ConstantValue(7f),
-    damagePerBullet: LevelBasedValue.ConstantValue(1)
+    damagePerBullet: LevelBasedValue.ConstantValue(1),
+    itemDisplayName: "Missile launcher"
   );
 }
 
@@ -77,6 +83,7 @@ public class BulletWeaponConfig : WeaponConfig {
     LevelBasedValue range,
     string shotImageName,
     string equipmentImageName,
+    string itemDisplayName,
     LevelBasedValue timeBetweenShotsInSeconds,
     LevelBasedValue shotMaxMovementSpeed,
     LevelBasedValue shotMinMovementSpeed,
@@ -84,7 +91,7 @@ public class BulletWeaponConfig : WeaponConfig {
     int numberOfSalvosPerShot = 1,
     int numberOfBulletsPerSalvo = 1,
     float timeBetweenSalvosInSeconds = 0f,
-    float shotSpreadInDegrees = 0f) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds) {
+    float shotSpreadInDegrees = 0f) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName) {
     this.shotMaxMovementSpeed = shotMaxMovementSpeed;
     this.shotMinMovementSpeed = shotMinMovementSpeed;
     this.damagePerBullet = damagePerBullet;
@@ -98,13 +105,14 @@ public class BulletWeaponConfig : WeaponConfig {
     LevelBasedValue range,
     string shotImageName,
     string equipmentImageName,
+    string itemDisplayName,
     LevelBasedValue timeBetweenShotsInSeconds,
     LevelBasedValue shotMovementSpeed,
     LevelBasedValue damagePerBullet,
     int numberOfSalvosPerShot = 1,
     int numberOfBulletsPerSalvo = 1,
     float timeBetweenSalvosInSeconds = 0f,
-    float shotSpreadInDegrees = 0f) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds) {
+    float shotSpreadInDegrees = 0f) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName) {
     this.shotMaxMovementSpeed = shotMovementSpeed;
     this.shotMinMovementSpeed = shotMovementSpeed;
     this.damagePerBullet = damagePerBullet;
@@ -131,9 +139,10 @@ public class BeamWeaponConfig : WeaponConfig {
     LevelBasedValue range,
     string shotImageName,
     string equipmentImageName,
+    string itemDisplayName,
     LevelBasedValue timeBetweenShotsInSeconds,
     LevelBasedValue damagePerSecond,
-    LevelBasedValue beamCoherenceTime) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds) {
+    LevelBasedValue beamCoherenceTime) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName) {
     this.damagePerSecond = damagePerSecond;
     this.beamCoherenceTime = beamCoherenceTime;
   }
