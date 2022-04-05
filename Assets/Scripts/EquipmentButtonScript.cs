@@ -54,7 +54,7 @@ public class EquipmentButtonScript : MonoBehaviour {
       backgroundImage.color = MustMaintainType() ? ColorForType(RequiredEquipmentType) : Color.white;
     } else {
       equipmentImage.gameObject.SetActive(true);
-      textureHandler.UpdateTexture(equipment.Config.equipmentImageName, equipmentImage, "Images/InventoryItems");
+      textureHandler.UpdateTexture(equipment.Config.EquipmentImageName, equipmentImage, "Images/InventoryItems");
       backgroundImage.color = ColorForType(equipment.Type);
     }
   }

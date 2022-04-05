@@ -4,15 +4,17 @@ using System.Text;
 public enum EquipmentType { Weapon, Reactor, Shield, TargetingSystem }
 
 public class EquipmentConfigBase {
-  public EquipmentConfigBase(string equipmentImageName) {
-    this.equipmentImageName = equipmentImageName;
+  public EquipmentConfigBase(string equipmentImageName, string itemDisplayName) {
+    this.EquipmentImageName = equipmentImageName;
+    this.ItemDisplayName = itemDisplayName;
   }
-  public readonly string equipmentImageName;
+  public string EquipmentImageName { get; }
+  public string ItemDisplayName { get; }
 }
 
 
 public class ShieldConfig : EquipmentConfigBase {
-  public ShieldConfig(string equipmentImageName, LevelBasedValue strength, LevelBasedValue rechargeRate, LevelBasedValue timeBeforeRecharge) : base(equipmentImageName) {
+  public ShieldConfig(string equipmentImageName, string itemDisplayName, LevelBasedValue strength, LevelBasedValue rechargeRate, LevelBasedValue timeBeforeRecharge) : base(equipmentImageName, itemDisplayName) {
     Strength = strength;
     RechargeRate = rechargeRate;
     TimeBeforeRecharge = timeBeforeRecharge;
@@ -22,7 +24,7 @@ public class ShieldConfig : EquipmentConfigBase {
   public LevelBasedValue RechargeRate { get; }
   public LevelBasedValue TimeBeforeRecharge { get; }
 
-  public static ShieldConfig DEFAULT = new("Shield",
+  public static ShieldConfig DEFAULT = new("Shield", "Basic shield",
     strength: LevelBasedValue.LinearValue(10),
     rechargeRate: LevelBasedValue.LinearValue(0.5f),
     timeBeforeRecharge: LevelBasedValue.LinearValue(1)
@@ -30,7 +32,7 @@ public class ShieldConfig : EquipmentConfigBase {
 }
 
 public class ReactorConfig : EquipmentConfigBase {
-  public ReactorConfig(string equipmentImageName, LevelBasedValue maxEnergyLevel, LevelBasedValue rechargeRate) : base(equipmentImageName) {
+  public ReactorConfig(string equipmentImageName, string itemDisplayName, LevelBasedValue maxEnergyLevel, LevelBasedValue rechargeRate) : base(equipmentImageName, itemDisplayName) {
     MaxEnergyLevel = maxEnergyLevel;
     RechargeRate = rechargeRate;
   }
@@ -38,16 +40,16 @@ public class ReactorConfig : EquipmentConfigBase {
   public LevelBasedValue MaxEnergyLevel { get; }
   public LevelBasedValue RechargeRate { get; }
 
-  public static ReactorConfig DEFAULT = new("Reactor",
+  public static ReactorConfig DEFAULT = new("Reactor", "Basic reactor",
     maxEnergyLevel: LevelBasedValue.LinearValue(1),
     rechargeRate: LevelBasedValue.LinearValue(1)
   );
 }
 
 public class TargetingSystemConfig : EquipmentConfigBase {
-  public TargetingSystemConfig(string equipmentImageName) : base(equipmentImageName) { }
+  public TargetingSystemConfig(string equipmentImageName, string itemDisplayName) : base(equipmentImageName, itemDisplayName) { }
 
-  public static TargetingSystemConfig DEFAULT = new("TargetingSystem");
+  public static TargetingSystemConfig DEFAULT = new("TargetingSystem", "Default targeting system");
 }
 
 public abstract class EquipmentBase {
@@ -80,6 +82,7 @@ public abstract class EquipmentBase {
 
   public override string ToString() {
     var stringBuilder = new StringBuilder();
+    stringBuilder.AppendLine(this.Config.ItemDisplayName);
     foreach (var propertyInfo in this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)) {
       if (!propertyInfo.CanWrite && propertyInfo.Name != "Type" && propertyInfo.Name != "Config") {
         stringBuilder.AppendLine(PropertyInfoToString(propertyInfo));
