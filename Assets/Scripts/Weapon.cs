@@ -1,3 +1,5 @@
+using System;
+
 public abstract class WeaponConfig : EquipmentConfigBase {
   protected WeaponConfig(LevelBasedValue range, string shotImageName, string equipmentImageName, LevelBasedValue timeBetweenShotsInSeconds, string itemDisplayName) : base(equipmentImageName, itemDisplayName) {
     this.range = range;
@@ -14,7 +16,7 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     shotImageName: "Heat Beam",
     equipmentImageName: "Laser",
     timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.5f),
-    beamCoherenceTime: LevelBasedValue.ConstantValue(0.5f),
+    beamLifetimeInSeconds: LevelBasedValue.ConstantValue(0.5f),
     damagePerSecond: LevelBasedValue.ConstantValue(2f),
     itemDisplayName: "Laser beam"
   );
@@ -62,7 +64,7 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     shotImageName: "Flamer",
     equipmentImageName: "Flamer",
     timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.0f),
-    beamCoherenceTime: LevelBasedValue.ConstantValue(1f),
+    beamLifetimeInSeconds: LevelBasedValue.ConstantValue(1f),
     damagePerSecond: LevelBasedValue.ConstantValue(1f),
     itemDisplayName: "Flamer"
   );
@@ -142,9 +144,9 @@ public class BeamWeaponConfig : WeaponConfig {
     string itemDisplayName,
     LevelBasedValue timeBetweenShotsInSeconds,
     LevelBasedValue damagePerSecond,
-    LevelBasedValue beamCoherenceTime) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName) {
+    LevelBasedValue beamLifetimeInSeconds) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName) {
     this.damagePerSecond = damagePerSecond;
-    this.beamCoherenceTime = beamCoherenceTime;
+    this.beamCoherenceTime = beamLifetimeInSeconds;
   }
 
   public readonly LevelBasedValue damagePerSecond;
@@ -174,16 +176,19 @@ public abstract class WeaponInstance<T> : WeaponBase where T : WeaponConfig {
 
 public class BeamInstance : WeaponInstance<BeamWeaponConfig> {
   public float damagePerSecond { get; }
-  public float beamCoherenceTime { get; }
+  public float beamLifetimeInSeconds { get; }
 
   public BeamInstance(BeamWeaponConfig config, float level) : base(config, level) {
-    this.beamCoherenceTime = config.beamCoherenceTime.getLevelValue(level);
+    this.beamLifetimeInSeconds = config.beamCoherenceTime.getLevelValue(level);
     this.damagePerSecond = config.damagePerSecond.getLevelValue(level);
   }
 }
 
 public class BulletWeaponInstance : WeaponInstance<BulletWeaponConfig> {
+  [NoDisplay]
   public float shotMaxMovementSpeed { get; }
+
+  [NoDisplay]
   public float shotMinMovementSpeed { get; }
   public float damagePerBullet { get; }
 
@@ -191,5 +196,15 @@ public class BulletWeaponInstance : WeaponInstance<BulletWeaponConfig> {
     this.shotMaxMovementSpeed = config.shotMaxMovementSpeed.getLevelValue(level);
     this.shotMinMovementSpeed = config.shotMinMovementSpeed.getLevelValue(level);
     this.damagePerBullet = config.damagePerBullet.getLevelValue(level);
+  }
+
+  public override string ToString() {
+    var baseDescription = base.ToString();
+    var numberOfBulletsPerShot = Config.numberOfBulletsPerSalvo * Config.numberOfSalvosPerShot;
+    if (numberOfBulletsPerShot == 1) {
+      return baseDescription;
+    }
+
+    return $"{baseDescription}number of bullets per shot: {numberOfBulletsPerShot}";
   }
 }

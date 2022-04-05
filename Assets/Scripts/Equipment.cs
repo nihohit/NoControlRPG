@@ -1,5 +1,7 @@
+using System;
 using System.Reflection;
 using System.Text;
+using Assets.Scripts.Base;
 
 public enum EquipmentType { Weapon, Reactor, Shield, TargetingSystem }
 
@@ -12,6 +14,7 @@ public class EquipmentConfigBase {
   public string ItemDisplayName { get; }
 }
 
+public class NoDisplayAttribute : Attribute { }
 
 public class ShieldConfig : EquipmentConfigBase {
   public ShieldConfig(string equipmentImageName, string itemDisplayName, LevelBasedValue strength, LevelBasedValue rechargeRate, LevelBasedValue timeBeforeRecharge) : base(equipmentImageName, itemDisplayName) {
@@ -77,14 +80,24 @@ public abstract class EquipmentBase {
   }
 
   protected virtual string PropertyInfoToString(PropertyInfo propertyInfo) {
-    return $"{FormattedPropertyName(propertyInfo)}: {propertyInfo.GetValue(this)}";
+    var name = FormattedPropertyName(propertyInfo);
+    if (name.EndsWith("in seconds")) {
+      return $"{name[..name.LastIndexOf(" in seconds")]}: {propertyInfo.GetValue(this)} seconds";
+    }
+    if (name.EndsWith("per second")) {
+      return $"{name[..name.LastIndexOf(" per second")]}: {propertyInfo.GetValue(this)} per second";
+    }
+    return $"{name}: {propertyInfo.GetValue(this)}";
   }
 
   public override string ToString() {
     var stringBuilder = new StringBuilder();
     stringBuilder.AppendLine(this.Config.ItemDisplayName);
     foreach (var propertyInfo in this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)) {
-      if (!propertyInfo.CanWrite && propertyInfo.Name != "Type" && propertyInfo.Name != "Config") {
+      if (!propertyInfo.CanWrite
+          && propertyInfo.Name != "Type"
+          && propertyInfo.Name != "Config"
+          && propertyInfo.CustomAttributes.None(attribute => attribute.AttributeType == typeof(NoDisplayAttribute))) {
         stringBuilder.AppendLine(PropertyInfoToString(propertyInfo));
       }
     }
