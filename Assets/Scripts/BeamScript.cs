@@ -9,7 +9,7 @@ public class BeamScript : ShotScript<BeamInstance> {
 
   public void Init(GameObject shooter, BeamInstance config, GameObject target) {
     base.Init(shooter, config);
-    Lifetime = config.beamCoherenceTime;
+    Lifetime = config.beamLifetimeInSeconds;
     Target = target;
   }
 
