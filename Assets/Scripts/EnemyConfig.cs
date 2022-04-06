@@ -25,7 +25,7 @@ public class LevelBasedValue {
     this.exponentValue = exponentValue;
   }
 
-  public float getLevelValue(float level) {
+  public float GetLevelValue(float level) {
     return constant + level * linearCoefficient + Mathf.Pow(level, exponentValue) * exponentCoefficient;
   }
 }

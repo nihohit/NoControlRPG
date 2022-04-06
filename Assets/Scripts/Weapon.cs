@@ -99,8 +99,8 @@ public class BulletWeaponConfig : WeaponConfig {
     this.damagePerBullet = damagePerBullet;
     this.numberOfSalvosPerShot = numberOfSalvosPerShot;
     this.numberOfBulletsPerSalvo = numberOfBulletsPerSalvo;
-    this.timeBetweenSalvosInSeconds = timeBetweenSalvosInSeconds;
-    this.shotSpreadInDegrees = shotSpreadInDegrees;
+    this.TimeBetweenSalvosInSeconds = timeBetweenSalvosInSeconds;
+    this.ShotSpreadInDegrees = shotSpreadInDegrees;
   }
 
   public BulletWeaponConfig(
@@ -120,8 +120,8 @@ public class BulletWeaponConfig : WeaponConfig {
     this.damagePerBullet = damagePerBullet;
     this.numberOfSalvosPerShot = numberOfSalvosPerShot;
     this.numberOfBulletsPerSalvo = numberOfBulletsPerSalvo;
-    this.timeBetweenSalvosInSeconds = timeBetweenSalvosInSeconds;
-    this.shotSpreadInDegrees = shotSpreadInDegrees;
+    this.TimeBetweenSalvosInSeconds = timeBetweenSalvosInSeconds;
+    this.ShotSpreadInDegrees = shotSpreadInDegrees;
   }
 
   public readonly LevelBasedValue shotMaxMovementSpeed;
@@ -129,10 +129,10 @@ public class BulletWeaponConfig : WeaponConfig {
 
   public readonly LevelBasedValue damagePerBullet;
   public readonly int numberOfBulletsPerSalvo;
-  public float timeBetweenSalvosInSeconds { get; }
+  public float TimeBetweenSalvosInSeconds { get; }
 
   public readonly int numberOfSalvosPerShot;
-  public float shotSpreadInDegrees { get; }
+  public float ShotSpreadInDegrees { get; }
 
 }
 
@@ -156,12 +156,12 @@ public class BeamWeaponConfig : WeaponConfig {
 public abstract class WeaponBase : EquipmentBase {
   public float timeToNextShot = 0f;
   public new WeaponConfig Config { get; }
-  public float timeBetweenShotsInSeconds { get; }
-  public float range { get; }
+  public float TimeBetweenShotsInSeconds { get; }
+  public float Range { get; }
   protected WeaponBase(WeaponConfig config, float level) : base(config) {
     Config = config;
-    this.timeBetweenShotsInSeconds = config.timeBetweenShotsInSeconds.getLevelValue(level);
-    this.range = config.range.getLevelValue(level);
+    this.TimeBetweenShotsInSeconds = config.timeBetweenShotsInSeconds.GetLevelValue(level);
+    this.Range = config.range.GetLevelValue(level);
   }
 
   override public EquipmentType Type { get { return EquipmentType.Weapon; } }
@@ -175,27 +175,27 @@ public abstract class WeaponInstance<T> : WeaponBase where T : WeaponConfig {
 }
 
 public class BeamInstance : WeaponInstance<BeamWeaponConfig> {
-  public float damagePerSecond { get; }
-  public float beamLifetimeInSeconds { get; }
+  public float DamagePerSecond { get; }
+  public float BeamLifetimeInSeconds { get; }
 
   public BeamInstance(BeamWeaponConfig config, float level) : base(config, level) {
-    this.beamLifetimeInSeconds = config.beamCoherenceTime.getLevelValue(level);
-    this.damagePerSecond = config.damagePerSecond.getLevelValue(level);
+    this.BeamLifetimeInSeconds = config.beamCoherenceTime.GetLevelValue(level);
+    this.DamagePerSecond = config.damagePerSecond.GetLevelValue(level);
   }
 }
 
 public class BulletWeaponInstance : WeaponInstance<BulletWeaponConfig> {
   [NoDisplay]
-  public float shotMaxMovementSpeed { get; }
+  public float ShotMaxMovementSpeed { get; }
 
   [NoDisplay]
-  public float shotMinMovementSpeed { get; }
-  public float damagePerBullet { get; }
+  public float ShotMinMovementSpeed { get; }
+  public float DamagePerBullet { get; }
 
   public BulletWeaponInstance(BulletWeaponConfig config, float level) : base(config, level) {
-    this.shotMaxMovementSpeed = config.shotMaxMovementSpeed.getLevelValue(level);
-    this.shotMinMovementSpeed = config.shotMinMovementSpeed.getLevelValue(level);
-    this.damagePerBullet = config.damagePerBullet.getLevelValue(level);
+    this.ShotMaxMovementSpeed = config.shotMaxMovementSpeed.GetLevelValue(level);
+    this.ShotMinMovementSpeed = config.shotMinMovementSpeed.GetLevelValue(level);
+    this.DamagePerBullet = config.damagePerBullet.GetLevelValue(level);
   }
 
   public override string ToString() {

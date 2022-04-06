@@ -31,7 +31,7 @@ public class BattleMainManagerScript : MonoBehaviour {
   };
 
   // Start is called before the first frame update
-  void Start() {
+  protected void Start() {
     spawnPool = GetComponent<SpawnPool>();
     player = GameObject.Find("Player").gameObject;
     uiManager = GameObject.FindObjectOfType<UIManagerScript>();
@@ -81,20 +81,20 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   internal void BulletHitEnemy(BulletScript shotScript, GameObject enemy) {
     bulletsToRelease.Add(shotScript);
-    enemy.GetComponent<EnemyUnitScript>().Health -= shotScript.Weapon.damagePerBullet;
+    enemy.GetComponent<EnemyUnitScript>().Health -= shotScript.Weapon.DamagePerBullet;
   }
 
   internal void BulletHitPlayer(BulletScript shotScript, GameObject player) {
     bulletsToRelease.Add(shotScript);
-    HitPlayer(shotScript.Weapon.damagePerBullet);
+    HitPlayer(shotScript.Weapon.DamagePerBullet);
   }
 
   internal void BeamHitPlayer(BeamScript beamScript, GameObject player) {
-    HitPlayer(beamScript.Weapon.damagePerSecond * Time.deltaTime);
+    HitPlayer(beamScript.Weapon.DamagePerSecond * Time.deltaTime);
   }
 
   internal void BeamHitEnemy(BeamScript beamScript, GameObject enemy) {
-    enemy.GetComponent<EnemyUnitScript>().Health -= beamScript.Weapon.damagePerSecond * Time.deltaTime;
+    enemy.GetComponent<EnemyUnitScript>().Health -= beamScript.Weapon.DamagePerSecond * Time.deltaTime;
   }
 
   private float LevelBasedOnTime() {
@@ -138,7 +138,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     // If position isn't moved far from target before rotation, the rotation will go nuts.
     beam.transform.position = beam.Shooter.transform.position;
     beam.transform.RotateTowards(beam.Target.transform.position, rotationSpeed);
-    beam.transform.position += beam.transform.right.normalized * beam.Weapon.range / 2;
+    beam.transform.position += beam.transform.right.normalized * beam.Weapon.Range / 2;
   }
 
   private void MoveShots() {
@@ -167,7 +167,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     bullets[bullet.Identifier] = bullet;
     bullet.transform.position = shooter.transform.position;
     bullet.Init(shooter, shooter.transform.position, weapon);
-    bullet.transform.RotateTowards(to, 360, (float)Randomiser.NextDouble(-weapon.Config.shotSpreadInDegrees, weapon.Config.shotSpreadInDegrees));
+    bullet.transform.RotateTowards(to, 360, (float)Randomiser.NextDouble(-weapon.Config.ShotSpreadInDegrees, weapon.Config.ShotSpreadInDegrees));
   }
 
   private void ShootBulletsSalvo(GameObject shooter, BulletWeaponInstance weapon, Vector3 to) {
@@ -181,7 +181,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     while (true) {
       ShootBulletsSalvo(shooter, weapon, to);
       if (--salvoCount > 0) {
-        yield return new WaitForSeconds(weapon.Config.timeBetweenSalvosInSeconds);
+        yield return new WaitForSeconds(weapon.Config.TimeBetweenSalvosInSeconds);
       } else {
         yield break;
       }
@@ -193,7 +193,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     beams[beam.Identifier] = beam;
     beam.transform.position = shooter.transform.position;
     beam.Init(shooter, weapon, target);
-    beam.transform.localScale = new Vector3(weapon.range * BEAM_SCALE, BEAM_SCALE, BEAM_SCALE);
+    beam.transform.localScale = new Vector3(weapon.Range * BEAM_SCALE, BEAM_SCALE, BEAM_SCALE);
     AdjustBeamPosition(beam, 360);
   }
 
@@ -207,7 +207,7 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   private void ShootWeapon(GameObject shooter, WeaponBase weapon, GameObject target) {
     CreateShot(shooter, weapon, target);
-    weapon.timeToNextShot = weapon.timeBetweenShotsInSeconds;
+    weapon.timeToNextShot = weapon.TimeBetweenShotsInSeconds;
   }
 
   private void TryShootWeapon(WeaponBase weapon) {
@@ -215,7 +215,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     if (weapon.timeToNextShot > 0) {
       return;
     }
-    var enemyInRange = FindEnemyInRange(weapon.range);
+    var enemyInRange = FindEnemyInRange(weapon.Range);
     if (enemyInRange == null) {
       return;
     }
@@ -232,7 +232,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     foreach (var enemy in enemies.Values) {
       var weapon = enemy.Weapon;
       weapon.timeToNextShot -= Time.deltaTime;
-      if (weapon.timeToNextShot > 0 || Vector3.Distance(enemy.transform.position, player.transform.position) > weapon.range) {
+      if (weapon.timeToNextShot > 0 || Vector3.Distance(enemy.transform.position, player.transform.position) > weapon.Range) {
         continue;
       }
       ShootWeapon(enemy.gameObject, weapon, player);
