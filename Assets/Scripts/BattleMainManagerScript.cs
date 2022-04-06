@@ -151,8 +151,8 @@ public class BattleMainManagerScript : MonoBehaviour {
     }
 
     foreach (var beam in beams.Values) {
-      beam.Lifetime -= Time.deltaTime;
-      if (beam.Lifetime <= 0f || !beam.Shooter.activeSelf) {
+      beam.Weapon.CurrentCharge -= Time.deltaTime;
+      if (beam.Weapon.CurrentCharge <= 0f || !beam.Shooter.activeSelf) {
         beamsToRelease.Add(beam);
       } else if (beam.Target.activeSelf) {
         AdjustBeamPosition(beam, 360);
@@ -177,6 +177,7 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private IEnumerator ShootBulletsSalvos(GameObject shooter, BulletWeaponInstance weapon, Vector3 to) {
+    weapon.CurrentCharge = 0;
     int salvoCount = weapon.Config.numberOfSalvosPerShot;
     while (true) {
       ShootBulletsSalvo(shooter, weapon, to);
@@ -195,6 +196,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     beam.Init(shooter, weapon, target);
     beam.transform.localScale = new Vector3(weapon.Range * BEAM_SCALE, BEAM_SCALE, BEAM_SCALE);
     AdjustBeamPosition(beam, 360);
+    weapon.IsCurrentlyfiring = true;
   }
 
   private void CreateShot(GameObject shooter, WeaponBase weapon, GameObject target) {
@@ -207,12 +209,10 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   private void ShootWeapon(GameObject shooter, WeaponBase weapon, GameObject target) {
     CreateShot(shooter, weapon, target);
-    weapon.timeToNextShot = weapon.TimeBetweenShotsInSeconds;
   }
 
   private void TryShootWeapon(WeaponBase weapon) {
-    weapon.timeToNextShot -= Time.deltaTime;
-    if (weapon.timeToNextShot > 0) {
+    if (!weapon.CanShoot()) {
       return;
     }
     var enemyInRange = FindEnemyInRange(weapon.Range);
@@ -231,8 +231,8 @@ public class BattleMainManagerScript : MonoBehaviour {
   private void ShootPlayer() {
     foreach (var enemy in enemies.Values) {
       var weapon = enemy.Weapon;
-      weapon.timeToNextShot -= Time.deltaTime;
-      if (weapon.timeToNextShot > 0 || Vector3.Distance(enemy.transform.position, player.transform.position) > weapon.Range) {
+      weapon.CurrentCharge = Mathf.Min(weapon.MaxCharge, weapon.CurrentCharge + Time.deltaTime);
+      if (!weapon.CanShoot() || Vector3.Distance(enemy.transform.position, player.transform.position) > weapon.Range) {
         continue;
       }
       ShootWeapon(enemy.gameObject, weapon, player);
@@ -256,17 +256,30 @@ public class BattleMainManagerScript : MonoBehaviour {
     ShootEnemies();
     ShootPlayer();
     MoveShots();
-    RechargeShield();
+    RechargeSystems();
     uiManager.UpdateUIOverlay();
   }
 
-  private void RechargeShield() {
-    var shield = Player.Instance.Shield;
-    if (shield.TimeBeforeNextRecharge > 0) {
-      shield.TimeBeforeNextRecharge = Mathf.Max(shield.TimeBeforeNextRecharge - Time.deltaTime, 0);
-    } else {
-      shield.CurrentStrength = Mathf.Min(shield.CurrentStrength + shield.RechargeRatePerSecond * Time.deltaTime, shield.MaxStrength);
-    }
+  private void RechargeSystems() {
+    var player = Player.Instance;
+    var reactor = player.Reactor;
+    var baselineEnergyRequirements = player.Shield.BaselineEnergyRequirement +
+      player.TargetingSystem.BaselineEnergyRequirement +
+      player.Weapon1?.BaselineEnergyRequirement ?? 0f +
+      player.Weapon2?.BaselineEnergyRequirement ?? 0f;
+    var availableEnergy = reactor.CurrentEnergyLevel + (reactor.EnergyRecoveryPerSecond - baselineEnergyRequirements) * Time.deltaTime;
+    var chargeRequirementPerSecond = 0f;
+
+    chargeRequirementPerSecond += player.Shield.CurrentChargingRequirementPerSecond;
+    chargeRequirementPerSecond += player.Weapon1?.CurrentChargingRequirementPerSecond ?? 0;
+    chargeRequirementPerSecond += player.Weapon2?.CurrentChargingRequirementPerSecond ?? 0;
+    var currentFrameRequirement = chargeRequirementPerSecond * Time.deltaTime;
+
+    var ratio = Mathf.Min(availableEnergy / currentFrameRequirement, 1);
+    player.Shield.Charge(ratio);
+    player.Weapon1?.Charge(ratio);
+    player.Weapon2?.Charge(ratio);
+    reactor.CurrentEnergyLevel = Math.Min(player.Reactor.MaxEnergyLevel, Mathf.Max(0, availableEnergy - currentFrameRequirement));
   }
 
   private void ReleaseEntities() {
@@ -287,6 +300,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     foreach (var beam in beamsToRelease) {
       beams.Remove(beam.Identifier);
       spawnPool.ReturnBeam(beam);
+      beam.Weapon.IsCurrentlyfiring = false;
     }
     beamsToRelease.Clear();
   }

@@ -1,22 +1,26 @@
 using System;
+using System.Reflection;
+using UnityEngine;
 
 public abstract class WeaponConfig : EquipmentConfigBase {
-  protected WeaponConfig(LevelBasedValue range, string shotImageName, string equipmentImageName, LevelBasedValue timeBetweenShotsInSeconds, string itemDisplayName, LevelBasedValue baselineEnergyRequirement) : base(equipmentImageName, itemDisplayName, baselineEnergyRequirement) {
+  protected WeaponConfig(LevelBasedValue range, string shotImageName, string equipmentImageName, LevelBasedValue maxCharge, LevelBasedValue energyConsumptionWhenRechargingPerSecond, string itemDisplayName, LevelBasedValue baselineEnergyRequirement) : base(equipmentImageName, itemDisplayName, baselineEnergyRequirement) {
     this.range = range;
     this.shotImageName = shotImageName;
-    this.timeBetweenShotsInSeconds = timeBetweenShotsInSeconds;
+    this.maxCharge = maxCharge;
+    this.energyConsumptionWhenRechargingPerSecond = energyConsumptionWhenRechargingPerSecond;
   }
 
   public readonly LevelBasedValue range;
   public readonly string shotImageName;
-  public readonly LevelBasedValue timeBetweenShotsInSeconds;
+  public readonly LevelBasedValue maxCharge;
+  public readonly LevelBasedValue energyConsumptionWhenRechargingPerSecond;
 
   public static BeamWeaponConfig LASER = new(
     range: LevelBasedValue.ConstantValue(2),
     shotImageName: "Heat Beam",
     equipmentImageName: "Laser",
-    timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.5f),
-    beamLifetimeInSeconds: LevelBasedValue.ConstantValue(0.5f),
+    maxCharge: LevelBasedValue.ConstantValue(2.5f),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.ConstantValue(1),
     damagePerSecond: LevelBasedValue.ConstantValue(2f),
     itemDisplayName: "Laser beam",
     baselineEnergyRequirement: LevelBasedValue.ConstantValue(1.5f)
@@ -26,7 +30,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     range: LevelBasedValue.ConstantValue(7f),
     shotImageName: "Bullet",
     equipmentImageName: "IncendiaryGun",
-    timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(1.5f),
+    maxCharge: LevelBasedValue.ConstantValue(1.5f),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.ConstantValue(1),
     shotMovementSpeed: LevelBasedValue.ConstantValue(6f),
     damagePerBullet: LevelBasedValue.ConstantValue(2),
     itemDisplayName: "Rifle",
@@ -37,7 +42,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     range: LevelBasedValue.ConstantValue(6f),
     shotImageName: "Bullet",
     equipmentImageName: "MachineGun",
-    timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(1.5f),
+    maxCharge: LevelBasedValue.ConstantValue(1.5f),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.ConstantValue(1),
     shotMovementSpeed: LevelBasedValue.ConstantValue(6f),
     numberOfSalvosPerShot: 4,
     timeBetweenSalvosInSeconds: 0.2f,
@@ -51,7 +57,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     range: LevelBasedValue.ConstantValue(4f),
     shotImageName: "ShotgunPellet",
     equipmentImageName: "Shotgun",
-    timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(1.5f),
+    maxCharge: LevelBasedValue.ConstantValue(1.5f),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.ConstantValue(1),
     numberOfBulletsPerSalvo: 5,
     shotMaxMovementSpeed: LevelBasedValue.ConstantValue(8.1f),
     shotMinMovementSpeed: LevelBasedValue.ConstantValue(7.3f),
@@ -67,8 +74,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     range: LevelBasedValue.ConstantValue(5f),
     shotImageName: "Flamer",
     equipmentImageName: "Flamer",
-    timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.0f),
-    beamLifetimeInSeconds: LevelBasedValue.ConstantValue(1f),
+    maxCharge: LevelBasedValue.ConstantValue(2.0f),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.ConstantValue(1.0f),
     damagePerSecond: LevelBasedValue.ConstantValue(1f),
     itemDisplayName: "Flamer",
     baselineEnergyRequirement: LevelBasedValue.ConstantValue(1)
@@ -78,7 +85,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     range: LevelBasedValue.ConstantValue(10f),
     shotImageName: "Missile",
     equipmentImageName: "Missile",
-    timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.0f),
+    maxCharge: LevelBasedValue.ConstantValue(2.0f),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.ConstantValue(1.0f),
     shotMovementSpeed: LevelBasedValue.ConstantValue(7f),
     damagePerBullet: LevelBasedValue.ConstantValue(1),
     itemDisplayName: "Missile launcher",
@@ -92,7 +100,8 @@ public class BulletWeaponConfig : WeaponConfig {
     string shotImageName,
     string equipmentImageName,
     string itemDisplayName,
-    LevelBasedValue timeBetweenShotsInSeconds,
+    LevelBasedValue maxCharge,
+    LevelBasedValue energyConsumptionWhenRechargingPerSecond,
     LevelBasedValue shotMaxMovementSpeed,
     LevelBasedValue shotMinMovementSpeed,
     LevelBasedValue damagePerBullet,
@@ -100,7 +109,7 @@ public class BulletWeaponConfig : WeaponConfig {
     int numberOfSalvosPerShot = 1,
     int numberOfBulletsPerSalvo = 1,
     float timeBetweenSalvosInSeconds = 0f,
-    float shotSpreadInDegrees = 0f) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName, baselineEnergyRequirement) {
+    float shotSpreadInDegrees = 0f) : base(range, shotImageName, equipmentImageName, maxCharge, energyConsumptionWhenRechargingPerSecond, itemDisplayName, baselineEnergyRequirement) {
     this.shotMaxMovementSpeed = shotMaxMovementSpeed;
     this.shotMinMovementSpeed = shotMinMovementSpeed;
     this.damagePerBullet = damagePerBullet;
@@ -115,21 +124,15 @@ public class BulletWeaponConfig : WeaponConfig {
     string shotImageName,
     string equipmentImageName,
     string itemDisplayName,
-    LevelBasedValue timeBetweenShotsInSeconds,
+    LevelBasedValue maxCharge,
+    LevelBasedValue energyConsumptionWhenRechargingPerSecond,
     LevelBasedValue shotMovementSpeed,
     LevelBasedValue damagePerBullet,
     LevelBasedValue baselineEnergyRequirement,
     int numberOfSalvosPerShot = 1,
     int numberOfBulletsPerSalvo = 1,
     float timeBetweenSalvosInSeconds = 0f,
-    float shotSpreadInDegrees = 0f) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName, baselineEnergyRequirement) {
-    this.shotMaxMovementSpeed = shotMovementSpeed;
-    this.shotMinMovementSpeed = shotMovementSpeed;
-    this.damagePerBullet = damagePerBullet;
-    this.numberOfSalvosPerShot = numberOfSalvosPerShot;
-    this.numberOfBulletsPerSalvo = numberOfBulletsPerSalvo;
-    this.TimeBetweenSalvosInSeconds = timeBetweenSalvosInSeconds;
-    this.ShotSpreadInDegrees = shotSpreadInDegrees;
+    float shotSpreadInDegrees = 0f) : this(range, shotImageName, equipmentImageName, itemDisplayName, maxCharge, energyConsumptionWhenRechargingPerSecond, shotMovementSpeed, shotMovementSpeed, damagePerBullet, baselineEnergyRequirement, numberOfSalvosPerShot, numberOfBulletsPerSalvo, timeBetweenSalvosInSeconds, shotSpreadInDegrees) {
   }
 
   public readonly LevelBasedValue shotMaxMovementSpeed;
@@ -151,29 +154,38 @@ public class BeamWeaponConfig : WeaponConfig {
     string equipmentImageName,
     string itemDisplayName,
     LevelBasedValue baselineEnergyRequirement,
-    LevelBasedValue timeBetweenShotsInSeconds,
-    LevelBasedValue damagePerSecond,
-    LevelBasedValue beamLifetimeInSeconds) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName, baselineEnergyRequirement) {
+    LevelBasedValue maxCharge,
+    LevelBasedValue energyConsumptionWhenRechargingPerSecond,
+    LevelBasedValue damagePerSecond) : base(range, shotImageName, equipmentImageName, maxCharge, energyConsumptionWhenRechargingPerSecond, itemDisplayName, baselineEnergyRequirement) {
     this.damagePerSecond = damagePerSecond;
-    this.beamCoherenceTime = beamLifetimeInSeconds;
   }
 
   public readonly LevelBasedValue damagePerSecond;
-  public readonly LevelBasedValue beamCoherenceTime;
 }
 
 public abstract class WeaponBase : EquipmentBase {
-  public float timeToNextShot = 0f;
   public new WeaponConfig Config { get; }
-  public float TimeBetweenShotsInSeconds { get; }
+  public float MaxCharge { get; }
+  public float CurrentCharge { get; set; }
+  public float EnergyConsumptionWhenRechargingPerSecond { get; }
   public float Range { get; }
   protected WeaponBase(WeaponConfig config, float level) : base(config, level) {
     Config = config;
-    this.TimeBetweenShotsInSeconds = config.timeBetweenShotsInSeconds.GetLevelValue(level);
+    this.MaxCharge = config.maxCharge.GetLevelValue(level);
     this.Range = config.range.GetLevelValue(level);
+    this.EnergyConsumptionWhenRechargingPerSecond = config.energyConsumptionWhenRechargingPerSecond.GetLevelValue(level);
   }
 
   override public EquipmentType Type { get { return EquipmentType.Weapon; } }
+
+  [NoDisplay]
+  public override float CurrentChargingRequirementPerSecond => CurrentCharge < MaxCharge ? EnergyConsumptionWhenRechargingPerSecond : 0;
+
+  public override void Charge(float chargeRatio) {
+    CurrentCharge = MathF.Min(MaxCharge, CurrentCharge + chargeRatio * Time.deltaTime);
+  }
+
+  public abstract bool CanShoot();
 }
 
 public abstract class WeaponInstance<T> : WeaponBase where T : WeaponConfig {
@@ -185,11 +197,15 @@ public abstract class WeaponInstance<T> : WeaponBase where T : WeaponConfig {
 
 public class BeamInstance : WeaponInstance<BeamWeaponConfig> {
   public float DamagePerSecond { get; }
-  public float BeamLifetimeInSeconds { get; }
 
   public BeamInstance(BeamWeaponConfig config, float level) : base(config, level) {
-    this.BeamLifetimeInSeconds = config.beamCoherenceTime.GetLevelValue(level);
     this.DamagePerSecond = config.damagePerSecond.GetLevelValue(level);
+  }
+
+  public bool IsCurrentlyfiring { get; set; }
+
+  public override bool CanShoot() {
+    return !IsCurrentlyfiring && CurrentCharge > 0.2f * MaxCharge;
   }
 }
 
@@ -215,5 +231,16 @@ public class BulletWeaponInstance : WeaponInstance<BulletWeaponConfig> {
     }
 
     return $"{baseDescription}number of bullets per shot: {numberOfBulletsPerShot}";
+  }
+
+  protected override string PropertyInfoToString(PropertyInfo propertyInfo) {
+    if (propertyInfo.Name == nameof(WeaponBase.MaxCharge)) {
+      return $"time between shots: {this.MaxCharge / this.EnergyConsumptionWhenRechargingPerSecond} seconds";
+    }
+    return base.PropertyInfoToString(propertyInfo);
+  }
+
+  public override bool CanShoot() {
+    return CurrentCharge == MaxCharge;
   }
 }
