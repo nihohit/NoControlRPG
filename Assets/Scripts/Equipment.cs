@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using System.Text;
 using Assets.Scripts.Base;
+using UnityEngine;
 
 public enum EquipmentType { Weapon, Reactor, Shield, TargetingSystem }
 
@@ -20,20 +21,23 @@ public class EquipmentConfigBase {
 public class NoDisplayAttribute : Attribute { }
 
 public class ShieldConfig : EquipmentConfigBase {
-  public ShieldConfig(string equipmentImageName, string itemDisplayName, LevelBasedValue strength, LevelBasedValue rechargeRate, LevelBasedValue timeBeforeRecharge, LevelBasedValue baselineEnergyRequirement) : base(equipmentImageName, itemDisplayName, baselineEnergyRequirement) {
+  public ShieldConfig(string equipmentImageName, string itemDisplayName, LevelBasedValue strength, LevelBasedValue rechargeRate, LevelBasedValue energyConsumptionWhenRechargingPerSecond, LevelBasedValue timeBeforeRecharge, LevelBasedValue baselineEnergyRequirement) : base(equipmentImageName, itemDisplayName, baselineEnergyRequirement) {
     Strength = strength;
     RechargeRate = rechargeRate;
     TimeBeforeRecharge = timeBeforeRecharge;
+    EnergyConsumptionWhenRechargingPerSecond = energyConsumptionWhenRechargingPerSecond;
   }
 
   public LevelBasedValue Strength { get; }
   public LevelBasedValue RechargeRate { get; }
+  public LevelBasedValue EnergyConsumptionWhenRechargingPerSecond { get; }
   public LevelBasedValue TimeBeforeRecharge { get; }
 
   public static ShieldConfig DEFAULT = new("Shield", "Basic shield",
     strength: LevelBasedValue.LinearValue(10),
     rechargeRate: LevelBasedValue.LinearValue(0.5f),
-    timeBeforeRecharge: LevelBasedValue.LinearValue(1),
+    timeBeforeRecharge: LevelBasedValue.LinearValue(0.5f),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1),
     baselineEnergyRequirement: LevelBasedValue.LinearValue(1.5f)
   );
 }
@@ -48,7 +52,7 @@ public class ReactorConfig : EquipmentConfigBase {
   public LevelBasedValue EnergyRechargeRate { get; }
 
   public static ReactorConfig DEFAULT = new("Reactor", "Basic reactor",
-    maxEnergyLevel: LevelBasedValue.LinearValue(1),
+    maxEnergyLevel: LevelBasedValue.LinearValue(20),
     rechargeRate: LevelBasedValue.LinearValue(5)
   );
 }
@@ -69,6 +73,11 @@ public abstract class EquipmentBase {
 
   public float BaselineEnergyRequirement { get; }
 
+  public abstract float CurrentChargingRequirementPerSecond { get; }
+
+  public abstract void Charge(float chargeRatio);
+
+  #region item description
   protected string FormattedPropertyName(PropertyInfo propertyInfo) {
     if (string.IsNullOrEmpty(propertyInfo.Name)) return string.Empty;
 
@@ -86,7 +95,7 @@ public abstract class EquipmentBase {
     return stringBuilder.ToString();
   }
 
-  protected virtual string? PropertyInfoToString(PropertyInfo propertyInfo) {
+  protected virtual string PropertyInfoToString(PropertyInfo propertyInfo) {
     var name = FormattedPropertyName(propertyInfo);
     if (name.EndsWith("in seconds")) {
       return $"{name[..name.LastIndexOf(" in seconds")]}: {propertyInfo.GetValue(this)} seconds";
@@ -101,17 +110,19 @@ public abstract class EquipmentBase {
     var stringBuilder = new StringBuilder();
     stringBuilder.AppendLine(this.Config.ItemDisplayName);
     foreach (var propertyInfo in this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)) {
-      var description = PropertyInfoToString(propertyInfo);
       if (!propertyInfo.CanWrite
           && propertyInfo.Name != "Type"
           && propertyInfo.Name != "Config"
-          && propertyInfo.CustomAttributes.None(attribute => attribute.AttributeType == typeof(NoDisplayAttribute))
-          && !string.IsNullOrWhiteSpace(description)) {
-        stringBuilder.AppendLine(description);
+          && propertyInfo.CustomAttributes.None(attribute => attribute.AttributeType == typeof(NoDisplayAttribute))) {
+        var description = PropertyInfoToString(propertyInfo);
+        if (!string.IsNullOrWhiteSpace(description)) {
+          stringBuilder.AppendLine(description);
+        }
       }
     }
     return stringBuilder.ToString();
   }
+  #endregion
 }
 
 public class ShieldInstance : EquipmentBase {
@@ -120,26 +131,42 @@ public class ShieldInstance : EquipmentBase {
     CurrentStrength = MaxStrength;
     RechargeRatePerSecond = config.RechargeRate.GetLevelValue(level);
     TimeBeforeRecharge = config.TimeBeforeRecharge.GetLevelValue(level);
+    EnergyConsumptionWhenRechargingPerSecond = config.EnergyConsumptionWhenRechargingPerSecond.GetLevelValue(level);
   }
 
   override public EquipmentType Type { get { return EquipmentType.Shield; } }
+  public float EnergyConsumptionWhenRechargingPerSecond { get; }
   public float MaxStrength { get; }
   public float RechargeRatePerSecond { get; }
   public float TimeBeforeRecharge { get; }
   public float TimeBeforeNextRecharge { get; set; }
   public float CurrentStrength { get; set; }
+
+  [NoDisplay]
+  public override float CurrentChargingRequirementPerSecond => CurrentStrength < MaxStrength ? EnergyConsumptionWhenRechargingPerSecond : 0;
+
+  public override void Charge(float chargeRatio) {
+    CurrentStrength = MathF.Min(MaxStrength, CurrentStrength + RechargeRatePerSecond * chargeRatio * Time.deltaTime);
+  }
 }
 
 public class ReactorInstance : EquipmentBase {
   public ReactorInstance(ReactorConfig config, float level) : base(config, level) {
     MaxEnergyLevel = config.MaxEnergyLevel.GetLevelValue(level);
     CurrentEnergyLevel = MaxEnergyLevel;
-    RechargeRate = config.EnergyRechargeRate.GetLevelValue(level);
+    EnergyRecoveryPerSecond = config.EnergyRechargeRate.GetLevelValue(level);
   }
   override public EquipmentType Type { get { return EquipmentType.Reactor; } }
   public float MaxEnergyLevel { get; }
   public float CurrentEnergyLevel { get; set; }
-  public float RechargeRate { get; }
+  public float EnergyRecoveryPerSecond { get; }
+
+  [NoDisplay]
+  public override float CurrentChargingRequirementPerSecond => throw new NotImplementedException();
+
+  public override void Charge(float energy) {
+    throw new NotImplementedException();
+  }
 
   protected override string PropertyInfoToString(PropertyInfo propertyInfo) {
     if (propertyInfo.Name == nameof(EquipmentBase.BaselineEnergyRequirement)) {
@@ -152,4 +179,11 @@ public class ReactorInstance : EquipmentBase {
 public class TargetingSystemInstance : EquipmentBase {
   public TargetingSystemInstance(TargetingSystemConfig config, float level) : base(config, level) { }
   override public EquipmentType Type { get { return EquipmentType.TargetingSystem; } }
+
+  [NoDisplay]
+  public override float CurrentChargingRequirementPerSecond => throw new NotImplementedException();
+
+  public override void Charge(float energy) {
+    throw new NotImplementedException();
+  }
 }

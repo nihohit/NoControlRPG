@@ -16,6 +16,7 @@ public class UIManagerScript : MonoBehaviour {
   private GameObject battleUIHolder;
   private Image healthBar;
   private Image shieldBar;
+  private Image energyBar;
 
   private Dictionary<EquipmentType, List<EquipmentButtonScript>> equippedItemsButtons;
   private EquipmentButtonScript[] availableItemsButtons;
@@ -35,6 +36,7 @@ public class UIManagerScript : MonoBehaviour {
     battleUIHolder = transform.Find("BattleUI").gameObject;
     healthBar = GameObject.Find("HealthBar").GetComponent<Image>();
     shieldBar = GameObject.Find("ShieldBar").GetComponent<Image>();
+    energyBar = GameObject.Find("EnergyBar").GetComponent<Image>();
     var equippedItems = GameObject.Find("Equipped Items");
     equippedItemsButtons = GameObject
       .Find("Equipped Items")
@@ -97,6 +99,7 @@ public class UIManagerScript : MonoBehaviour {
   public void UpdateUIOverlay() {
     healthBar.fillAmount = Player.Instance.CurrentHealth / Player.Instance.FullHealth;
     shieldBar.fillAmount = Player.Instance.Shield.CurrentStrength / Player.Instance.Shield.MaxStrength;
+    energyBar.fillAmount = Player.Instance.Reactor.CurrentEnergyLevel / Player.Instance.Reactor.MaxEnergyLevel;
   }
 
   public void SwitchContextPressed() {
@@ -123,7 +126,7 @@ public class UIManagerScript : MonoBehaviour {
   }
 
   private bool HasSufficientEnergy() {
-    var energySum = (equippedItemsButtons[EquipmentType.Reactor][0].Equipment as ReactorInstance).RechargeRate;
+    var energySum = (equippedItemsButtons[EquipmentType.Reactor][0].Equipment as ReactorInstance).EnergyRecoveryPerSecond;
     energySum -= equippedItemsButtons[EquipmentType.Shield][0].Equipment.BaselineEnergyRequirement;
     energySum -= equippedItemsButtons[EquipmentType.Weapon][0].Equipment.BaselineEnergyRequirement;
     energySum -= equippedItemsButtons[EquipmentType.Weapon][1]?.Equipment?.BaselineEnergyRequirement ?? 0;
