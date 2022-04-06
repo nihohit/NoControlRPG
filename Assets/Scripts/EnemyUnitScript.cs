@@ -10,8 +10,8 @@ public class EnemyUnitScript : MonoBehaviour {
   public WeaponBase Weapon { get; private set; }
 
   public void Init(EnemyConfig config, float level) {
-    Health = config.Health.getLevelValue(level);
-    Speed = config.Speed.getLevelValue(level);
+    Health = config.Health.GetLevelValue(level);
+    Speed = config.Speed.GetLevelValue(level);
     Weapon = (config.Weapon is BeamWeaponConfig beam) ?
       new BeamInstance(beam, level) :
       new BulletWeaponInstance(config.Weapon as BulletWeaponConfig, level);
