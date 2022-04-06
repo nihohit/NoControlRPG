@@ -16,7 +16,7 @@ public class BulletScript : ShotScript<BulletWeaponInstance> {
     Speed = (float)Randomiser.NextDouble(weapon.shotMinMovementSpeed, weapon.shotMaxMovementSpeed);
   }
 
-  private void OnTriggerEnter2D(Collider2D other) {
+  protected void OnTriggerEnter2D(Collider2D other) {
     if (other.gameObject == Shooter || alreadyHit) {
       return;
     }

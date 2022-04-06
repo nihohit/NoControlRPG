@@ -38,7 +38,7 @@ public class SpawnPool : MonoBehaviour {
     }
   }
 
-  private void Awake() {
+  protected void Awake() {
     bulletBaseResource = Resources.Load<GameObject>("prefabs/Shot");
     beamBaseResource = Resources.Load<GameObject>("prefabs/Beam");
     unitBaseResource = Resources.Load<GameObject>("prefabs/EnemyUnit");

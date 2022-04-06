@@ -8,7 +8,7 @@ public class ExplosionScript : MonoBehaviour {
   private int callbacksCalled;
 
   // Start is called before the first frame update
-  void Awake() {
+  protected void Awake() {
     spawnPool = FindObjectOfType<SpawnPool>();
     particles = GetComponentsInChildren<ParticleSystem>()
       .Select(system => system.gameObject.AddComponent<ParticleCallbackScript>())

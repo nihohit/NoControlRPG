@@ -240,7 +240,7 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   // Update is called once per frame
-  void Update() {
+  protected void Update() {
     ReleaseEntities();
 
     if (mode != Mode.Battle) {
