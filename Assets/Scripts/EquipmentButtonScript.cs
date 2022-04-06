@@ -62,7 +62,7 @@ public class EquipmentButtonScript : MonoBehaviour {
 
 
   // Start is called before the first frame update
-  void Awake() {
+  protected void Awake() {
     manager = GameObject.FindObjectOfType<UIManagerScript>();
     button = GetComponent<Button>();
     button.onClick.AddListener(OnClick);

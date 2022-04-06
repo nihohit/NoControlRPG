@@ -9,7 +9,7 @@ public class ShotScript<T> : MonoBehaviour where T : WeaponBase {
   public GameObject Shooter { get; private set; }
   protected BattleMainManagerScript manager;
 
-  private void Awake() {
+  protected void Awake() {
     manager = FindObjectOfType<BattleMainManagerScript>();
   }
 
