@@ -1,7 +1,7 @@
 using System;
 
 public abstract class WeaponConfig : EquipmentConfigBase {
-  protected WeaponConfig(LevelBasedValue range, string shotImageName, string equipmentImageName, LevelBasedValue timeBetweenShotsInSeconds, string itemDisplayName) : base(equipmentImageName, itemDisplayName) {
+  protected WeaponConfig(LevelBasedValue range, string shotImageName, string equipmentImageName, LevelBasedValue timeBetweenShotsInSeconds, string itemDisplayName, LevelBasedValue baselineEnergyRequirement) : base(equipmentImageName, itemDisplayName, baselineEnergyRequirement) {
     this.range = range;
     this.shotImageName = shotImageName;
     this.timeBetweenShotsInSeconds = timeBetweenShotsInSeconds;
@@ -18,7 +18,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.5f),
     beamLifetimeInSeconds: LevelBasedValue.ConstantValue(0.5f),
     damagePerSecond: LevelBasedValue.ConstantValue(2f),
-    itemDisplayName: "Laser beam"
+    itemDisplayName: "Laser beam",
+    baselineEnergyRequirement: LevelBasedValue.ConstantValue(1.5f)
   );
 
   public static BulletWeaponConfig RIFLE = new(
@@ -28,7 +29,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(1.5f),
     shotMovementSpeed: LevelBasedValue.ConstantValue(6f),
     damagePerBullet: LevelBasedValue.ConstantValue(2),
-    itemDisplayName: "Rifle"
+    itemDisplayName: "Rifle",
+    baselineEnergyRequirement: LevelBasedValue.ConstantValue(1)
   );
 
   public static BulletWeaponConfig MACHINE_GUN = new(
@@ -41,7 +43,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     timeBetweenSalvosInSeconds: 0.2f,
     shotSpreadInDegrees: 5,
     damagePerBullet: LevelBasedValue.ConstantValue(1),
-    itemDisplayName: "Machine gun"
+    itemDisplayName: "Machine gun",
+    baselineEnergyRequirement: LevelBasedValue.ConstantValue(1)
   );
 
   public static BulletWeaponConfig TWO_SHOT_SHOTGUN = new(
@@ -56,7 +59,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     timeBetweenSalvosInSeconds: 1.0f / 30f,
     shotSpreadInDegrees: 10,
     damagePerBullet: LevelBasedValue.ConstantValue(0.5f),
-    itemDisplayName: "Two-shot shotgun"
+    itemDisplayName: "Two-shot shotgun",
+    baselineEnergyRequirement: LevelBasedValue.ConstantValue(1)
   );
 
   public static BeamWeaponConfig FLAMER = new(
@@ -66,7 +70,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.0f),
     beamLifetimeInSeconds: LevelBasedValue.ConstantValue(1f),
     damagePerSecond: LevelBasedValue.ConstantValue(1f),
-    itemDisplayName: "Flamer"
+    itemDisplayName: "Flamer",
+    baselineEnergyRequirement: LevelBasedValue.ConstantValue(1)
   );
 
   public static BulletWeaponConfig MISSILE = new(
@@ -76,7 +81,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     timeBetweenShotsInSeconds: LevelBasedValue.ConstantValue(2.0f),
     shotMovementSpeed: LevelBasedValue.ConstantValue(7f),
     damagePerBullet: LevelBasedValue.ConstantValue(1),
-    itemDisplayName: "Missile launcher"
+    itemDisplayName: "Missile launcher",
+    baselineEnergyRequirement: LevelBasedValue.ConstantValue(5)
   );
 }
 
@@ -90,10 +96,11 @@ public class BulletWeaponConfig : WeaponConfig {
     LevelBasedValue shotMaxMovementSpeed,
     LevelBasedValue shotMinMovementSpeed,
     LevelBasedValue damagePerBullet,
+    LevelBasedValue baselineEnergyRequirement,
     int numberOfSalvosPerShot = 1,
     int numberOfBulletsPerSalvo = 1,
     float timeBetweenSalvosInSeconds = 0f,
-    float shotSpreadInDegrees = 0f) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName) {
+    float shotSpreadInDegrees = 0f) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName, baselineEnergyRequirement) {
     this.shotMaxMovementSpeed = shotMaxMovementSpeed;
     this.shotMinMovementSpeed = shotMinMovementSpeed;
     this.damagePerBullet = damagePerBullet;
@@ -111,10 +118,11 @@ public class BulletWeaponConfig : WeaponConfig {
     LevelBasedValue timeBetweenShotsInSeconds,
     LevelBasedValue shotMovementSpeed,
     LevelBasedValue damagePerBullet,
+    LevelBasedValue baselineEnergyRequirement,
     int numberOfSalvosPerShot = 1,
     int numberOfBulletsPerSalvo = 1,
     float timeBetweenSalvosInSeconds = 0f,
-    float shotSpreadInDegrees = 0f) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName) {
+    float shotSpreadInDegrees = 0f) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName, baselineEnergyRequirement) {
     this.shotMaxMovementSpeed = shotMovementSpeed;
     this.shotMinMovementSpeed = shotMovementSpeed;
     this.damagePerBullet = damagePerBullet;
@@ -142,9 +150,10 @@ public class BeamWeaponConfig : WeaponConfig {
     string shotImageName,
     string equipmentImageName,
     string itemDisplayName,
+    LevelBasedValue baselineEnergyRequirement,
     LevelBasedValue timeBetweenShotsInSeconds,
     LevelBasedValue damagePerSecond,
-    LevelBasedValue beamLifetimeInSeconds) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName) {
+    LevelBasedValue beamLifetimeInSeconds) : base(range, shotImageName, equipmentImageName, timeBetweenShotsInSeconds, itemDisplayName, baselineEnergyRequirement) {
     this.damagePerSecond = damagePerSecond;
     this.beamCoherenceTime = beamLifetimeInSeconds;
   }
@@ -158,7 +167,7 @@ public abstract class WeaponBase : EquipmentBase {
   public new WeaponConfig Config { get; }
   public float TimeBetweenShotsInSeconds { get; }
   public float Range { get; }
-  protected WeaponBase(WeaponConfig config, float level) : base(config) {
+  protected WeaponBase(WeaponConfig config, float level) : base(config, level) {
     Config = config;
     this.TimeBetweenShotsInSeconds = config.timeBetweenShotsInSeconds.GetLevelValue(level);
     this.Range = config.range.GetLevelValue(level);
