@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using TMPro;
 
 public class UIManagerScript : MonoBehaviour {
+  private Button switchContextButton;
   private TMPro.TMP_Text switchContextText;
 
   private BattleMainManagerScript mainManager;
@@ -15,6 +16,7 @@ public class UIManagerScript : MonoBehaviour {
   private GameObject battleUIHolder;
   private Image healthBar;
   private Image shieldBar;
+  private Image energyBar;
 
   private Dictionary<EquipmentType, List<EquipmentButtonScript>> equippedItemsButtons;
   private EquipmentButtonScript[] availableItemsButtons;
@@ -26,13 +28,15 @@ public class UIManagerScript : MonoBehaviour {
   private TMP_Text itemText;
 
   // Start is called before the first frame update
-  void Awake() {
-    switchContextText = transform.Find("SwitchContext").transform.Find("Text").GetComponent<TMPro.TMP_Text>();
+  protected void Awake() {
+    switchContextButton = transform.Find("SwitchContext").GetComponent<Button>();
+    switchContextText = switchContextButton.transform.Find("Text").GetComponent<TMPro.TMP_Text>();
     mainManager = GameObject.FindObjectOfType<BattleMainManagerScript>();
     inventoryUIHolder = transform.Find("inventory").gameObject;
     battleUIHolder = transform.Find("BattleUI").gameObject;
     healthBar = GameObject.Find("HealthBar").GetComponent<Image>();
     shieldBar = GameObject.Find("ShieldBar").GetComponent<Image>();
+    energyBar = GameObject.Find("EnergyBar").GetComponent<Image>();
     var equippedItems = GameObject.Find("Equipped Items");
     equippedItemsButtons = GameObject
       .Find("Equipped Items")
@@ -80,7 +84,6 @@ public class UIManagerScript : MonoBehaviour {
   }
 
   public void ToBattleMode() {
-
     Player.Instance.StartRound(equippedItemsButtons[EquipmentType.Weapon][0].Equipment as WeaponBase,
       equippedItemsButtons[EquipmentType.Weapon][1].Equipment as WeaponBase,
       equippedItemsButtons[EquipmentType.Reactor][0].Equipment as ReactorInstance,
@@ -96,10 +99,22 @@ public class UIManagerScript : MonoBehaviour {
   public void UpdateUIOverlay() {
     healthBar.fillAmount = Player.Instance.CurrentHealth / Player.Instance.FullHealth;
     shieldBar.fillAmount = Player.Instance.Shield.CurrentStrength / Player.Instance.Shield.MaxStrength;
+    energyBar.fillAmount = Player.Instance.Reactor.CurrentEnergyLevel / Player.Instance.Reactor.MaxEnergyLevel;
   }
 
   public void SwitchContextPressed() {
+    if (!HasSufficientEnergy()) {
+      return;
+    }
     mainManager.SwitchContext();
+  }
+
+  private void SetLaunchButtonAvailability() {
+    if (HasSufficientEnergy()) {
+      switchContextText.text = "Launch to battle";
+    } else {
+      switchContextText.text = "Insufficient energy";
+    }
   }
 
   private void SetSelectedItemText(EquipmentButtonScript button) {
@@ -107,6 +122,16 @@ public class UIManagerScript : MonoBehaviour {
     var equipment = selectedButton?.Equipment;
     itemTextBackground.SetActive(equipment != null);
     itemText.text = equipment?.ToString() ?? "";
+    SetLaunchButtonAvailability();
+  }
+
+  private bool HasSufficientEnergy() {
+    var energySum = (equippedItemsButtons[EquipmentType.Reactor][0].Equipment as ReactorInstance).EnergyRecoveryPerSecond;
+    energySum -= equippedItemsButtons[EquipmentType.Shield][0].Equipment.BaselineEnergyRequirement;
+    energySum -= equippedItemsButtons[EquipmentType.Weapon][0].Equipment.BaselineEnergyRequirement;
+    energySum -= equippedItemsButtons[EquipmentType.Weapon][1]?.Equipment?.BaselineEnergyRequirement ?? 0;
+    energySum -= equippedItemsButtons[EquipmentType.TargetingSystem][0].Equipment.BaselineEnergyRequirement;
+    return energySum > 0;
   }
 
   public void InventoryButtonSelected(EquipmentButtonScript button) {
@@ -125,6 +150,7 @@ public class UIManagerScript : MonoBehaviour {
       selectedButton.LoadEquipment(button.Equipment, textureHandler);
       button.LoadEquipment(switchedEquipment, textureHandler);
       SetSelectedItemText(null);
+
     }
   }
 }

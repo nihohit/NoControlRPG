@@ -7,16 +7,16 @@ public class BulletScript : ShotScript<BulletWeaponInstance> {
   public float Speed { get; private set; }
 
   public bool InRange() {
-    return Vector3.Distance(StartPoint, transform.position) < Weapon.range;
+    return Vector3.Distance(StartPoint, transform.position) < Weapon.Range;
   }
   public void Init(GameObject shooter, Vector3 startPoint, BulletWeaponInstance weapon) {
     base.Init(shooter, weapon);
     StartPoint = startPoint;
     alreadyHit = false;
-    Speed = (float)Randomiser.NextDouble(weapon.shotMinMovementSpeed, weapon.shotMaxMovementSpeed);
+    Speed = (float)Randomiser.NextDouble(weapon.ShotMinMovementSpeed, weapon.ShotMaxMovementSpeed);
   }
 
-  private void OnTriggerEnter2D(Collider2D other) {
+  protected void OnTriggerEnter2D(Collider2D other) {
     if (other.gameObject == Shooter || alreadyHit) {
       return;
     }
