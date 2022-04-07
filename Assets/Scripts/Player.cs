@@ -23,6 +23,10 @@ public class Player {
     Shield.CurrentStrength = Shield.MaxStrength;
     Shield.TimeBeforeNextRecharge = 0;
 
+    Reactor.CurrentEnergyLevel = Reactor.MaxEnergyLevel;
+    Weapon1.CurrentCharge = Weapon1.MaxCharge;
+    Weapon2.CurrentCharge = Weapon2.MaxCharge;
+
     TargetingSystem = targetingSystem;
     AvailableItems = availableItems;
     CurrentHealth = newHealth;
