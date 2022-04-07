@@ -3,7 +3,16 @@ using System.Reflection;
 using UnityEngine;
 
 public abstract class WeaponConfig : EquipmentConfigBase {
-  protected WeaponConfig(LevelBasedValue range, string shotImageName, string equipmentImageName, LevelBasedValue maxCharge, LevelBasedValue energyConsumptionWhenRechargingPerSecond, string itemDisplayName, LevelBasedValue baselineEnergyRequirement) : base(equipmentImageName, itemDisplayName, baselineEnergyRequirement) {
+  protected WeaponConfig(LevelBasedValue range,
+                         string shotImageName,
+                         string equipmentImageName,
+                         LevelBasedValue maxCharge,
+                         LevelBasedValue energyConsumptionWhenRechargingPerSecond,
+                         string itemDisplayName,
+                         LevelBasedValue baselineEnergyRequirement)
+                          : base(equipmentImageName,
+                                 itemDisplayName,
+                                 baselineEnergyRequirement) {
     this.range = range;
     this.shotImageName = shotImageName;
     this.maxCharge = maxCharge;
@@ -109,7 +118,14 @@ public class BulletWeaponConfig : WeaponConfig {
     int numberOfSalvosPerShot = 1,
     int numberOfBulletsPerSalvo = 1,
     float timeBetweenSalvosInSeconds = 0f,
-    float shotSpreadInDegrees = 0f) : base(range, shotImageName, equipmentImageName, maxCharge, energyConsumptionWhenRechargingPerSecond, itemDisplayName, baselineEnergyRequirement) {
+    float shotSpreadInDegrees = 0f)
+    : base(range,
+           shotImageName,
+           equipmentImageName,
+           maxCharge,
+           energyConsumptionWhenRechargingPerSecond,
+           itemDisplayName,
+           baselineEnergyRequirement) {
     this.shotMaxMovementSpeed = shotMaxMovementSpeed;
     this.shotMinMovementSpeed = shotMinMovementSpeed;
     this.damagePerBullet = damagePerBullet;
@@ -132,7 +148,21 @@ public class BulletWeaponConfig : WeaponConfig {
     int numberOfSalvosPerShot = 1,
     int numberOfBulletsPerSalvo = 1,
     float timeBetweenSalvosInSeconds = 0f,
-    float shotSpreadInDegrees = 0f) : this(range, shotImageName, equipmentImageName, itemDisplayName, maxCharge, energyConsumptionWhenRechargingPerSecond, shotMovementSpeed, shotMovementSpeed, damagePerBullet, baselineEnergyRequirement, numberOfSalvosPerShot, numberOfBulletsPerSalvo, timeBetweenSalvosInSeconds, shotSpreadInDegrees) {
+    float shotSpreadInDegrees = 0f)
+    : this(range,
+           shotImageName,
+           equipmentImageName,
+           itemDisplayName,
+           maxCharge,
+           energyConsumptionWhenRechargingPerSecond,
+           shotMovementSpeed,
+           shotMovementSpeed,
+           damagePerBullet,
+           baselineEnergyRequirement,
+           numberOfSalvosPerShot,
+           numberOfBulletsPerSalvo,
+           timeBetweenSalvosInSeconds,
+           shotSpreadInDegrees) {
   }
 
   public readonly LevelBasedValue shotMaxMovementSpeed;
@@ -156,7 +186,14 @@ public class BeamWeaponConfig : WeaponConfig {
     LevelBasedValue baselineEnergyRequirement,
     LevelBasedValue maxCharge,
     LevelBasedValue energyConsumptionWhenRechargingPerSecond,
-    LevelBasedValue damagePerSecond) : base(range, shotImageName, equipmentImageName, maxCharge, energyConsumptionWhenRechargingPerSecond, itemDisplayName, baselineEnergyRequirement) {
+    LevelBasedValue damagePerSecond)
+    : base(range,
+           shotImageName,
+           equipmentImageName,
+           maxCharge,
+           energyConsumptionWhenRechargingPerSecond,
+           itemDisplayName,
+           baselineEnergyRequirement) {
     this.damagePerSecond = damagePerSecond;
   }
 

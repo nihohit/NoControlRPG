@@ -7,7 +7,9 @@ using UnityEngine;
 public enum EquipmentType { Weapon, Reactor, Shield, TargetingSystem }
 
 public class EquipmentConfigBase {
-  public EquipmentConfigBase(string equipmentImageName, string itemDisplayName, LevelBasedValue baselineEnergyRequirement) {
+  public EquipmentConfigBase(string equipmentImageName,
+                             string itemDisplayName,
+                             LevelBasedValue baselineEnergyRequirement) {
     this.EquipmentImageName = equipmentImageName;
     this.ItemDisplayName = itemDisplayName;
     this.BaselineEnergyRequirement = baselineEnergyRequirement;
@@ -21,7 +23,16 @@ public class EquipmentConfigBase {
 public class NoDisplayAttribute : Attribute { }
 
 public class ShieldConfig : EquipmentConfigBase {
-  public ShieldConfig(string equipmentImageName, string itemDisplayName, LevelBasedValue strength, LevelBasedValue rechargeRate, LevelBasedValue energyConsumptionWhenRechargingPerSecond, LevelBasedValue timeBeforeRecharge, LevelBasedValue baselineEnergyRequirement) : base(equipmentImageName, itemDisplayName, baselineEnergyRequirement) {
+  public ShieldConfig(string equipmentImageName,
+                      string itemDisplayName,
+                      LevelBasedValue strength,
+                      LevelBasedValue rechargeRate,
+                      LevelBasedValue energyConsumptionWhenRechargingPerSecond,
+                      LevelBasedValue timeBeforeRecharge,
+                      LevelBasedValue baselineEnergyRequirement)
+                      : base(equipmentImageName,
+                             itemDisplayName,
+                             baselineEnergyRequirement) {
     Strength = strength;
     RechargeRate = rechargeRate;
     TimeBeforeRecharge = timeBeforeRecharge;
@@ -43,7 +54,13 @@ public class ShieldConfig : EquipmentConfigBase {
 }
 
 public class ReactorConfig : EquipmentConfigBase {
-  public ReactorConfig(string equipmentImageName, string itemDisplayName, LevelBasedValue maxEnergyLevel, LevelBasedValue rechargeRate) : base(equipmentImageName, itemDisplayName, baselineEnergyRequirement: LevelBasedValue.ConstantValue(0)) {
+  public ReactorConfig(string equipmentImageName,
+                       string itemDisplayName,
+                       LevelBasedValue maxEnergyLevel,
+                       LevelBasedValue rechargeRate)
+                       : base(equipmentImageName,
+                              itemDisplayName,
+                              baselineEnergyRequirement: LevelBasedValue.ConstantValue(0)) {
     MaxEnergyLevel = maxEnergyLevel;
     EnergyRechargeRate = rechargeRate;
   }
@@ -58,7 +75,12 @@ public class ReactorConfig : EquipmentConfigBase {
 }
 
 public class TargetingSystemConfig : EquipmentConfigBase {
-  public TargetingSystemConfig(string equipmentImageName, string itemDisplayName, LevelBasedValue baselineEnergyRequirement) : base(equipmentImageName, itemDisplayName, baselineEnergyRequirement) { }
+  public TargetingSystemConfig(string equipmentImageName,
+                               string itemDisplayName,
+                               LevelBasedValue baselineEnergyRequirement)
+                               : base(equipmentImageName,
+                                      itemDisplayName,
+                                      baselineEnergyRequirement) { }
 
   public static TargetingSystemConfig DEFAULT = new("TargetingSystem", "Default targeting system", LevelBasedValue.ConstantValue(0));
 }
