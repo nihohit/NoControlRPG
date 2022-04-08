@@ -31,14 +31,16 @@ public class LevelBasedValue {
 }
 
 public class EnemyConfig {
-  public EnemyConfig(LevelBasedValue health, string imageName, LevelBasedValue speed, WeaponConfig weapon) {
+  public EnemyConfig(LevelBasedValue health, string imageName, LevelBasedValue speed, WeaponConfig weapon, float dropChance) {
     Health = health;
     ImageName = imageName;
     Speed = speed;
     Weapon = weapon;
+    DropChance = dropChance;
   }
-  public LevelBasedValue Health { get; private set; }
-  public LevelBasedValue Speed { get; private set; }
-  public string ImageName { get; private set; }
-  public WeaponConfig Weapon { get; private set; }
+  public LevelBasedValue Health { get; }
+  public LevelBasedValue Speed { get; }
+  public string ImageName { get; }
+  public WeaponConfig Weapon { get; }
+  public float DropChance { get; }
 }
