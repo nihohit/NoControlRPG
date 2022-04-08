@@ -89,11 +89,32 @@ public class BattleMainManagerScript : MonoBehaviour {
     }
   }
 
+  private void ClearReleaseLists() {
+    bulletsToRelease.Clear();
+    beamsToRelease.Clear();
+  }
+
+  private void ReleaseBullet(BulletScript bullet) {
+    spawnPool.ReturnBullet(bullet);
+  }
+
+  private void ReleaseEnemy(EnemyUnitScript enemy) {
+    spawnPool.ReturnUnit(enemy);
+  }
+
+  private void ReleaseBeam(BeamScript beam) {
+    spawnPool.ReturnBeam(beam);
+    beam.Weapon.IsCurrentlyfiring = false;
+  }
+
   private void ReleaseAllEntities() {
-    bullets.Values.ForEach(bullet => bulletsToRelease.Add(bullet));
-    beams.Values.ForEach(beam => beamsToRelease.Add(beam));
-    // pretty ugly hack, but it works
-    enemies.Values.ForEach(enemy => enemy.Health = 0);
+    bullets.Values.ForEach(ReleaseBullet);
+    bullets.Clear();
+    beams.Values.ForEach(ReleaseBeam);
+    beams.Clear();
+    enemies.Values.ForEach(ReleaseEnemy);
+    enemies.Clear();
+    ClearReleaseLists();
   }
 
   internal void BulletHitEnemy(BulletScript shotScript, GameObject enemy) {
@@ -302,25 +323,22 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private void ReleaseEntities() {
-    foreach (var bullet in bulletsToRelease) {
+    bulletsToRelease.ForEach(bullet => {
       bullets.Remove(bullet.Identifier);
-      spawnPool.ReturnBullet(bullet);
-    }
-    bulletsToRelease.Clear();
+      ReleaseBullet(bullet);
+    });
 
     var enemiesToRelease = enemies.Where(pair => pair.Value.Health <= 0).ToList();
     foreach (var (key, enemy) in enemiesToRelease) {
       spawnPool.SpawnUnitExplosion(enemy.transform.position);
-      enemies.Remove(key);
-      spawnPool.ReturnUnit(enemy);
+      enemies.Remove(enemy.Identifier);
+      ReleaseEnemy(enemy);
     }
-    enemiesToRelease.Clear();
 
-    foreach (var beam in beamsToRelease) {
+    beamsToRelease.ForEach(beam => {
       beams.Remove(beam.Identifier);
-      spawnPool.ReturnBeam(beam);
-      beam.Weapon.IsCurrentlyfiring = false;
-    }
-    beamsToRelease.Clear();
+      ReleaseBeam(beam);
+    });
+    ClearReleaseLists();
   }
 }
