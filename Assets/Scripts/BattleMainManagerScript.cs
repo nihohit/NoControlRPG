@@ -23,11 +23,28 @@ public class BattleMainManagerScript : MonoBehaviour {
   private readonly HashSet<BulletScript> bulletsToRelease = new();
   private readonly HashSet<BeamScript> beamsToRelease = new();
 
+  private static EnemyConfig MakeScoutMech(WeaponConfig weaponConfig) {
+    return new EnemyConfig(health: new LevelBasedValue(constant: 2f, linearCoefficient: 1),
+                    imageName: "ScoutMech",
+                    speed: LevelBasedValue.ConstantValue(15f),
+                    weapon: weaponConfig,
+                    dropChance: 0.07f);
+  }
+
+
+  private static EnemyConfig MakeHeavyMech(WeaponConfig weaponConfig) {
+    return new EnemyConfig(health: new LevelBasedValue(constant: 4f, linearCoefficient: 1.5f),
+                    imageName: "HeavyMech",
+                    speed: LevelBasedValue.ConstantValue(10f),
+                    weapon: weaponConfig,
+                    dropChance: 0.15f);
+  }
+
   private readonly List<EnemyConfig> enemyConfigs = new() {
-    new EnemyConfig(new LevelBasedValue(constant: 2f, linearCoefficient: 1), "ScoutMech", LevelBasedValue.ConstantValue(15f), WeaponConfig.TWO_SHOT_SHOTGUN),
-    new EnemyConfig(new LevelBasedValue(constant: 2f, linearCoefficient: 1), "ScoutMech", LevelBasedValue.ConstantValue(15f), WeaponConfig.FLAMER),
-    new EnemyConfig(new LevelBasedValue(constant: 4f, linearCoefficient: 1.5f), "HeavyMech", LevelBasedValue.ConstantValue(10f), WeaponConfig.RIFLE),
-    new EnemyConfig(new LevelBasedValue(constant: 4f, linearCoefficient: 1.5f), "HeavyMech", LevelBasedValue.ConstantValue(10f), WeaponConfig.MISSILE)
+    MakeScoutMech(WeaponConfig.TWO_SHOT_SHOTGUN),
+    MakeScoutMech(WeaponConfig.FLAMER),
+    MakeHeavyMech(WeaponConfig.RIFLE),
+    MakeHeavyMech(WeaponConfig.MISSILE)
   };
 
   // Start is called before the first frame update

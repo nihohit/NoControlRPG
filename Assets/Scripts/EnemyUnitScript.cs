@@ -9,7 +9,10 @@ public class EnemyUnitScript : MonoBehaviour {
 
   public WeaponBase Weapon { get; private set; }
 
+  public float Level { get; private set; }
+
   public void Init(EnemyConfig config, float level) {
+    Level = level;
     Health = config.Health.GetLevelValue(level);
     Speed = config.Speed.GetLevelValue(level);
     Weapon = (config.Weapon is BeamWeaponConfig beam) ?
