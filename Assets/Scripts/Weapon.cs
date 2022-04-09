@@ -175,6 +175,7 @@ public class BulletWeaponConfig : WeaponConfig {
   public readonly int numberOfSalvosPerShot;
   public float ShotSpreadInDegrees { get; }
 
+  public override EquipmentBase Instantiate(float level) => new BulletWeaponInstance(this, level);
 }
 
 public class BeamWeaponConfig : WeaponConfig {
@@ -198,6 +199,8 @@ public class BeamWeaponConfig : WeaponConfig {
   }
 
   public readonly LevelBasedValue damagePerSecond;
+
+  public override EquipmentBase Instantiate(float level) => new BeamInstance(this, level);
 }
 
 public abstract class WeaponBase : EquipmentBase {

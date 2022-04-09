@@ -6,7 +6,7 @@ using UnityEngine;
 
 public enum EquipmentType { Weapon, Reactor, Shield, TargetingSystem }
 
-public class EquipmentConfigBase {
+public abstract class EquipmentConfigBase {
   public EquipmentConfigBase(string equipmentImageName,
                              string itemDisplayName,
                              LevelBasedValue baselineEnergyRequirement) {
@@ -18,6 +18,8 @@ public class EquipmentConfigBase {
   public string ItemDisplayName { get; }
 
   public LevelBasedValue BaselineEnergyRequirement { get; }
+
+  public abstract EquipmentBase Instantiate(float level);
 }
 
 public class NoDisplayAttribute : Attribute { }
@@ -51,6 +53,8 @@ public class ShieldConfig : EquipmentConfigBase {
     energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1),
     baselineEnergyRequirement: LevelBasedValue.LinearValue(1.5f)
   );
+
+  public override EquipmentBase Instantiate(float level) => new ShieldInstance(this, level);
 }
 
 public class ReactorConfig : EquipmentConfigBase {
@@ -72,6 +76,8 @@ public class ReactorConfig : EquipmentConfigBase {
     maxEnergyLevel: LevelBasedValue.LinearValue(20),
     rechargeRate: LevelBasedValue.LinearValue(5)
   );
+
+  public override EquipmentBase Instantiate(float level) => new ReactorInstance(this, level);
 }
 
 public class TargetingSystemConfig : EquipmentConfigBase {
@@ -83,6 +89,8 @@ public class TargetingSystemConfig : EquipmentConfigBase {
                                       baselineEnergyRequirement) { }
 
   public static TargetingSystemConfig DEFAULT = new("TargetingSystem", "Default targeting system", LevelBasedValue.ConstantValue(0));
+
+  public override EquipmentBase Instantiate(float level) => new TargetingSystemInstance(this, level);
 }
 
 public abstract class EquipmentBase {
