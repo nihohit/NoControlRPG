@@ -47,10 +47,32 @@ public class ShieldConfig : EquipmentConfigBase {
   public LevelBasedValue EnergyConsumptionWhenRechargingPerSecond { get; }
   public LevelBasedValue TimeBeforeRecharge { get; }
 
-  public static ShieldConfig DEFAULT = new("Shield", "Basic shield",
-    strength: LevelBasedValue.LinearValue(10),
+  public static ShieldConfig BALANCED = new(
+    equipmentImageName: "Shield",
+    itemDisplayName: "Basic shield",
+    strength: LevelBasedValue.LinearValue(20),
     rechargeRate: LevelBasedValue.LinearValue(0.5f),
-    timeBeforeRecharge: LevelBasedValue.LinearValue(0.5f),
+    timeBeforeRecharge: LevelBasedValue.ConstantValue(1f),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1),
+    baselineEnergyRequirement: LevelBasedValue.LinearValue(1.5f)
+  );
+
+  public static ShieldConfig RAPID_CHARGE = new(
+    equipmentImageName: "Shield",
+    itemDisplayName: "Rapid recharge shield",
+    strength: LevelBasedValue.LinearValue(12),
+    rechargeRate: LevelBasedValue.LinearValue(1f),
+    timeBeforeRecharge: LevelBasedValue.ConstantValue(0.2f),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1),
+    baselineEnergyRequirement: LevelBasedValue.LinearValue(1.5f)
+  );
+
+  public static ShieldConfig STRONG = new(
+    equipmentImageName: "Shield",
+    itemDisplayName: "High strength shield",
+    strength: LevelBasedValue.LinearValue(35),
+    rechargeRate: LevelBasedValue.LinearValue(0.3f),
+    timeBeforeRecharge: LevelBasedValue.ConstantValue(1.5f),
     energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1),
     baselineEnergyRequirement: LevelBasedValue.LinearValue(1.5f)
   );
@@ -73,9 +95,25 @@ public class ReactorConfig : EquipmentConfigBase {
   public LevelBasedValue MaxEnergyLevel { get; }
   public LevelBasedValue EnergyRechargeRate { get; }
 
-  public static ReactorConfig DEFAULT = new("Reactor", "Basic reactor",
+  public static ReactorConfig DEFAULT = new(
+    equipmentImageName: "Reactor",
+    itemDisplayName: "Basic reactor",
     maxEnergyLevel: LevelBasedValue.LinearValue(20),
     rechargeRate: LevelBasedValue.LinearValue(5)
+  );
+
+  public static ReactorConfig FAST_CHARGE = new(
+    equipmentImageName: "Reactor",
+    itemDisplayName: "Fast charge reactor",
+    maxEnergyLevel: LevelBasedValue.LinearValue(1),
+    rechargeRate: LevelBasedValue.LinearValue(6.5f)
+  );
+
+  public static ReactorConfig LARGE_BATTERY = new(
+    equipmentImageName: "Reactor",
+    itemDisplayName: "Large battery reactor",
+    maxEnergyLevel: LevelBasedValue.LinearValue(50),
+    rechargeRate: LevelBasedValue.LinearValue(4.2f)
   );
 
   public override EquipmentBase Instantiate(float level) => new ReactorInstance(this, level);
@@ -89,6 +127,7 @@ public class TargetingSystemConfig : EquipmentConfigBase {
                                       itemDisplayName,
                                       baselineEnergyRequirement) { }
 
+  [NoDrop]
   public static TargetingSystemConfig DEFAULT = new("TargetingSystem", "Default targeting system", LevelBasedValue.ConstantValue(0));
 
   public override EquipmentBase Instantiate(float level) => new TargetingSystemInstance(this, level);

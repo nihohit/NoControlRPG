@@ -29,10 +29,10 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     shotImageName: "Heat Beam",
     equipmentImageName: "Laser",
     maxCharge: LevelBasedValue.ConstantValue(2.5f),
-    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.ConstantValue(1),
-    damagePerSecond: LevelBasedValue.ConstantValue(2f),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1),
+    damagePerSecond: LevelBasedValue.LinearValue(2f),
     itemDisplayName: "Laser beam",
-    baselineEnergyRequirement: LevelBasedValue.ConstantValue(1.5f)
+    baselineEnergyRequirement: LevelBasedValue.LinearValue(1.5f)
   );
 
   public static BulletWeaponConfig RIFLE = new(
@@ -40,11 +40,11 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     shotImageName: "Bullet",
     equipmentImageName: "IncendiaryGun",
     maxCharge: LevelBasedValue.ConstantValue(1.5f),
-    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.ConstantValue(1),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1),
     shotMovementSpeed: LevelBasedValue.ConstantValue(6f),
-    damagePerBullet: LevelBasedValue.ConstantValue(2),
+    damagePerBullet: LevelBasedValue.LinearValue(2),
     itemDisplayName: "Rifle",
-    baselineEnergyRequirement: LevelBasedValue.ConstantValue(1)
+    baselineEnergyRequirement: LevelBasedValue.LinearValue(1)
   );
 
   public static BulletWeaponConfig MACHINE_GUN = new(
@@ -52,14 +52,14 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     shotImageName: "Bullet",
     equipmentImageName: "MachineGun",
     maxCharge: LevelBasedValue.ConstantValue(1.5f),
-    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.ConstantValue(1),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1),
     shotMovementSpeed: LevelBasedValue.ConstantValue(6f),
     numberOfSalvosPerShot: 4,
     timeBetweenSalvosInSeconds: 0.2f,
     shotSpreadInDegrees: 5,
-    damagePerBullet: LevelBasedValue.ConstantValue(1),
+    damagePerBullet: LevelBasedValue.LinearValue(1),
     itemDisplayName: "Machine gun",
-    baselineEnergyRequirement: LevelBasedValue.ConstantValue(1)
+    baselineEnergyRequirement: LevelBasedValue.LinearValue(1)
   );
 
   public static BulletWeaponConfig TWO_SHOT_SHOTGUN = new(
@@ -67,16 +67,16 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     shotImageName: "ShotgunPellet",
     equipmentImageName: "Shotgun",
     maxCharge: LevelBasedValue.ConstantValue(1.5f),
-    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.ConstantValue(1),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1),
     numberOfBulletsPerSalvo: 5,
     shotMaxMovementSpeed: LevelBasedValue.ConstantValue(8.1f),
     shotMinMovementSpeed: LevelBasedValue.ConstantValue(7.3f),
     numberOfSalvosPerShot: 3,
     timeBetweenSalvosInSeconds: 1.0f / 30f,
     shotSpreadInDegrees: 10,
-    damagePerBullet: LevelBasedValue.ConstantValue(0.5f),
+    damagePerBullet: LevelBasedValue.LinearValue(0.5f),
     itemDisplayName: "Two-shot shotgun",
-    baselineEnergyRequirement: LevelBasedValue.ConstantValue(1)
+    baselineEnergyRequirement: LevelBasedValue.LinearValue(1)
   );
 
   public static BeamWeaponConfig FLAMER = new(
@@ -84,10 +84,10 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     shotImageName: "Flamer",
     equipmentImageName: "Flamer",
     maxCharge: LevelBasedValue.ConstantValue(2.0f),
-    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.ConstantValue(1.0f),
-    damagePerSecond: LevelBasedValue.ConstantValue(1f),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1.0f),
+    damagePerSecond: LevelBasedValue.LinearValue(1f),
     itemDisplayName: "Flamer",
-    baselineEnergyRequirement: LevelBasedValue.ConstantValue(1)
+    baselineEnergyRequirement: LevelBasedValue.LinearValue(1)
   );
 
   public static BulletWeaponConfig MISSILE = new(
@@ -95,11 +95,25 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     shotImageName: "Missile",
     equipmentImageName: "Missile",
     maxCharge: LevelBasedValue.ConstantValue(2.0f),
-    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.ConstantValue(1.0f),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1.0f),
     shotMovementSpeed: LevelBasedValue.ConstantValue(7f),
-    damagePerBullet: LevelBasedValue.ConstantValue(1),
+    damagePerBullet: LevelBasedValue.LinearValue(2),
     itemDisplayName: "Missile launcher",
-    baselineEnergyRequirement: LevelBasedValue.ConstantValue(5)
+    baselineEnergyRequirement: LevelBasedValue.LinearValue(5)
+  );
+
+  public static BulletWeaponConfig MINI_MISSILE = new(
+    range: LevelBasedValue.ConstantValue(10f),
+    shotImageName: "Missile",
+    equipmentImageName: "Missile",
+    maxCharge: LevelBasedValue.ConstantValue(2.0f),
+    energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1.0f),
+    damagePerBullet: LevelBasedValue.LinearValue(0.8f),
+    itemDisplayName: "Mini Missiles",
+    shotMaxMovementSpeed: LevelBasedValue.ConstantValue(8.3f),
+    shotMinMovementSpeed: LevelBasedValue.ConstantValue(8.1f),
+    numberOfSalvosPerShot: 3,
+    baselineEnergyRequirement: LevelBasedValue.LinearValue(5)
   );
 }
 
