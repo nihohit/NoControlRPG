@@ -23,6 +23,7 @@ public abstract class EquipmentConfigBase {
 }
 
 public class NoDisplayAttribute : Attribute { }
+public class NoDropAttribute : Attribute { }
 
 public class ShieldConfig : EquipmentConfigBase {
   public ShieldConfig(string equipmentImageName,
@@ -97,9 +98,12 @@ public abstract class EquipmentBase {
   public EquipmentBase(EquipmentConfigBase config, float level) {
     this.Config = config;
     BaselineEnergyRequirement = config.BaselineEnergyRequirement.GetLevelValue(level);
+    Level = level;
   }
   public abstract EquipmentType Type { get; }
   public EquipmentConfigBase Config { get; }
+
+  public float Level { get; }
 
   public float BaselineEnergyRequirement { get; }
 

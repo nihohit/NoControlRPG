@@ -5,6 +5,7 @@ using System.Linq;
 using System;
 using Assets.Scripts.UnityBase;
 using Assets.Scripts.Base;
+using System.Reflection;
 
 public class BattleMainManagerScript : MonoBehaviour {
   private SpawnPool spawnPool;
@@ -322,6 +323,22 @@ public class BattleMainManagerScript : MonoBehaviour {
     reactor.CurrentEnergyLevel = Math.Min(player.Reactor.MaxEnergyLevel, Mathf.Max(0, availableEnergy - currentFrameRequirement));
   }
 
+  static readonly List<EquipmentConfigBase> dropList = typeof(EquipmentConfigBase)
+    .Assembly.GetTypes()
+    .Where(type => type.IsSubclassOf(typeof(EquipmentConfigBase)))
+    .SelectMany(type => type.GetFields()
+                            .Where(field => field.FieldType.IsSubclassOf(typeof(EquipmentConfigBase))
+                                            && !field.CustomAttributes.Any(attribute => attribute.AttributeType == typeof(NoDisplayAttribute)))
+                            .Select(field => field.GetValue(null) as EquipmentConfigBase))
+    .ToList();
+
+  private void RollForDrop(EnemyConfig config, float level) {
+    if (Randomiser.ProbabilityCheck(config.DropChance)) {
+      var chosenConfig = dropList.ChooseRandomValue();
+      Player.Instance.AvailableItems.Add(chosenConfig.Instantiate(level));
+    }
+  }
+
   private void ReleaseEntities() {
     bulletsToRelease.ForEach(bullet => {
       bullets.Remove(bullet.Identifier);
@@ -333,6 +350,7 @@ public class BattleMainManagerScript : MonoBehaviour {
       spawnPool.SpawnUnitExplosion(enemy.transform.position);
       enemies.Remove(enemy.Identifier);
       ReleaseEnemy(enemy);
+      RollForDrop(enemy.Config, enemy.Level);
     }
 
     beamsToRelease.ForEach(beam => {

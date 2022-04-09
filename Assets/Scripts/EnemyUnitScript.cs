@@ -11,6 +11,8 @@ public class EnemyUnitScript : MonoBehaviour {
 
   public float Level { get; private set; }
 
+  public EnemyConfig Config { get; private set; }
+
   public void Init(EnemyConfig config, float level) {
     Level = level;
     Health = config.Health.GetLevelValue(level);
@@ -18,5 +20,6 @@ public class EnemyUnitScript : MonoBehaviour {
     Weapon = (config.Weapon is BeamWeaponConfig beam) ?
       new BeamInstance(beam, level) :
       new BulletWeaponInstance(config.Weapon as BulletWeaponConfig, level);
+    Config = config;
   }
 }
