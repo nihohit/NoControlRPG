@@ -4,12 +4,11 @@ using Assets.Scripts.UnityBase;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
-using System.Collections.ObjectModel;
 using TMPro;
 
 public class UIManagerScript : MonoBehaviour {
   private Button switchContextButton;
-  private TMPro.TMP_Text switchContextText;
+  private TMP_Text switchContextText;
 
   private BattleMainManagerScript mainManager;
   private GameObject inventoryUIHolder;
@@ -54,7 +53,9 @@ public class UIManagerScript : MonoBehaviour {
     itemTextBackground.SetActive(false);
   }
 
-  private void SetupAvailableButtons(ReadOnlyCollection<EquipmentBase> equipment, IEnumerable<EquipmentButtonScript> buttons) {
+  private void SetupAvailableButtons(IList<EquipmentBase> equipment, IEnumerable<EquipmentButtonScript> buttons) {
+    // TODO - handle the items that don't appear in buttons, or add scrolling bar.
+    var sortedEquipment = equipment.OrderByDescending(item => item.Level);
     buttons.ForEach((button, index) => {
       button.LoadEquipment(index < equipment.Count ? equipment[index] : null, textureHandler);
     });
@@ -76,11 +77,11 @@ public class UIManagerScript : MonoBehaviour {
     SetupEquippedButtons(Player.Instance);
   }
 
-  public ReadOnlyCollection<EquipmentBase> ButtonsToEquipment(IEnumerable<EquipmentButtonScript> buttons) {
+  public List<EquipmentBase> ButtonsToEquipment(IEnumerable<EquipmentButtonScript> buttons) {
     return buttons
       .Where(button => button.Equipment != null)
       .Select(button => button.Equipment)
-      .ToReadOnlyCollection();
+      .ToList();
   }
 
   public void ToBattleMode() {

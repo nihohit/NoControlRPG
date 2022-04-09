@@ -8,13 +8,19 @@ public class Player {
   public ReactorInstance Reactor { get; private set; }
   public ShieldInstance Shield { get; private set; }
   public TargetingSystemInstance TargetingSystem { get; private set; }
-  public ReadOnlyCollection<EquipmentBase> AvailableItems { private set; get; }
+  public List<EquipmentBase> AvailableItems { private set; get; }
 
   public static readonly float INITIAL_HEALTH = 100f;
   public float FullHealth { get; private set; }
   public float CurrentHealth { get; set; }
 
-  public void StartRound(WeaponBase weapon1, WeaponBase weapon2, ReactorInstance reactor, ShieldInstance shield, TargetingSystemInstance targetingSystem, ReadOnlyCollection<EquipmentBase> availableItems, float newHealth) {
+  public void StartRound(WeaponBase weapon1,
+                         WeaponBase weapon2,
+                         ReactorInstance reactor,
+                         ShieldInstance shield,
+                         TargetingSystemInstance targetingSystem,
+                         List<EquipmentBase> availableItems,
+                         float newHealth) {
     Weapon1 = weapon1;
     Weapon2 = weapon2;
     Reactor = reactor;
@@ -39,11 +45,6 @@ public class Player {
     Reactor = new ReactorInstance(ReactorConfig.DEFAULT, 1),
     Shield = new ShieldInstance(ShieldConfig.DEFAULT, 1),
     TargetingSystem = new TargetingSystemInstance(TargetingSystemConfig.DEFAULT, 1),
-    AvailableItems = new List<EquipmentBase>{
-      new BulletWeaponInstance(WeaponConfig.MISSILE, 1f),
-      new BeamInstance(WeaponConfig.FLAMER, 1f),
-      new BeamInstance(WeaponConfig.LASER, 1f),
-      new BulletWeaponInstance(WeaponConfig.RIFLE, 1f)
-    }.ToReadOnlyCollection()
+    AvailableItems = new List<EquipmentBase>()
   };
 }
