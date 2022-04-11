@@ -9,6 +9,10 @@ using TMPro;
 public class UIManagerScript : MonoBehaviour {
   private Button switchContextButton;
   private TMP_Text switchContextText;
+  private TMP_Text healthText;
+  private TMP_Text shieldText;
+  private TMP_Text energyText;
+
 
   private BattleMainManagerScript mainManager;
   private GameObject inventoryUIHolder;
@@ -30,6 +34,9 @@ public class UIManagerScript : MonoBehaviour {
   protected void Awake() {
     switchContextButton = transform.Find("SwitchContext").GetComponent<Button>();
     switchContextText = switchContextButton.transform.Find("Text").GetComponent<TMPro.TMP_Text>();
+    healthText = GameObject.Find("HealthText").GetComponent<TMPro.TMP_Text>();
+    shieldText = GameObject.Find("ShieldText").GetComponent<TMPro.TMP_Text>();
+    energyText = GameObject.Find("EnergyText").GetComponent<TMPro.TMP_Text>();
     mainManager = GameObject.FindObjectOfType<BattleMainManagerScript>();
     inventoryUIHolder = transform.Find("inventory").gameObject;
     battleUIHolder = transform.Find("BattleUI").gameObject;
@@ -98,10 +105,14 @@ public class UIManagerScript : MonoBehaviour {
   }
 
   public void UpdateUIOverlay() {
+    string barUiFormat = "{0}: {1:f2}";
     healthBar.fillAmount = Player.Instance.CurrentHealth / Player.Instance.FullHealth;
+    healthText.text = string.Format(barUiFormat,"Health", Player.Instance.CurrentHealth);
     shieldBar.fillAmount = Player.Instance.Shield.CurrentStrength / Player.Instance.Shield.MaxStrength;
+    shieldText.text = string.Format(barUiFormat, "Shield", Player.Instance.Shield.CurrentStrength);
     energyBar.fillAmount = Player.Instance.Reactor.CurrentEnergyLevel / Player.Instance.Reactor.MaxEnergyLevel;
-  }
+    energyText.text = string.Format(barUiFormat, "Energy", Player.Instance.Reactor.CurrentEnergyLevel);
+    }
 
   public void SwitchContextPressed() {
     if (!HasSufficientEnergy()) {
