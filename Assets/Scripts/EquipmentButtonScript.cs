@@ -68,7 +68,7 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
     button = GetComponent<Button>();
     button.onClick.AddListener(OnClick);
     equipmentImage = transform.Find("EquipmentImage").GetComponent<Image>();
-    backgroundImage = GetComponent<Image>();
+    backgroundImage = transform.Find("ItemBackground").GetComponent<Image>();
   }
 
   private void OnClick() {
