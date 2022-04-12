@@ -113,6 +113,8 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     shotMaxMovementSpeed: LevelBasedValue.ConstantValue(8.3f),
     shotMinMovementSpeed: LevelBasedValue.ConstantValue(8.1f),
     numberOfSalvosPerShot: 3,
+    timeBetweenSalvosInSeconds: 0.1f,
+    shotSpreadInDegrees: 5f,
     baselineEnergyRequirement: LevelBasedValue.LinearValue(5)
   );
 }
