@@ -27,8 +27,10 @@ public class UIManagerScript : MonoBehaviour {
   private readonly TextureHandler textureHandler = new();
 
   private EquipmentButtonScript selectedButton = null;
-  private GameObject itemTextBackground;
-  private TMP_Text itemText;
+  private GameObject selectedItemTextBackground;
+  private TMP_Text selectedItemText;
+  private GameObject hoveredItemTextBackground;
+  private TMP_Text hoveredItemText;
 
   // Start is called before the first frame update
   protected void Awake() {
@@ -55,9 +57,12 @@ public class UIManagerScript : MonoBehaviour {
       .GetComponentsInChildren<EquipmentButtonScript>()
       .OrderBy(button => (-button.transform.position.y) * 100000 + button.transform.position.x)
       .ToArray();
-    itemTextBackground = GameObject.Find("TextBackground").gameObject;
-    itemText = itemTextBackground.GetComponentInChildren<TMPro.TMP_Text>();
-    itemTextBackground.SetActive(false);
+    selectedItemTextBackground = GameObject.Find("SelectedItemTextBackground").gameObject;
+    selectedItemText = selectedItemTextBackground.GetComponentInChildren<TMPro.TMP_Text>();
+    selectedItemTextBackground.SetActive(false);
+    hoveredItemTextBackground = GameObject.Find("HoveredItemTextBackground").gameObject;
+    hoveredItemText = hoveredItemTextBackground.GetComponentInChildren<TMPro.TMP_Text>();
+    hoveredItemTextBackground.SetActive(false);
   }
 
   private void SetupAvailableButtons(IList<EquipmentBase> equipment, IEnumerable<EquipmentButtonScript> buttons) {
@@ -107,12 +112,12 @@ public class UIManagerScript : MonoBehaviour {
   public void UpdateUIOverlay() {
     string barUiFormat = "{0}: {1:f2}";
     healthBar.fillAmount = Player.Instance.CurrentHealth / Player.Instance.FullHealth;
-    healthText.text = string.Format(barUiFormat,"Health", Player.Instance.CurrentHealth);
+    healthText.text = string.Format(barUiFormat, "Health", Player.Instance.CurrentHealth);
     shieldBar.fillAmount = Player.Instance.Shield.CurrentStrength / Player.Instance.Shield.MaxStrength;
     shieldText.text = string.Format(barUiFormat, "Shield", Player.Instance.Shield.CurrentStrength);
     energyBar.fillAmount = Player.Instance.Reactor.CurrentEnergyLevel / Player.Instance.Reactor.MaxEnergyLevel;
     energyText.text = string.Format(barUiFormat, "Energy", Player.Instance.Reactor.CurrentEnergyLevel);
-    }
+  }
 
   public void SwitchContextPressed() {
     if (!HasSufficientEnergy()) {
@@ -129,11 +134,15 @@ public class UIManagerScript : MonoBehaviour {
     }
   }
 
+  private void ShowItem(EquipmentButtonScript button, GameObject textBackground, TMP_Text textBox) {
+    var equipment = button?.Equipment;
+    textBackground.SetActive(equipment != null);
+    textBox.text = equipment?.ToString() ?? "";
+  }
+
   private void SetSelectedItemText(EquipmentButtonScript button) {
     selectedButton = button;
-    var equipment = selectedButton?.Equipment;
-    itemTextBackground.SetActive(equipment != null);
-    itemText.text = equipment?.ToString() ?? "";
+    ShowItem(button, selectedItemTextBackground, selectedItemText);
     SetLaunchButtonAvailability();
   }
 
@@ -164,5 +173,13 @@ public class UIManagerScript : MonoBehaviour {
       SetSelectedItemText(null);
 
     }
+  }
+
+  public void PointerEnterButton(EquipmentButtonScript button) {
+    ShowItem(button, hoveredItemTextBackground, hoveredItemText);
+  }
+
+  public void PointerExitButton(EquipmentButtonScript button) {
+    ShowItem(null, hoveredItemTextBackground, hoveredItemText);
   }
 }
