@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class UIManagerScript : MonoBehaviour {
   private Button switchContextButton;
@@ -31,6 +32,7 @@ public class UIManagerScript : MonoBehaviour {
   private TMP_Text selectedItemText;
   private GameObject hoveredItemTextBackground;
   private TMP_Text hoveredItemText;
+  private EventSystem eventSystem;
 
   // Start is called before the first frame update
   protected void Awake() {
@@ -63,6 +65,7 @@ public class UIManagerScript : MonoBehaviour {
     hoveredItemTextBackground = GameObject.Find("HoveredItemTextBackground").gameObject;
     hoveredItemText = hoveredItemTextBackground.GetComponentInChildren<TMPro.TMP_Text>();
     hoveredItemTextBackground.SetActive(false);
+    eventSystem = FindObjectOfType<EventSystem>();
   }
 
   private void SetupAvailableButtons(IList<EquipmentBase> equipment, IEnumerable<EquipmentButtonScript> buttons) {
@@ -158,7 +161,6 @@ public class UIManagerScript : MonoBehaviour {
   public void InventoryButtonSelected(EquipmentButtonScript button) {
     if (selectedButton == null) {
       selectedButton = button;
-      selectedButton.GetComponent<Button>().Select();
       SetSelectedItemText(button);
     } else {
       var switchedEquipment = selectedButton.Equipment;
@@ -171,7 +173,7 @@ public class UIManagerScript : MonoBehaviour {
       selectedButton.LoadEquipment(button.Equipment, textureHandler);
       button.LoadEquipment(switchedEquipment, textureHandler);
       SetSelectedItemText(null);
-
+      eventSystem.SetSelectedGameObject(null);
     }
   }
 
