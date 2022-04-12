@@ -2,10 +2,11 @@ using Assets.Scripts.UnityBase;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using UnityEngine.EventSystems;
 
 public enum EquipmentButtonBehavior { MustMaintainType, MustBeEquippedAndMaintainType, CanBeUnequipped }
 
-public class EquipmentButtonScript : MonoBehaviour {
+public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
   private UIManagerScript manager;
   private Button button;
   private Image equipmentImage;
@@ -72,5 +73,13 @@ public class EquipmentButtonScript : MonoBehaviour {
 
   private void OnClick() {
     manager.InventoryButtonSelected(this);
+  }
+
+  public void OnPointerEnter(PointerEventData eventData) {
+    manager.PointerEnterButton(this);
+  }
+
+  public void OnPointerExit(PointerEventData eventData) {
+    manager.PointerExitButton(this);
   }
 }
