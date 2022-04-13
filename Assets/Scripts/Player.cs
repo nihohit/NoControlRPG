@@ -31,7 +31,9 @@ public class Player {
 
     Reactor.CurrentEnergyLevel = Reactor.MaxEnergyLevel;
     Weapon1.CurrentCharge = Weapon1.MaxCharge;
-    Weapon2.CurrentCharge = Weapon2.MaxCharge;
+    if (Weapon2 != null) {
+      Weapon2.CurrentCharge = Weapon2.MaxCharge;
+    }
 
     TargetingSystem = targetingSystem;
     AvailableItems = availableItems;
