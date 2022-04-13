@@ -22,7 +22,7 @@ public class UIManagerScript : MonoBehaviour {
   private Image shieldBar;
   private Image energyBar;
 
-  private Dictionary<EquipmentType, List<EquipmentButtonScript>> equippedItemsButtons;
+  private List<EquipmentButtonScript> equippedItemsButtons;
   private EquipmentButtonScript[] availableItemsButtons;
 
   private readonly TextureHandler textureHandler = new();
@@ -52,8 +52,7 @@ public class UIManagerScript : MonoBehaviour {
       .Find("Equipped Items")
       .GetComponentsInChildren<EquipmentButtonScript>()
       .OrderBy(button => (-button.transform.position.y) * 100000 + button.transform.position.x)
-      .GroupBy(button => button.RequiredEquipmentType)
-      .ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
+      .ToList();
     availableItemsButtons = GameObject
       .Find("Available Items")
       .GetComponentsInChildren<EquipmentButtonScript>()
@@ -77,11 +76,11 @@ public class UIManagerScript : MonoBehaviour {
   }
 
   private void SetupEquippedButtons(Player player) {
-    equippedItemsButtons[EquipmentType.Weapon][0].LoadEquipment(player.Weapon1, textureHandler);
-    equippedItemsButtons[EquipmentType.Weapon][1].LoadEquipment(player.Weapon2, textureHandler);
-    equippedItemsButtons[EquipmentType.Reactor][0].LoadEquipment(player.Reactor, textureHandler);
-    equippedItemsButtons[EquipmentType.Shield][0].LoadEquipment(player.Shield, textureHandler);
-    equippedItemsButtons[EquipmentType.TargetingSystem][0].LoadEquipment(player.TargetingSystem, textureHandler);
+    equippedItemsButtons[0].LoadEquipment(player.Weapon1, textureHandler);
+    equippedItemsButtons[1].LoadEquipment(player.Weapon2, textureHandler);
+    equippedItemsButtons[2].LoadEquipment(player.Reactor, textureHandler);
+    equippedItemsButtons[3].LoadEquipment(player.Shield, textureHandler);
+    equippedItemsButtons[4].LoadEquipment(player.TargetingSystem, textureHandler);
   }
 
   public void ToInventoryMode() {
@@ -100,11 +99,12 @@ public class UIManagerScript : MonoBehaviour {
   }
 
   public void ToBattleMode() {
-    Player.Instance.StartRound(equippedItemsButtons[EquipmentType.Weapon][0].Equipment as WeaponBase,
-      equippedItemsButtons[EquipmentType.Weapon][1].Equipment as WeaponBase,
-      equippedItemsButtons[EquipmentType.Reactor][0].Equipment as ReactorInstance,
-      equippedItemsButtons[EquipmentType.Shield][0].Equipment as ShieldInstance,
-      equippedItemsButtons[EquipmentType.TargetingSystem][0].Equipment as TargetingSystemInstance,
+    var weapons = equippedItemsButtons.AllOfType<WeaponBase>();
+    Player.Instance.StartRound(weapons[0],
+      weapons.Count > 1 ? weapons[1] : null,
+      equippedItemsButtons.AllOfType<ReactorInstance>()[0],
+      equippedItemsButtons.AllOfType<ShieldInstance>()[0],
+      equippedItemsButtons.AllOfType<TargetingSystemInstance>()[0],
       ButtonsToEquipment(availableItemsButtons),
       Player.INITIAL_HEALTH);
     switchContextText.text = "Return to Base";
@@ -150,12 +150,9 @@ public class UIManagerScript : MonoBehaviour {
   }
 
   private bool HasSufficientEnergy() {
-    var energySum = (equippedItemsButtons[EquipmentType.Reactor][0].Equipment as ReactorInstance).EnergyRecoveryPerSecond;
-    energySum -= equippedItemsButtons[EquipmentType.Shield][0].Equipment.BaselineEnergyRequirement;
-    energySum -= equippedItemsButtons[EquipmentType.Weapon][0].Equipment.BaselineEnergyRequirement;
-    energySum -= equippedItemsButtons[EquipmentType.Weapon][1]?.Equipment?.BaselineEnergyRequirement ?? 0;
-    energySum -= equippedItemsButtons[EquipmentType.TargetingSystem][0].Equipment.BaselineEnergyRequirement;
-    return energySum > 0;
+    var energyProduction = equippedItemsButtons.AllOfType<ReactorInstance>().Sum(reactor => reactor.EnergyRecoveryPerSecond);
+    var baselineEnergyConsumption = equippedItemsButtons.Sum(button => button?.Equipment?.BaselineEnergyRequirement ?? 0);
+    return energyProduction > baselineEnergyConsumption;
   }
 
   public void InventoryButtonSelected(EquipmentButtonScript button) {
@@ -164,12 +161,6 @@ public class UIManagerScript : MonoBehaviour {
       SetSelectedItemText(button);
     } else {
       var switchedEquipment = selectedButton.Equipment;
-      if (!button.IsValidEquipment(switchedEquipment) ||
-          !selectedButton.IsValidEquipment(button.Equipment)) {
-        SetSelectedItemText(button);
-        //TODO maybe add some feedback?
-        return;
-      }
       selectedButton.LoadEquipment(button.Equipment, textureHandler);
       button.LoadEquipment(switchedEquipment, textureHandler);
       SetSelectedItemText(null);

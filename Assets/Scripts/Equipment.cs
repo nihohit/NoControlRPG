@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using Assets.Scripts.Base;
 using UnityEngine;
+using System.Linq;
 
 public enum EquipmentType { Weapon, Reactor, Shield, TargetingSystem }
 
@@ -258,5 +260,19 @@ public class TargetingSystemInstance : EquipmentBase {
 
   public override void Charge(float energy) {
     throw new NotImplementedException();
+  }
+}
+
+public static class EquipmentExtensions {
+  public static IList<T> AllOfType<T>(this IEnumerable<EquipmentBase> equipment) where T : EquipmentBase {
+    return equipment.Select(item => item as T)
+      .Where(item => item != null)
+      .ToList();
+  }
+
+  public static IList<T> AllOfType<T>(this IEnumerable<EquipmentButtonScript> equipmentButtons) where T : EquipmentBase {
+    return equipmentButtons
+      .Select(button => button.Equipment)
+      .AllOfType<T>();
   }
 }
