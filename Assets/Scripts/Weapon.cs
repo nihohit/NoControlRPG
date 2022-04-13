@@ -235,9 +235,9 @@ public abstract class WeaponBase : EquipmentBase {
   override public EquipmentType Type { get { return EquipmentType.Weapon; } }
 
   [NoDisplay]
-  public override float CurrentChargingRequirementPerSecond => CurrentCharge < MaxCharge ? EnergyConsumptionWhenRechargingPerSecond : 0;
+  public float CurrentChargingRequirementPerSecond => CurrentCharge < MaxCharge ? EnergyConsumptionWhenRechargingPerSecond : 0;
 
-  public override void Charge(float chargeRatio) {
+  public void Charge(float chargeRatio) {
     CurrentCharge = MathF.Min(MaxCharge, CurrentCharge + chargeRatio * Time.deltaTime);
   }
 
