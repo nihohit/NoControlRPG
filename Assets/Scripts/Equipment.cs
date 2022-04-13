@@ -275,4 +275,16 @@ public static class EquipmentExtensions {
       .Select(button => button.Equipment)
       .AllOfType<T>();
   }
+
+  public static float GetEnergyGeneration(this IEnumerable<EquipmentBase> equipment) {
+    var baselineEnergyConsumption = equipment.Sum(item => item.BaselineEnergyRequirement);
+    var baseEnergyGeneration = equipment.AllOfType<ReactorInstance>().Sum(reactor => reactor.EnergyRecoveryPerSecond);
+    return baseEnergyGeneration - baselineEnergyConsumption;
+  }
+
+  public static float GetEnergyGeneration(this IEnumerable<EquipmentButtonScript> equipmentButtons) {
+    return equipmentButtons
+      .Select(button => button.Equipment)
+      .GetEnergyGeneration();
+  }
 }
