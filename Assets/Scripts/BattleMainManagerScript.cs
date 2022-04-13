@@ -253,7 +253,7 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private void TryShootWeapon(WeaponBase weapon) {
-    if (!weapon.CanShoot()) {
+    if (weapon is null || !weapon.CanShoot()) {
       return;
     }
     var enemyInRange = FindEnemyInRange(weapon.Range);
