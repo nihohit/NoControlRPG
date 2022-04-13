@@ -154,18 +154,10 @@ public class UIManagerScript : MonoBehaviour {
     SetLaunchButtonAvailability();
   }
 
-  private float GetEnergyConsumption() {
-    return equippedItemsButtons.Sum(button => button?.Equipment?.BaselineEnergyRequirement ?? 0);
-  }
 
-  private float GetEnergyGeneration() {
-    return equippedItemsButtons.AllOfType<ReactorInstance>().Sum(reactor => reactor.EnergyRecoveryPerSecond);
-  }
 
   private bool HasSufficientEnergy() {
-    var energyProduction = GetEnergyGeneration();
-    var baselineEnergyConsumption = GetEnergyConsumption();
-    return energyProduction > baselineEnergyConsumption;
+    return equippedItemsButtons.GetEnergyGeneration() > 0f;
   }
 
   private void UpdateAttributes() {
@@ -176,7 +168,7 @@ public class UIManagerScript : MonoBehaviour {
     stringBuilder.AppendLine($"Shield strength: {shields.Sum(shield => shield.MaxStrength):f1}");
     stringBuilder.AppendLine($"Shield recharge: {shields.Sum(shield => shield.RechargeRatePerSecond):f1}");
     stringBuilder.AppendLine($"Energy charge: {reactors.Sum(reactor => reactor.MaxEnergyLevel):f1}");
-    stringBuilder.AppendLine($"Energy recharge: {GetEnergyGeneration() - GetEnergyConsumption():f1}");
+    stringBuilder.AppendLine($"Energy recharge: {equippedItemsButtons.GetEnergyGeneration():f1}");
 
     attributeText.text = stringBuilder.ToString();
   }
