@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System.Linq;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.Text;
 
 public class UIManagerScript : MonoBehaviour {
   private Button switchContextButton;
@@ -32,6 +33,7 @@ public class UIManagerScript : MonoBehaviour {
   private TMP_Text selectedItemText;
   private GameObject hoveredItemTextBackground;
   private TMP_Text hoveredItemText;
+  private TMP_Text attributeText;
   private EventSystem eventSystem;
 
   // Start is called before the first frame update
@@ -65,6 +67,7 @@ public class UIManagerScript : MonoBehaviour {
     hoveredItemText = hoveredItemTextBackground.GetComponentInChildren<TMPro.TMP_Text>();
     hoveredItemTextBackground.SetActive(false);
     eventSystem = FindObjectOfType<EventSystem>();
+    attributeText = inventoryUIHolder.transform.Find("Attributes").GetComponent<TMP_Text>();
   }
 
   private void SetupAvailableButtons(IList<EquipmentBase> equipment, IEnumerable<EquipmentButtonScript> buttons) {
@@ -89,6 +92,8 @@ public class UIManagerScript : MonoBehaviour {
     battleUIHolder.SetActive(false);
     SetupAvailableButtons(Player.Instance.AvailableItems, availableItemsButtons);
     SetupEquippedButtons(Player.Instance);
+    UpdateAttributes();
+    SetLaunchButtonAvailability();
   }
 
   public List<EquipmentBase> ButtonsToEquipment(IEnumerable<EquipmentButtonScript> buttons) {
@@ -149,10 +154,31 @@ public class UIManagerScript : MonoBehaviour {
     SetLaunchButtonAvailability();
   }
 
+  private float GetEnergyConsumption() {
+    return equippedItemsButtons.Sum(button => button?.Equipment?.BaselineEnergyRequirement ?? 0);
+  }
+
+  private float GetEnergyGeneration() {
+    return equippedItemsButtons.AllOfType<ReactorInstance>().Sum(reactor => reactor.EnergyRecoveryPerSecond);
+  }
+
   private bool HasSufficientEnergy() {
-    var energyProduction = equippedItemsButtons.AllOfType<ReactorInstance>().Sum(reactor => reactor.EnergyRecoveryPerSecond);
-    var baselineEnergyConsumption = equippedItemsButtons.Sum(button => button?.Equipment?.BaselineEnergyRequirement ?? 0);
+    var energyProduction = GetEnergyGeneration();
+    var baselineEnergyConsumption = GetEnergyConsumption();
     return energyProduction > baselineEnergyConsumption;
+  }
+
+  private void UpdateAttributes() {
+    var stringBuilder = new StringBuilder();
+
+    var reactors = equippedItemsButtons.AllOfType<ReactorInstance>();
+    var shields = equippedItemsButtons.AllOfType<ShieldInstance>();
+    stringBuilder.AppendLine($"Shield strength: {shields.Sum(shield => shield.MaxStrength):f1}");
+    stringBuilder.AppendLine($"Shield recharge: {shields.Sum(shield => shield.RechargeRatePerSecond):f1}");
+    stringBuilder.AppendLine($"Energy charge: {reactors.Sum(reactor => reactor.MaxEnergyLevel):f1}");
+    stringBuilder.AppendLine($"Energy recharge: {GetEnergyGeneration() - GetEnergyConsumption():f1}");
+
+    attributeText.text = stringBuilder.ToString();
   }
 
   public void InventoryButtonSelected(EquipmentButtonScript button) {
@@ -165,6 +191,7 @@ public class UIManagerScript : MonoBehaviour {
       button.LoadEquipment(switchedEquipment, textureHandler);
       SetSelectedItemText(null);
       eventSystem.SetSelectedGameObject(null);
+      UpdateAttributes();
     }
   }
 
