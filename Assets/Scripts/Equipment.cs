@@ -148,9 +148,6 @@ public abstract class EquipmentBase {
 
   public float BaselineEnergyRequirement { get; }
 
-  public abstract float CurrentChargingRequirementPerSecond { get; }
-
-  public abstract void Charge(float chargeRatio);
 
   #region item description
   protected string FormattedPropertyName(PropertyInfo propertyInfo) {
@@ -203,7 +200,6 @@ public abstract class EquipmentBase {
 public class ShieldInstance : EquipmentBase {
   public ShieldInstance(ShieldConfig config, float level) : base(config, level) {
     MaxStrength = config.Strength.GetLevelValue(level);
-    CurrentStrength = MaxStrength;
     RechargeRatePerSecond = config.RechargeRate.GetLevelValue(level);
     TimeBeforeRecharge = config.TimeBeforeRecharge.GetLevelValue(level);
     EnergyConsumptionWhenRechargingPerSecond = config.EnergyConsumptionWhenRechargingPerSecond.GetLevelValue(level);
@@ -214,34 +210,16 @@ public class ShieldInstance : EquipmentBase {
   public float MaxStrength { get; }
   public float RechargeRatePerSecond { get; }
   public float TimeBeforeRecharge { get; }
-  public float TimeBeforeNextRecharge { get; set; }
-  public float CurrentStrength { get; set; }
-
-  [NoDisplay]
-  public override float CurrentChargingRequirementPerSecond => CurrentStrength < MaxStrength ? EnergyConsumptionWhenRechargingPerSecond : 0;
-
-  public override void Charge(float chargeRatio) {
-    CurrentStrength = MathF.Min(MaxStrength, CurrentStrength + RechargeRatePerSecond * chargeRatio * Time.deltaTime);
-  }
 }
 
 public class ReactorInstance : EquipmentBase {
   public ReactorInstance(ReactorConfig config, float level) : base(config, level) {
     MaxEnergyLevel = config.MaxEnergyLevel.GetLevelValue(level);
-    CurrentEnergyLevel = MaxEnergyLevel;
     EnergyRecoveryPerSecond = config.EnergyRechargeRate.GetLevelValue(level);
   }
   override public EquipmentType Type { get { return EquipmentType.Reactor; } }
   public float MaxEnergyLevel { get; }
-  public float CurrentEnergyLevel { get; set; }
   public float EnergyRecoveryPerSecond { get; }
-
-  [NoDisplay]
-  public override float CurrentChargingRequirementPerSecond => throw new NotImplementedException();
-
-  public override void Charge(float energy) {
-    throw new NotImplementedException();
-  }
 
   protected override string PropertyInfoToString(PropertyInfo propertyInfo) {
     if (propertyInfo.Name == nameof(EquipmentBase.BaselineEnergyRequirement)) {
@@ -254,23 +232,16 @@ public class ReactorInstance : EquipmentBase {
 public class TargetingSystemInstance : EquipmentBase {
   public TargetingSystemInstance(TargetingSystemConfig config, float level) : base(config, level) { }
   override public EquipmentType Type { get { return EquipmentType.TargetingSystem; } }
-
-  [NoDisplay]
-  public override float CurrentChargingRequirementPerSecond => throw new NotImplementedException();
-
-  public override void Charge(float energy) {
-    throw new NotImplementedException();
-  }
 }
 
 public static class EquipmentExtensions {
-  public static IList<T> AllOfType<T>(this IEnumerable<EquipmentBase> equipment) where T : EquipmentBase {
+  public static List<T> AllOfType<T>(this IEnumerable<EquipmentBase> equipment) where T : EquipmentBase {
     return equipment.Select(item => item as T)
       .Where(item => item != null)
       .ToList();
   }
 
-  public static IList<T> AllOfType<T>(this IEnumerable<EquipmentButtonScript> equipmentButtons) where T : EquipmentBase {
+  public static List<T> AllOfType<T>(this IEnumerable<EquipmentButtonScript> equipmentButtons) where T : EquipmentBase {
     return equipmentButtons
       .Select(button => button.Equipment)
       .AllOfType<T>();
@@ -285,6 +256,7 @@ public static class EquipmentExtensions {
   public static float GetEnergyGeneration(this IEnumerable<EquipmentButtonScript> equipmentButtons) {
     return equipmentButtons
       .Select(button => button.Equipment)
+      .Where(item => item != null)
       .GetEnergyGeneration();
   }
 }

@@ -1,52 +1,55 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Assets.Scripts.Base;
+using System.Linq;
+using Assets.Scripts.UnityBase;
 
 public class Player {
-  public WeaponBase Weapon1 { get; private set; }
-  public WeaponBase Weapon2 { get; private set; }
-  public ReactorInstance Reactor { get; private set; }
-  public ShieldInstance Shield { get; private set; }
-  public TargetingSystemInstance TargetingSystem { get; private set; }
   public List<EquipmentBase> AvailableItems { private set; get; }
+  public ReadOnlyCollection<EquipmentBase> EquippedItems { private set; get; }
 
   public static readonly float INITIAL_HEALTH = 100f;
   public float FullHealth { get; private set; }
   public float CurrentHealth { get; set; }
+  public float MaxEnergyLevel { get; private set; }
+  public float CurrentEnergyLevel { get; set; }
+  public float EnergyRecoveryPerSecond { get; private set; }
 
-  public void StartRound(WeaponBase weapon1,
-                         WeaponBase weapon2,
-                         ReactorInstance reactor,
-                         ShieldInstance shield,
-                         TargetingSystemInstance targetingSystem,
+  public float MaxShieldStrength { get; private set; }
+  public float CurrentShieldStrength { get; set; }
+  public float LastShieldHitTime { get; set; }
+  public IList<ShieldInstance> Shields { get; private set; }
+  public List<WeaponBase> Weapons { get; private set; }
+
+  public void StartRound(ReadOnlyCollection<EquipmentBase> equippedItems,
                          List<EquipmentBase> availableItems,
                          float newHealth) {
-    Weapon1 = weapon1;
-    Weapon2 = weapon2;
-    Reactor = reactor;
-
-    Shield = shield;
-    Shield.CurrentStrength = Shield.MaxStrength;
-    Shield.TimeBeforeNextRecharge = 0;
-
-    Reactor.CurrentEnergyLevel = Reactor.MaxEnergyLevel;
-    Weapon1.CurrentCharge = Weapon1.MaxCharge;
-    if (Weapon2 != null) {
-      Weapon2.CurrentCharge = Weapon2.MaxCharge;
-    }
-
-    TargetingSystem = targetingSystem;
+    EquippedItems = equippedItems;
     AvailableItems = availableItems;
     CurrentHealth = newHealth;
     FullHealth = newHealth;
+
+    Shields = equippedItems.AllOfType<ShieldInstance>();
+    MaxShieldStrength = Shields.Sum(shield => shield.MaxStrength);
+    CurrentShieldStrength = MaxShieldStrength;
+    LastShieldHitTime = 0;
+
+    var reactors = equippedItems.AllOfType<ReactorInstance>();
+    MaxEnergyLevel = reactors.Sum(reactor => reactor.MaxEnergyLevel);
+    CurrentEnergyLevel = MaxEnergyLevel;
+    EnergyRecoveryPerSecond = equippedItems.GetEnergyGeneration();
+
+    Weapons = equippedItems.AllOfType<WeaponBase>();
+    Weapons.ForEach(weapon => weapon.CurrentCharge = weapon.MaxCharge);
   }
 
   public static readonly Player Instance = new() {
-    Weapon1 = new BulletWeaponInstance(WeaponConfig.MACHINE_GUN, 1f),
-    Weapon2 = new BulletWeaponInstance(WeaponConfig.TWO_SHOT_SHOTGUN, 1f),
-    Reactor = new ReactorInstance(ReactorConfig.DEFAULT, 1),
-    Shield = new ShieldInstance(ShieldConfig.BALANCED, 1),
-    TargetingSystem = new TargetingSystemInstance(TargetingSystemConfig.DEFAULT, 1),
+    EquippedItems = new ReadOnlyCollection<EquipmentBase>(new List<EquipmentBase>{
+      new BulletWeaponInstance(WeaponConfig.MACHINE_GUN, 1f),
+      new BulletWeaponInstance(WeaponConfig.TWO_SHOT_SHOTGUN, 1f),
+      new ReactorInstance(ReactorConfig.DEFAULT, 1),
+      new ShieldInstance(ShieldConfig.BALANCED, 1),
+      new TargetingSystemInstance(TargetingSystemConfig.DEFAULT, 1)
+    }),
     AvailableItems = new List<EquipmentBase>()
   };
 }

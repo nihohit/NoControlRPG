@@ -78,20 +78,12 @@ public class UIManagerScript : MonoBehaviour {
     });
   }
 
-  private void SetupEquippedButtons(Player player) {
-    equippedItemsButtons[0].LoadEquipment(player.Weapon1, textureHandler);
-    equippedItemsButtons[1].LoadEquipment(player.Weapon2, textureHandler);
-    equippedItemsButtons[2].LoadEquipment(player.Reactor, textureHandler);
-    equippedItemsButtons[3].LoadEquipment(player.Shield, textureHandler);
-    equippedItemsButtons[4].LoadEquipment(player.TargetingSystem, textureHandler);
-  }
-
   public void ToInventoryMode() {
     switchContextText.text = "Launch to battle";
     inventoryUIHolder.SetActive(true);
     battleUIHolder.SetActive(false);
     SetupAvailableButtons(Player.Instance.AvailableItems, availableItemsButtons);
-    SetupEquippedButtons(Player.Instance);
+    SetupAvailableButtons(Player.Instance.EquippedItems, equippedItemsButtons);
     UpdateAttributes();
     SetLaunchButtonAvailability();
   }
@@ -104,12 +96,7 @@ public class UIManagerScript : MonoBehaviour {
   }
 
   public void ToBattleMode() {
-    var weapons = equippedItemsButtons.AllOfType<WeaponBase>();
-    Player.Instance.StartRound(weapons[0],
-      weapons.Count > 1 ? weapons[1] : null,
-      equippedItemsButtons.AllOfType<ReactorInstance>()[0],
-      equippedItemsButtons.AllOfType<ShieldInstance>()[0],
-      equippedItemsButtons.AllOfType<TargetingSystemInstance>()[0],
+    Player.Instance.StartRound(ButtonsToEquipment(equippedItemsButtons).ToReadOnlyCollection(),
       ButtonsToEquipment(availableItemsButtons),
       Player.INITIAL_HEALTH);
     switchContextText.text = "Return to Base";
@@ -121,10 +108,10 @@ public class UIManagerScript : MonoBehaviour {
     string barUiFormat = "{0}: {1:f2}";
     healthBar.fillAmount = Player.Instance.CurrentHealth / Player.Instance.FullHealth;
     healthText.text = string.Format(barUiFormat, "Health", Player.Instance.CurrentHealth);
-    shieldBar.fillAmount = Player.Instance.Shield.CurrentStrength / Player.Instance.Shield.MaxStrength;
-    shieldText.text = string.Format(barUiFormat, "Shield", Player.Instance.Shield.CurrentStrength);
-    energyBar.fillAmount = Player.Instance.Reactor.CurrentEnergyLevel / Player.Instance.Reactor.MaxEnergyLevel;
-    energyText.text = string.Format(barUiFormat, "Energy", Player.Instance.Reactor.CurrentEnergyLevel);
+    shieldBar.fillAmount = Player.Instance.CurrentShieldStrength / Player.Instance.MaxShieldStrength;
+    shieldText.text = string.Format(barUiFormat, "Shield", Player.Instance.CurrentShieldStrength);
+    energyBar.fillAmount = Player.Instance.CurrentEnergyLevel / Player.Instance.MaxEnergyLevel;
+    energyText.text = string.Format(barUiFormat, "Energy", Player.Instance.CurrentEnergyLevel);
   }
 
   public void SwitchContextPressed() {

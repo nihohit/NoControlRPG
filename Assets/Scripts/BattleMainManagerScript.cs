@@ -81,13 +81,12 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private void HitPlayer(float damage) {
-    var shield = Player.Instance.Shield;
-    shield.TimeBeforeNextRecharge = shield.TimeBeforeRecharge;
-    if (shield.CurrentStrength > 0) {
-      shield.CurrentStrength = Mathf.Max(0f, shield.CurrentStrength - damage);
-    } else {
-      Player.Instance.CurrentHealth -= damage;
+    if (Player.Instance.CurrentShieldStrength > 0f) {
+      Player.Instance.LastShieldHitTime = TimeSinceRoundStarted();
     }
+    var shieldAfterAbsorption = Player.Instance.CurrentShieldStrength - damage;
+    Player.Instance.CurrentShieldStrength = Mathf.Max(0f, shieldAfterAbsorption);
+    Player.Instance.CurrentHealth += Mathf.Min(shieldAfterAbsorption, 0f);
   }
 
   private void ClearReleaseLists() {
@@ -136,9 +135,13 @@ public class BattleMainManagerScript : MonoBehaviour {
     enemy.GetComponent<EnemyUnitScript>().Health -= beamScript.Weapon.DamagePerSecond * Time.deltaTime;
   }
 
+  private float TimeSinceRoundStarted() {
+    return Time.timeSinceLevelLoad - roundStartTime;
+  }
+
   private float LevelBasedOnTime() {
     // level increases by 1 every 10 seconds.
-    return (Time.timeSinceLevelLoad - roundStartTime) / 10f;
+    return TimeSinceRoundStarted() / 10f;
   }
 
   private void SpawnEnemyIfNeeded() {
@@ -265,11 +268,13 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private void ShootEnemies() {
-    TryShootWeapon(Player.Instance.Weapon1);
-    TryShootWeapon(Player.Instance.Weapon2);
+    Player.Instance.Weapons.ForEach(TryShootWeapon);
   }
 
   private void ShootPlayer() {
+    if (Input.anyKey) {
+      return;
+    }
     foreach (var enemy in enemies.Values) {
       var weapon = enemy.Weapon;
       weapon.CurrentCharge = Mathf.Min(weapon.MaxCharge, weapon.CurrentCharge + Time.deltaTime);
@@ -303,24 +308,19 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   private void RechargeSystems() {
     var player = Player.Instance;
-    var reactor = player.Reactor;
-    var baselineEnergyRequirements = player.Shield.BaselineEnergyRequirement +
-      player.TargetingSystem.BaselineEnergyRequirement +
-      player.Weapon1?.BaselineEnergyRequirement ?? 0f +
-      player.Weapon2?.BaselineEnergyRequirement ?? 0f;
-    var availableEnergy = reactor.CurrentEnergyLevel + (reactor.EnergyRecoveryPerSecond - baselineEnergyRequirements) * Time.deltaTime;
+    var availableEnergy = player.CurrentEnergyLevel + player.EnergyRecoveryPerSecond * Time.deltaTime;
     var chargeRequirementPerSecond = 0f;
 
-    chargeRequirementPerSecond += player.Shield.CurrentChargingRequirementPerSecond;
-    chargeRequirementPerSecond += player.Weapon1?.CurrentChargingRequirementPerSecond ?? 0;
-    chargeRequirementPerSecond += player.Weapon2?.CurrentChargingRequirementPerSecond ?? 0;
+    chargeRequirementPerSecond += player.CurrentEnergyLevel < player.MaxEnergyLevel ? player.Shields.Sum(shield => shield.EnergyConsumptionWhenRechargingPerSecond) : 0;
+    chargeRequirementPerSecond += player.Weapons.Sum(weapon => weapon.CurrentChargingRequirementPerSecond);
     var currentFrameRequirement = chargeRequirementPerSecond * Time.deltaTime;
 
     var ratio = Mathf.Min(availableEnergy / currentFrameRequirement, 1);
-    player.Shield.Charge(ratio);
-    player.Weapon1?.Charge(ratio);
-    player.Weapon2?.Charge(ratio);
-    reactor.CurrentEnergyLevel = Math.Min(player.Reactor.MaxEnergyLevel, Mathf.Max(0, availableEnergy - currentFrameRequirement));
+    player.Weapons.ForEach(weapon => weapon.Charge(ratio));
+    player.CurrentEnergyLevel = Math.Min(player.MaxEnergyLevel, Mathf.Max(0, availableEnergy - currentFrameRequirement));
+    var timeSinceLastHit = TimeSinceRoundStarted() - player.LastShieldHitTime;
+    var shieldRegeneration = player.Shields.Where(shield => shield.TimeBeforeRecharge < timeSinceLastHit).Sum(shield => shield.RechargeRatePerSecond) * Time.deltaTime;
+    player.CurrentShieldStrength = Mathf.Min(player.MaxShieldStrength, player.CurrentShieldStrength + shieldRegeneration);
   }
 
   static readonly List<EquipmentConfigBase> dropList = typeof(EquipmentConfigBase)
