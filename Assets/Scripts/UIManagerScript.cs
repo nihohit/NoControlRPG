@@ -38,18 +38,18 @@ public class UIManagerScript : MonoBehaviour {
 
   // Start is called before the first frame update
   protected void Awake() {
-    switchContextButton = transform.Find("SwitchContext").GetComponent<Button>();
-    switchContextText = switchContextButton.transform.Find("Text").GetComponent<TMPro.TMP_Text>();
     healthText = GameObject.Find("HealthText").GetComponent<TMPro.TMP_Text>();
     shieldText = GameObject.Find("ShieldText").GetComponent<TMPro.TMP_Text>();
     energyText = GameObject.Find("EnergyText").GetComponent<TMPro.TMP_Text>();
+    switchContextButton = this.FindInChild<Button>("SwitchContext");
+    switchContextText = switchContextButton.FindInChild<TMPro.TMP_Text>("Text");
     mainManager = GameObject.FindObjectOfType<BattleMainManagerScript>();
-    inventoryUIHolder = transform.Find("inventory").gameObject;
-    battleUIHolder = transform.Find("BattleUI").gameObject;
     healthBar = GameObject.Find("HealthBar").GetComponent<Image>();
     shieldBar = GameObject.Find("ShieldBar").GetComponent<Image>();
     energyBar = GameObject.Find("EnergyBar").GetComponent<Image>();
     var equippedItems = GameObject.Find("Equipped Items");
+    inventoryUIHolder = this.FindChild("inventory");
+    battleUIHolder = this.FindChild("BattleUI");
     equippedItemsButtons = GameObject
       .Find("Equipped Items")
       .GetComponentsInChildren<EquipmentButtonScript>()
@@ -67,7 +67,7 @@ public class UIManagerScript : MonoBehaviour {
     hoveredItemText = hoveredItemTextBackground.GetComponentInChildren<TMPro.TMP_Text>();
     hoveredItemTextBackground.SetActive(false);
     eventSystem = FindObjectOfType<EventSystem>();
-    attributeText = inventoryUIHolder.transform.Find("Attributes").GetComponent<TMP_Text>();
+    attributeText = inventoryUIHolder.FindInChild<TMP_Text>("Attributes");
   }
 
   private void SetupAvailableButtons(IList<EquipmentBase> equipment, IEnumerable<EquipmentButtonScript> buttons) {
