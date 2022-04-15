@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,12 +18,9 @@ public class UIManagerScript : MonoBehaviour {
   private FillingBarScript healthBar;
   private FillingBarScript shieldBar;
   private FillingBarScript energyBar;
-
   private List<EquipmentButtonScript> equippedItemsButtons;
   private EquipmentButtonScript[] availableItemsButtons;
-
   private readonly TextureHandler textureHandler = new();
-
   private EquipmentButtonScript selectedButton = null;
   private GameObject selectedItemTextBackground;
   private TMP_Text selectedItemText;
@@ -30,6 +28,7 @@ public class UIManagerScript : MonoBehaviour {
   private TMP_Text hoveredItemText;
   private TMP_Text attributeText;
   private EventSystem eventSystem;
+  private FillingBarScript[] weaponBars;
 
   // Start is called before the first frame update
   protected void Awake() {
@@ -38,9 +37,14 @@ public class UIManagerScript : MonoBehaviour {
     mainManager = GameObject.FindObjectOfType<BattleMainManagerScript>();
     inventoryUIHolder = this.FindChild("inventory");
     battleUIHolder = this.FindChild("BattleUI");
-    healthBar = GameObject.Find("HealthBar").GetComponent<FillingBarScript>();
-    shieldBar = GameObject.Find("ShieldBar").GetComponent<FillingBarScript>();
-    energyBar = GameObject.Find("EnergyBar").GetComponent<FillingBarScript>();
+    var barsContainer = GameObject.Find("BarsContainer");
+    healthBar = barsContainer.FindInChild<FillingBarScript>("HealthBar");
+    shieldBar = barsContainer.FindInChild<FillingBarScript>("ShieldBar");
+    energyBar = barsContainer.FindInChild<FillingBarScript>("EnergyBar");
+    weaponBars = barsContainer
+      .GetComponentsInChildren<FillingBarScript>()
+      .Where(bar => bar.gameObject.name.Contains("WeaponBar"))
+      .ToArray();
     equippedItemsButtons = GameObject
       .Find("Equipped Items")
       .GetComponentsInChildren<EquipmentButtonScript>()
@@ -93,6 +97,17 @@ public class UIManagerScript : MonoBehaviour {
     switchContextText.text = "Return to Base";
     inventoryUIHolder.SetActive(false);
     battleUIHolder.SetActive(true);
+    SetupWeaponBars();
+  }
+
+  private void SetupWeaponBars() {
+    weaponBars.ForEach((bar, index) => {
+      var isActiveIndex = index < Player.Instance.Weapons.Count;
+      bar.SetVisible(isActiveIndex);
+      if (isActiveIndex) {
+        bar.SetIcon(Player.Instance.Weapons[index].Config.EquipmentImageName, textureHandler);
+      }
+    });
   }
 
   public void UpdateUIOverlay() {
@@ -103,6 +118,9 @@ public class UIManagerScript : MonoBehaviour {
     shieldBar.SetDescription(string.Format(barUiFormat, "Shield", Player.Instance.CurrentShieldStrength));
     energyBar.SetBarFill(Player.Instance.CurrentEnergyLevel, Player.Instance.MaxEnergyLevel);
     energyBar.SetDescription(string.Format(barUiFormat, "Energy", Player.Instance.CurrentEnergyLevel));
+    Player.Instance.Weapons.ForEach((weapon, index) => {
+      weaponBars[index].SetBarFill(weapon.CurrentCharge, weapon.MaxCharge);
+    });
   }
 
   public void SwitchContextPressed() {
@@ -131,8 +149,6 @@ public class UIManagerScript : MonoBehaviour {
     ShowItem(button, selectedItemTextBackground, selectedItemText);
     SetLaunchButtonAvailability();
   }
-
-
 
   private bool HasSufficientEnergy() {
     return equippedItemsButtons.GetEnergyGeneration() > 0f;
