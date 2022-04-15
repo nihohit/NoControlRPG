@@ -593,7 +593,7 @@ GameObject:
   - component: {fileID: 262284144}
   - component: {fileID: 262284143}
   m_Layer: 5
-  m_Name: EnergyText
+  m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -614,10 +614,10 @@ RectTransform:
   m_Father: {fileID: 1894623274}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5217193, y: 0.5}
-  m_AnchoredPosition: {x: 1.2, y: -3}
-  m_SizeDelta: {x: 237.9261, y: 50}
+  m_AnchorMin: {x: 0.2, y: 0.1}
+  m_AnchorMax: {x: 0.8, y: 0.9}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &262284143
 MonoBehaviour:
@@ -815,7 +815,7 @@ GameObject:
   - component: {fileID: 418009963}
   - component: {fileID: 418009962}
   m_Layer: 5
-  m_Name: ShieldBar
+  m_Name: Bar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2147,8 +2147,9 @@ GameObject:
   - component: {fileID: 1083426124}
   - component: {fileID: 1083426126}
   - component: {fileID: 1083426125}
+  - component: {fileID: 1083426127}
   m_Layer: 5
-  m_Name: HealthBackground
+  m_Name: HealthBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2214,6 +2215,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1083426123}
   m_CullTransparentMesh: 1
+--- !u!114 &1083426127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1083426123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d181d1235098d7846a0693fb9881c56f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1107629840
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3480,7 +3493,7 @@ GameObject:
   - component: {fileID: 1442401643}
   - component: {fileID: 1442401642}
   m_Layer: 5
-  m_Name: HealthText
+  m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3501,10 +3514,10 @@ RectTransform:
   m_Father: {fileID: 1083426124}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5217193, y: 0.5}
-  m_AnchoredPosition: {x: 3.7, y: -4.5}
-  m_SizeDelta: {x: 242.5851, y: 50}
+  m_AnchorMin: {x: 0.2, y: 0.1}
+  m_AnchorMax: {x: 0.8, y: 0.9}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1442401642
 MonoBehaviour:
@@ -3971,7 +3984,7 @@ GameObject:
   - component: {fileID: 1549578671}
   - component: {fileID: 1549578670}
   m_Layer: 5
-  m_Name: ShieldText
+  m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3992,10 +4005,10 @@ RectTransform:
   m_Father: {fileID: 2058883892}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5217193, y: 0.5}
-  m_AnchoredPosition: {x: 6.4, y: -2.5}
-  m_SizeDelta: {x: 246.3569, y: 50}
+  m_AnchorMin: {x: 0.2, y: 0.1}
+  m_AnchorMax: {x: 0.8, y: 0.9}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1549578670
 MonoBehaviour:
@@ -4510,7 +4523,7 @@ GameObject:
   - component: {fileID: 1696147937}
   - component: {fileID: 1696147936}
   m_Layer: 5
-  m_Name: HealthBar
+  m_Name: Bar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5740,8 +5753,9 @@ GameObject:
   - component: {fileID: 1894623274}
   - component: {fileID: 1894623276}
   - component: {fileID: 1894623275}
+  - component: {fileID: 1894623277}
   m_Layer: 5
-  m_Name: EnergyBackground
+  m_Name: EnergyBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5807,6 +5821,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1894623273}
   m_CullTransparentMesh: 1
+--- !u!114 &1894623277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1894623273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d181d1235098d7846a0693fb9881c56f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1902138651
 GameObject:
   m_ObjectHideFlags: 0
@@ -5819,7 +5845,7 @@ GameObject:
   - component: {fileID: 1902138654}
   - component: {fileID: 1902138653}
   m_Layer: 5
-  m_Name: EnergyBar
+  m_Name: Bar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6000,8 +6026,9 @@ GameObject:
   - component: {fileID: 2058883892}
   - component: {fileID: 2058883894}
   - component: {fileID: 2058883893}
+  - component: {fileID: 2058883895}
   m_Layer: 5
-  m_Name: ShieldBackground
+  m_Name: ShieldBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6067,6 +6094,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2058883891}
   m_CullTransparentMesh: 1
+--- !u!114 &2058883895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2058883891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d181d1235098d7846a0693fb9881c56f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2075348808
 PrefabInstance:
   m_ObjectHideFlags: 0
