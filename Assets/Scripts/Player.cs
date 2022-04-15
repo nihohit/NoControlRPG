@@ -46,8 +46,7 @@ public class Player {
       new BulletWeaponInstance(WeaponConfig.MACHINE_GUN, 1f),
       new BulletWeaponInstance(WeaponConfig.TWO_SHOT_SHOTGUN, 1f),
       new ReactorInstance(ReactorConfig.DEFAULT, 1),
-      new ShieldInstance(ShieldConfig.BALANCED, 1),
-      new TargetingSystemInstance(TargetingSystemConfig.DEFAULT, 1)
+      new ShieldInstance(ShieldConfig.BALANCED, 1)
     }),
     AvailableItems = new List<EquipmentBase>()
   };

@@ -120,6 +120,7 @@ public class ReactorConfig : EquipmentConfigBase {
   public override EquipmentBase Instantiate(float level) => new ReactorInstance(this, level);
 }
 
+// TODO - implement or remove
 public class TargetingSystemConfig : EquipmentConfigBase {
   public TargetingSystemConfig(string equipmentImageName,
                                string itemDisplayName,
