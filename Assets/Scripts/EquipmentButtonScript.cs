@@ -37,8 +37,8 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
     manager = GameObject.FindObjectOfType<UIManagerScript>();
     button = GetComponent<Button>();
     button.onClick.AddListener(OnClick);
-    equipmentImage = transform.Find("EquipmentImage").GetComponent<Image>();
-    backgroundImage = transform.Find("ItemBackground").GetComponent<Image>();
+    equipmentImage = this.FindInChild<Image>("EquipmentImage");
+    backgroundImage = this.FindInChild<Image>("ItemBackground");
   }
 
   private void OnClick() {
