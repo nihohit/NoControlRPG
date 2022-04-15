@@ -11,17 +11,12 @@ using UnityEngine.UI;
 public class UIManagerScript : MonoBehaviour {
   private Button switchContextButton;
   private TMP_Text switchContextText;
-  private TMP_Text healthText;
-  private TMP_Text shieldText;
-  private TMP_Text energyText;
-
-
   private BattleMainManagerScript mainManager;
   private GameObject inventoryUIHolder;
   private GameObject battleUIHolder;
-  private Image healthBar;
-  private Image shieldBar;
-  private Image energyBar;
+  private FillingBarScript healthBar;
+  private FillingBarScript shieldBar;
+  private FillingBarScript energyBar;
 
   private List<EquipmentButtonScript> equippedItemsButtons;
   private EquipmentButtonScript[] availableItemsButtons;
@@ -38,18 +33,14 @@ public class UIManagerScript : MonoBehaviour {
 
   // Start is called before the first frame update
   protected void Awake() {
-    healthText = GameObject.Find("HealthText").GetComponent<TMPro.TMP_Text>();
-    shieldText = GameObject.Find("ShieldText").GetComponent<TMPro.TMP_Text>();
-    energyText = GameObject.Find("EnergyText").GetComponent<TMPro.TMP_Text>();
     switchContextButton = this.FindInChild<Button>("SwitchContext");
     switchContextText = switchContextButton.FindInChild<TMPro.TMP_Text>("Text");
     mainManager = GameObject.FindObjectOfType<BattleMainManagerScript>();
-    healthBar = GameObject.Find("HealthBar").GetComponent<Image>();
-    shieldBar = GameObject.Find("ShieldBar").GetComponent<Image>();
-    energyBar = GameObject.Find("EnergyBar").GetComponent<Image>();
-    var equippedItems = GameObject.Find("Equipped Items");
     inventoryUIHolder = this.FindChild("inventory");
     battleUIHolder = this.FindChild("BattleUI");
+    healthBar = GameObject.Find("HealthBar").GetComponent<FillingBarScript>();
+    shieldBar = GameObject.Find("ShieldBar").GetComponent<FillingBarScript>();
+    energyBar = GameObject.Find("EnergyBar").GetComponent<FillingBarScript>();
     equippedItemsButtons = GameObject
       .Find("Equipped Items")
       .GetComponentsInChildren<EquipmentButtonScript>()
@@ -105,13 +96,13 @@ public class UIManagerScript : MonoBehaviour {
   }
 
   public void UpdateUIOverlay() {
-    string barUiFormat = "{0}: {1:f2}";
-    healthBar.fillAmount = Player.Instance.CurrentHealth / Player.Instance.FullHealth;
-    healthText.text = string.Format(barUiFormat, "Health", Player.Instance.CurrentHealth);
-    shieldBar.fillAmount = Player.Instance.CurrentShieldStrength / Player.Instance.MaxShieldStrength;
-    shieldText.text = string.Format(barUiFormat, "Shield", Player.Instance.CurrentShieldStrength);
-    energyBar.fillAmount = Player.Instance.CurrentEnergyLevel / Player.Instance.MaxEnergyLevel;
-    energyText.text = string.Format(barUiFormat, "Energy", Player.Instance.CurrentEnergyLevel);
+    const string barUiFormat = "{0}: {1:f2}";
+    healthBar.SetBarFill(Player.Instance.CurrentHealth, Player.Instance.FullHealth);
+    healthBar.SetDescription(string.Format(barUiFormat, "Health", Player.Instance.CurrentHealth));
+    shieldBar.SetBarFill(Player.Instance.CurrentShieldStrength, Player.Instance.MaxShieldStrength);
+    shieldBar.SetDescription(string.Format(barUiFormat, "Shield", Player.Instance.CurrentShieldStrength));
+    energyBar.SetBarFill(Player.Instance.CurrentEnergyLevel, Player.Instance.MaxEnergyLevel);
+    energyBar.SetDescription(string.Format(barUiFormat, "Energy", Player.Instance.CurrentEnergyLevel));
   }
 
   public void SwitchContextPressed() {
