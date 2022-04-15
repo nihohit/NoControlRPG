@@ -1,11 +1,11 @@
-using System.Collections.Generic;
-using System.Collections;
-using UnityEngine;
-using System.Linq;
 using System;
-using Assets.Scripts.UnityBase;
-using Assets.Scripts.Base;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using Assets.Scripts.Base;
+using Assets.Scripts.UnityBase;
+using UnityEngine;
 
 public class BattleMainManagerScript : MonoBehaviour {
   private SpawnPool spawnPool;
@@ -140,8 +140,8 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private float LevelBasedOnTime() {
-    // level increases by 1 every 10 seconds.
-    return TimeSinceRoundStarted() / 10f;
+    // level starts from 1 and increases by 1 every 10 seconds.
+    return 1 + TimeSinceRoundStarted() / 10f;
   }
 
   private void SpawnEnemyIfNeeded() {
