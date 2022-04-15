@@ -170,12 +170,12 @@ public abstract class EquipmentBase {
   protected virtual string PropertyInfoToString(PropertyInfo propertyInfo) {
     var name = FormattedPropertyName(propertyInfo);
     if (name.EndsWith("in seconds")) {
-      return $"{name[..name.LastIndexOf(" in seconds")]}: {propertyInfo.GetValue(this)} seconds";
+      return $"{name[..name.LastIndexOf(" in seconds")]}: {propertyInfo.GetValue(this):0.#} seconds";
     }
     if (name.EndsWith("per second")) {
-      return $"{name[..name.LastIndexOf(" per second")]}: {propertyInfo.GetValue(this)} per second";
+      return $"{name[..name.LastIndexOf(" per second")]}: {propertyInfo.GetValue(this):0.#} per second";
     }
-    return $"{name}: {propertyInfo.GetValue(this)}";
+    return $"{name}: {propertyInfo.GetValue(this):0.#}";
   }
 
   public override string ToString() {

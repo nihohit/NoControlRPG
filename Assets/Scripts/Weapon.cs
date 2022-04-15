@@ -291,7 +291,7 @@ public class BulletWeaponInstance : WeaponInstance<BulletWeaponConfig> {
 
   protected override string PropertyInfoToString(PropertyInfo propertyInfo) {
     if (propertyInfo.Name == nameof(WeaponBase.MaxCharge)) {
-      return $"time between shots: {this.MaxCharge / this.EnergyConsumptionWhenRechargingPerSecond} seconds";
+      return $"time between shots: {this.MaxCharge / this.EnergyConsumptionWhenRechargingPerSecond:0.#} seconds";
     }
     return base.PropertyInfoToString(propertyInfo);
   }

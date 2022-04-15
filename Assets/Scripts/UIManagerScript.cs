@@ -111,7 +111,7 @@ public class UIManagerScript : MonoBehaviour {
   }
 
   public void UpdateUIOverlay() {
-    const string barUiFormat = "{0}: {1:f2}";
+    const string barUiFormat = "{0}: {1:0.#}";
     healthBar.SetBarFill(Player.Instance.CurrentHealth, Player.Instance.FullHealth);
     healthBar.SetDescription(string.Format(barUiFormat, "Health", Player.Instance.CurrentHealth));
     shieldBar.SetBarFill(Player.Instance.CurrentShieldStrength, Player.Instance.MaxShieldStrength);
