@@ -11,6 +11,10 @@ using UnityEngine.UI;
 
 public class UIManagerScript : MonoBehaviour {
   private Button switchContextButton;
+  private Button upgradeItemButton;
+  private TMP_Text upgradeItemText;
+  private Button scrapItemButton;
+  private TMP_Text scrapItemText;
   private TMP_Text switchContextText;
   private BattleMainManagerScript mainManager;
   private GameObject inventoryUIHolder;
@@ -57,12 +61,15 @@ public class UIManagerScript : MonoBehaviour {
       .ToArray();
     selectedItemTextBackground = GameObject.Find("SelectedItemTextBackground").gameObject;
     selectedItemText = selectedItemTextBackground.GetComponentInChildren<TMPro.TMP_Text>();
-    selectedItemTextBackground.SetActive(false);
     hoveredItemTextBackground = GameObject.Find("HoveredItemTextBackground").gameObject;
     hoveredItemText = hoveredItemTextBackground.GetComponentInChildren<TMPro.TMP_Text>();
     hoveredItemTextBackground.SetActive(false);
     eventSystem = FindObjectOfType<EventSystem>();
     attributeText = inventoryUIHolder.FindInChild<TMP_Text>("Attributes");
+    upgradeItemButton = inventoryUIHolder.FindInChild<Button>("UpgradeButton");
+    upgradeItemText = upgradeItemButton.FindInChild<TMP_Text>("Text");
+    scrapItemButton = inventoryUIHolder.FindInChild<Button>("ScrapButton");
+    scrapItemText = scrapItemButton.FindInChild<TMP_Text>("Text");
   }
 
   private void SetupAvailableButtons(IList<EquipmentBase> equipment, IEnumerable<EquipmentButtonScript> buttons) {
@@ -81,6 +88,7 @@ public class UIManagerScript : MonoBehaviour {
     SetupAvailableButtons(Player.Instance.EquippedItems, equippedItemsButtons);
     UpdateAttributes();
     SetLaunchButtonAvailability();
+    SetSelectedItem(null);
   }
 
   public List<EquipmentBase> ButtonsToEquipment(IEnumerable<EquipmentButtonScript> buttons) {
@@ -138,16 +146,24 @@ public class UIManagerScript : MonoBehaviour {
     }
   }
 
-  private void ShowItem(EquipmentButtonScript button, GameObject textBackground, TMP_Text textBox) {
-    var equipment = button?.Equipment;
+  private void ShowItem(EquipmentBase equipment, GameObject textBackground, TMP_Text textBox) {
     textBackground.SetActive(equipment != null);
     textBox.text = equipment?.ToString() ?? "";
   }
 
-  private void SetSelectedItemText(EquipmentButtonScript button) {
+  private void SetSelectedItem(EquipmentButtonScript button) {
+    eventSystem.SetSelectedGameObject(button?.gameObject);
     selectedButton = button;
-    ShowItem(button, selectedItemTextBackground, selectedItemText);
+    ShowItem(button?.Equipment, selectedItemTextBackground, selectedItemText);
     SetLaunchButtonAvailability();
+    var hasEquipment = button?.Equipment != null;
+    upgradeItemButton.gameObject.SetActive(hasEquipment);
+    scrapItemButton.gameObject.SetActive(hasEquipment);
+    if (hasEquipment) {
+      upgradeItemText.text = $"Upgrade cost: {button.Equipment.UpgradeCost}";
+      scrapItemText.text = $"Scrap value: {button.Equipment.ScrapValue}";
+      upgradeItemButton.interactable = button.Equipment.UpgradeCost <= Player.Instance.Scrap;
+    }
   }
 
   private bool HasSufficientEnergy() {
@@ -165,29 +181,66 @@ public class UIManagerScript : MonoBehaviour {
     stringBuilder.AppendLine($"Energy recharge: {equippedItemsButtons.GetEnergyGeneration():f1}");
     stringBuilder.AppendLine($"Shields recharge cost: {equippedItemsButtons.AllOfType<ShieldInstance>().Sum(shield => shield.EnergyConsumptionWhenRechargingPerSecond):f1}");
     stringBuilder.AppendLine($"Weapons recharge cost: {equippedItemsButtons.AllOfType<WeaponBase>().Sum(weapon => weapon.EnergyConsumptionWhenRechargingPerSecond):f1}");
+    stringBuilder.AppendLine($"Scrap: {Player.Instance.Scrap}");
 
     attributeText.text = stringBuilder.ToString();
+  }
+
+  private void DeselectEquipmentButton() {
+    SetSelectedItem(null);
   }
 
   public void InventoryButtonSelected(EquipmentButtonScript button) {
     if (selectedButton == null) {
       selectedButton = button;
-      SetSelectedItemText(button);
+      SetSelectedItem(button);
     } else {
       var switchedEquipment = selectedButton.Equipment;
       selectedButton.LoadEquipment(button.Equipment, textureHandler);
       button.LoadEquipment(switchedEquipment, textureHandler);
-      SetSelectedItemText(null);
-      eventSystem.SetSelectedGameObject(null);
+      DeselectEquipmentButton();
       UpdateAttributes();
     }
   }
 
   public void PointerEnterButton(EquipmentButtonScript button) {
-    ShowItem(button, hoveredItemTextBackground, hoveredItemText);
+    ShowItem(button.Equipment, hoveredItemTextBackground, hoveredItemText);
   }
 
   public void PointerExitButton(EquipmentButtonScript button) {
     ShowItem(null, hoveredItemTextBackground, hoveredItemText);
+  }
+
+  public void MouseOverUpgradeButton() {
+    ShowItem(selectedButton?.Equipment?.UpgradedVersion(), hoveredItemTextBackground, hoveredItemText);
+  }
+
+  public void MouseExitUpgradeButton() {
+    ShowItem(null, hoveredItemTextBackground, hoveredItemText);
+  }
+
+  public void UpgradeButtonPressed() {
+    Assert.NotNull(selectedButton, nameof(selectedButton));
+    Assert.NotNull(selectedButton.Equipment, nameof(selectedButton.Equipment));
+    Assert.EqualOrGreater(Player.Instance.Scrap, selectedButton.Equipment.UpgradeCost);
+    Player.Instance.Scrap -= selectedButton.Equipment.UpgradeCost;
+    selectedButton.LoadEquipment(selectedButton.Equipment.UpgradedVersion(), textureHandler);
+    SetSelectedItem(selectedButton);
+    UpdateAttributes();
+  }
+
+  public void ScrapButtonPressed() {
+    Assert.NotNull(selectedButton, nameof(selectedButton));
+    Assert.NotNull(selectedButton.Equipment, nameof(selectedButton.Equipment));
+    Player.Instance.Scrap += selectedButton.Equipment.ScrapValue;
+    selectedButton.LoadEquipment(null, textureHandler);
+    DeselectEquipmentButton();
+    UpdateAttributes();
+  }
+
+  public void Update() {
+    if (!eventSystem.alreadySelecting && eventSystem.currentSelectedGameObject == null) {
+      DeselectEquipmentButton();
+    }
   }
 }

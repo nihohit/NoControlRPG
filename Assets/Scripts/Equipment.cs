@@ -148,6 +148,15 @@ public abstract class EquipmentBase {
 
   public float BaselineEnergyRequirement { get; }
 
+  [NoDisplay]
+  public int ScrapValue => (int)MathF.Ceiling(Level) * 3;
+
+  [NoDisplay]
+  public int UpgradeCost => ScrapValue * 3;
+
+  public EquipmentBase UpgradedVersion() {
+    return Config.Instantiate(MathF.Floor(Level + 1));
+  }
 
   #region item description
   protected string FormattedPropertyName(PropertyInfo propertyInfo) {
