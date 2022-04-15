@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Linq;
+using UnityEngine;
 
 public class ExplosionScript : MonoBehaviour {
   private ParticleCallbackScript[] particles;

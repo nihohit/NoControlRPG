@@ -1,8 +1,8 @@
+using System;
 using Assets.Scripts.UnityBase;
 using UnityEngine;
-using UnityEngine.UI;
-using System;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
   private UIManagerScript manager;

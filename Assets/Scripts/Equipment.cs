@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Assets.Scripts.Base;
 using UnityEngine;
-using System.Linq;
 
 public enum EquipmentType { Weapon, Reactor, Shield, TargetingSystem }
 

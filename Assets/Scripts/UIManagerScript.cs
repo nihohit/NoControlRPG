@@ -1,12 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Assets.Scripts.Base;
 using Assets.Scripts.UnityBase;
-using UnityEngine;
-using UnityEngine.UI;
-using System.Linq;
 using TMPro;
+using UnityEngine;
 using UnityEngine.EventSystems;
-using System.Text;
+using UnityEngine.UI;
 
 public class UIManagerScript : MonoBehaviour {
   private Button switchContextButton;
