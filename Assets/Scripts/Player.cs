@@ -19,6 +19,8 @@ public class Player {
   public IList<ShieldInstance> Shields { get; private set; }
   public List<WeaponBase> Weapons { get; private set; }
 
+  public int Scrap { get; set; }
+
   public void StartRound(ReadOnlyCollection<EquipmentBase> equippedItems,
                          List<EquipmentBase> availableItems,
                          float newHealth) {
