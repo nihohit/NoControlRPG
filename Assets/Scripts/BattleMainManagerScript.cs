@@ -327,7 +327,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     .Where(type => type.IsSubclassOf(typeof(EquipmentConfigBase)))
     .SelectMany(type => type.GetFields()
                             .Where(field => field.FieldType.IsSubclassOf(typeof(EquipmentConfigBase))
-                                            && !field.CustomAttributes.Any(attribute => attribute.AttributeType == typeof(NoDisplayAttribute)))
+                                            && !field.CustomAttributes.Any(attribute => attribute.AttributeType == typeof(NoDropAttribute)))
                             .Select(field => field.GetValue(null) as EquipmentConfigBase))
     .ToList();
 
