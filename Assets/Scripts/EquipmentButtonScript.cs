@@ -1,4 +1,3 @@
-using System;
 using Assets.Scripts.UnityBase;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -32,8 +31,6 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
       backgroundImage.color = ColorForType(equipment.Type);
     }
   }
-
-
 
   // Start is called before the first frame update
   protected void Awake() {

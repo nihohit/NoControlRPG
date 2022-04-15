@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Assets.Scripts.UnityBase;
 
 public class Player {
   public List<EquipmentBase> AvailableItems { private set; get; }
