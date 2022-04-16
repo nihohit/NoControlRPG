@@ -336,6 +336,7 @@ public class BattleMainManagerScript : MonoBehaviour {
       var chosenConfig = dropList.ChooseRandomValue();
       Player.Instance.AvailableItems.Add(chosenConfig.Instantiate(level));
     }
+    Player.Instance.Scrap += (int)Mathf.Floor(level);
   }
 
   private void ReleaseEntities() {
