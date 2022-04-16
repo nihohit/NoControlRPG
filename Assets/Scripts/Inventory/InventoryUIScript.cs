@@ -171,6 +171,7 @@ public class InventoryUIScript : MonoBehaviour {
     selectedButton.LoadEquipment(selectedButton.Equipment.UpgradedVersion(), TextureHandler);
     SetSelectedItem(selectedButton);
     UpdateAttributes();
+    ShowItem(selectedButton?.Equipment?.UpgradedVersion(), hoveredItemTextBackground, hoveredItemText);
   }
 
   public void ScrapButtonPressed() {
