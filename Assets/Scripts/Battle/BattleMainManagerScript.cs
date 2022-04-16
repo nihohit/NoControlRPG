@@ -16,8 +16,8 @@ public class BattleMainManagerScript : MonoBehaviour {
   private float timeToNextSpawn = TIME_BETWEEN_SPAWNS;
   private enum Mode { Battle, Inventory }
   private Mode mode;
-
   private UIManagerScript uiManager;
+  private BattleUIScript battleUIManager;
   private float roundStartTime;
 
   private readonly HashSet<BulletScript> bulletsToRelease = new();
@@ -52,6 +52,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     spawnPool = GetComponent<SpawnPool>();
     player = GameObject.Find("Player").gameObject;
     uiManager = GameObject.FindObjectOfType<UIManagerScript>();
+    battleUIManager = GameObject.FindObjectOfType<BattleUIScript>();
 
     SwitchToInventory();
   }
@@ -302,7 +303,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     ShootPlayer();
     MoveShots();
     RechargeSystems();
-    uiManager.UpdateUIOverlay();
+    battleUIManager.UpdateUIOverlay();
   }
 
   private void RechargeSystems() {
