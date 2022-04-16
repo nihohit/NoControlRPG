@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
-  private UIManagerScript manager;
+  private InventoryUIScript manager;
   private Button button;
   private Image equipmentImage;
   private Image backgroundImage;
@@ -34,7 +34,7 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
 
   // Start is called before the first frame update
   protected void Awake() {
-    manager = GameObject.FindObjectOfType<UIManagerScript>();
+    manager = GameObject.FindObjectOfType<InventoryUIScript>();
     button = GetComponent<Button>();
     button.onClick.AddListener(OnClick);
     equipmentImage = this.FindInChild<Image>("EquipmentImage");

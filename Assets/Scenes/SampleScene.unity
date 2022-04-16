@@ -3472,6 +3472,7 @@ GameObject:
   - component: {fileID: 1167844546}
   - component: {fileID: 1167844548}
   - component: {fileID: 1167844547}
+  - component: {fileID: 1167844549}
   m_Layer: 5
   m_Name: inventory
   m_TagString: Untagged
@@ -3544,6 +3545,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1167844545}
   m_CullTransparentMesh: 1
+--- !u!114 &1167844549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167844545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf5645c80982a8342901a241f380f4d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1187629041
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4475,7 +4488,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1447833831}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UIManagerScript, Assembly-CSharp
         m_MethodName: UpgradeButtonPressed
         m_Mode: 1
@@ -5212,7 +5225,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1447833826}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf5645c80982a8342901a241f380f4d0, type: 3}
+  m_Script: {fileID: 11500000, guid: 47db8e374adc6fa42a98147d65792a41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1450465822
@@ -5808,7 +5821,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1447833831}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UIManagerScript, Assembly-CSharp
         m_MethodName: ScrapButtonPressed
         m_Mode: 1
@@ -6314,6 +6327,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1568406309}
   - component: {fileID: 1568406310}
+  - component: {fileID: 1568406311}
   m_Layer: 5
   m_Name: BattleUI
   m_TagString: Untagged
@@ -6350,6 +6364,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1568406308}
   m_CullTransparentMesh: 1
+--- !u!114 &1568406311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1568406308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0e18f15fad9ea04eb0951e7967a43bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &1584682417 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4837456905318679399, guid: f70ce14e8f9faf74e8a07e19f63bf5d6, type: 3}
