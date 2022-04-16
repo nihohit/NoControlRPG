@@ -224,7 +224,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     int salvoCount = weapon.Config.numberOfSalvosPerShot;
     while (true) {
       ShootBulletsSalvo(shooter, weapon, to);
-      if (--salvoCount > 0) {
+      if (--salvoCount > 0 && mode == Mode.Battle) {
         yield return new WaitForSeconds(weapon.Config.TimeBetweenSalvosInSeconds);
       } else {
         yield break;
