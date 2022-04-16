@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class FillingBarScript : MonoBehaviour {
   private Image background;
   private Image bar;
+  private GameObject iconBackground;
   private Image icon;
   /// text might be null. Caller is expected to now whether setting text is possible.
   private TMP_Text text;
@@ -15,7 +16,8 @@ public class FillingBarScript : MonoBehaviour {
     background = GetComponent<Image>();
     bar = this.FindInChild<Image>("Bar");
     text = this.FindInChild<TMP_Text>("Text");
-    icon = this.FindInChild<Image>("Icon");
+    iconBackground = this.FindChild("IconBackground");
+    icon = iconBackground?.FindInChild<Image>("Icon");
   }
 
   /// Value is expected to be in 0..1 range.
@@ -41,7 +43,7 @@ public class FillingBarScript : MonoBehaviour {
   public void SetVisible(bool isVisible) {
     bar.gameObject.SetActive(isVisible);
     text?.gameObject?.SetActive(isVisible);
-    icon?.gameObject?.SetActive(isVisible);
+    iconBackground?.SetActive(isVisible);
     background.enabled = isVisible;
   }
 }
