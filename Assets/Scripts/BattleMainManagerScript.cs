@@ -28,7 +28,7 @@ public class BattleMainManagerScript : MonoBehaviour {
                     imageName: "ScoutMech",
                     speed: LevelBasedValue.ConstantValue(15f),
                     weapon: weaponConfig,
-                    dropChance: 0.07f);
+                    dropChance: 0.1f);
   }
 
 
@@ -37,7 +37,7 @@ public class BattleMainManagerScript : MonoBehaviour {
                     imageName: "HeavyMech",
                     speed: LevelBasedValue.ConstantValue(10f),
                     weapon: weaponConfig,
-                    dropChance: 0.15f);
+                    dropChance: 0.2f);
   }
 
   private readonly List<EnemyConfig> enemyConfigs = new() {
