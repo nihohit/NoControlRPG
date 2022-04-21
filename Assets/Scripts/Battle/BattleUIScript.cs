@@ -7,7 +7,7 @@ public class BattleUIScript : MonoBehaviour {
   private FillingBarScript healthBar;
   private FillingBarScript shieldBar;
   private FillingBarScript energyBar;
-  private FillingBarScript[] weaponBars;
+  private FillingIconScript[] weaponBars;
   public TextureHandler TextureHandler { get; set; }
 
   protected void Awake() {
@@ -15,10 +15,8 @@ public class BattleUIScript : MonoBehaviour {
     healthBar = barsContainer.FindInChild<FillingBarScript>("HealthBar");
     shieldBar = barsContainer.FindInChild<FillingBarScript>("ShieldBar");
     energyBar = barsContainer.FindInChild<FillingBarScript>("EnergyBar");
-    weaponBars = barsContainer
-      .GetComponentsInChildren<FillingBarScript>()
-      .Where(bar => bar.gameObject.name.Contains("WeaponBar"))
-      .ToArray();
+    weaponBars = this.FindChild("CooldownsContainer").GetComponentsInChildren<FillingIconScript>();
+    Debug.Log(weaponBars.Count());
   }
 
   public void UpdateUIOverlay() {
@@ -30,7 +28,7 @@ public class BattleUIScript : MonoBehaviour {
     energyBar.SetBarFill(Player.Instance.CurrentEnergyLevel, Player.Instance.MaxEnergyLevel);
     energyBar.SetDescription(string.Format(barUiFormat, "Energy", Player.Instance.CurrentEnergyLevel));
     Player.Instance.Weapons.ForEach((weapon, index) => {
-      weaponBars[index].SetBarFill(weapon.CurrentCharge, weapon.MaxCharge);
+      weaponBars[index].SetIconFill(weapon.CurrentCharge, weapon.MaxCharge);
     });
   }
 
