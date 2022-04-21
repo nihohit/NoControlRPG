@@ -186,6 +186,7 @@ public class InventoryUIScript : MonoBehaviour {
   public void Update() {
     if (!eventSystem.alreadySelecting && eventSystem.currentSelectedGameObject == null) {
       DeselectEquipmentButton();
+      ShowItem(null, hoveredItemTextBackground, hoveredItemText);
     }
   }
 }

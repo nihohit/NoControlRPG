@@ -16,7 +16,6 @@ public class BattleUIScript : MonoBehaviour {
     shieldBar = barsContainer.FindInChild<FillingBarScript>("ShieldBar");
     energyBar = barsContainer.FindInChild<FillingBarScript>("EnergyBar");
     weaponBars = this.FindChild("CooldownsContainer").GetComponentsInChildren<FillingIconScript>();
-    Debug.Log(weaponBars.Count());
   }
 
   public void UpdateUIOverlay() {

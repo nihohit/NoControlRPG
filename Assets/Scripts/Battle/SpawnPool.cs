@@ -99,7 +99,7 @@ public class SpawnPool : MonoBehaviour {
     ReturnToPool(unit, GetAvailableObjectsPool(unit.gameObject.name, unitPools)); ;
   }
 
-  private void SpawnExplosion(Vector3 position, string explosionName) {
+  private void SpawnExplosion(Vector3 position, string explosionName, Quaternion rotation) {
     if (!explosionResources.TryGetValue(explosionName, out var resource)) {
       resource = Resources.Load<GameObject>($"effects/{explosionName}");
       explosionResources[explosionName] = resource;
@@ -107,10 +107,15 @@ public class SpawnPool : MonoBehaviour {
     var explosion = GetFromPool(GetAvailableObjectsPool(explosionName, explosionPools), resource);
     explosion.StartExplosion();
     explosion.transform.position = position;
+    explosion.transform.rotation = rotation;
   }
 
-  public void SpawnUnitExplosion(Vector3 position) {
-    SpawnExplosion(position, "UnitExplosion");
+  public void SpawnUnitExplosion(Vector3 position, Quaternion rotation) {
+    SpawnExplosion(position, "UnitExplosion", rotation);
+  }
+
+  public void SpawnShotExplosion(Vector3 position, Quaternion rotation) {
+    SpawnExplosion(position, "ShotExplosion", rotation);
   }
 
   public void ExplosionDone(ExplosionScript explosion) {

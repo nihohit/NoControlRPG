@@ -31,7 +31,6 @@ public class BattleMainManagerScript : MonoBehaviour {
                     dropChance: 0.1f);
   }
 
-
   private static EnemyConfig MakeHeavyMech(WeaponConfig weaponConfig) {
     return new EnemyConfig(health: new LevelBasedValue(constant: 4f, linearCoefficient: 1.5f),
                     imageName: "HeavyMech",
@@ -344,11 +343,12 @@ public class BattleMainManagerScript : MonoBehaviour {
     bulletsToRelease.ForEach(bullet => {
       bullets.Remove(bullet.Identifier);
       ReleaseBullet(bullet);
+      spawnPool.SpawnShotExplosion(bullet.transform.position, bullet.transform.rotation);
     });
 
     var enemiesToRelease = enemies.Where(pair => pair.Value.Health <= 0).ToList();
     foreach (var (key, enemy) in enemiesToRelease) {
-      spawnPool.SpawnUnitExplosion(enemy.transform.position);
+      spawnPool.SpawnUnitExplosion(enemy.transform.position, enemy.transform.rotation);
       enemies.Remove(enemy.Identifier);
       ReleaseEnemy(enemy);
       RollForDrop(enemy.Config, enemy.Level);
