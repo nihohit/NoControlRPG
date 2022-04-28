@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -18,7 +19,8 @@ public class Player {
   public float LastShieldHitTime { get; set; }
   public IList<ShieldInstance> Shields { get; private set; }
   public List<WeaponBase> Weapons { get; private set; }
-
+  public ulong XP { get; set; }
+  public uint Level { get; set; }
   public uint Scrap { get; set; }
 
   public void StartRound(ReadOnlyCollection<EquipmentBase> equippedItems,
@@ -41,6 +43,8 @@ public class Player {
 
     Weapons = equippedItems.AllOfType<WeaponBase>();
     Weapons.ForEach(weapon => weapon.CurrentCharge = weapon.MaxCharge);
+    XP = 0;
+    Level = 1;
   }
 
   public static readonly Player Instance = new() {
@@ -52,4 +56,8 @@ public class Player {
     }),
     AvailableItems = new List<EquipmentBase>()
   };
+
+  public uint XPToNextLevel() {
+    return (uint)Math.Pow(2, Level) * 1000;
+  }
 }

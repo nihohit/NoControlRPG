@@ -7,6 +7,7 @@ public class BattleUIScript : MonoBehaviour {
   private FillingBarScript healthBar;
   private FillingBarScript shieldBar;
   private FillingBarScript energyBar;
+  private FillingBarScript xpBar;
   private FillingIconScript[] weaponBars;
   public TextureHandler TextureHandler { get; set; }
 
@@ -15,6 +16,7 @@ public class BattleUIScript : MonoBehaviour {
     healthBar = barsContainer.FindInChild<FillingBarScript>("HealthBar");
     shieldBar = barsContainer.FindInChild<FillingBarScript>("ShieldBar");
     energyBar = barsContainer.FindInChild<FillingBarScript>("EnergyBar");
+    xpBar = this.FindInChild<FillingBarScript>("XPBar");
     weaponBars = this.FindChild("CooldownsContainer").GetComponentsInChildren<FillingIconScript>();
   }
 
@@ -26,6 +28,8 @@ public class BattleUIScript : MonoBehaviour {
     shieldBar.SetDescription(string.Format(barUiFormat, "Shield", Player.Instance.CurrentShieldStrength));
     energyBar.SetBarFill(Player.Instance.CurrentEnergyLevel, Player.Instance.MaxEnergyLevel);
     energyBar.SetDescription(string.Format(barUiFormat, "Energy", Player.Instance.CurrentEnergyLevel));
+    xpBar.SetBarFill(Player.Instance.XP, Player.Instance.XPToNextLevel());
+    xpBar.SetDescription(string.Format(barUiFormat, "XP", Player.Instance.XP));
     Player.Instance.Weapons.ForEach((weapon, index) => {
       weaponBars[index].SetIconFill(weapon.CurrentCharge, weapon.MaxCharge);
     });
