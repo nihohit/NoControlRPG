@@ -284,27 +284,6 @@ public class BattleMainManagerScript : MonoBehaviour {
     }
   }
 
-  // Update is called once per frame
-  protected void Update() {
-    ReleaseEntities();
-
-    if (mode != Mode.Battle) {
-      return;
-    }
-
-    if (Player.Instance.CurrentHealth <= 0) {
-      SwitchToInventory();
-    }
-
-    SpawnEnemyIfNeeded();
-    MoveEnemies();
-    ShootEnemies();
-    ShootPlayer();
-    MoveShots();
-    RechargeSystems();
-    battleUIManager.UpdateUIOverlay();
-  }
-
   private void RechargeSystems() {
     var player = Player.Instance;
     var availableEnergy = player.CurrentEnergyLevel + player.EnergyRecoveryPerSecond * Time.deltaTime;
@@ -359,5 +338,26 @@ public class BattleMainManagerScript : MonoBehaviour {
       ReleaseBeam(beam);
     });
     ClearReleaseLists();
+  }
+
+  // Update is called once per frame
+  protected void Update() {
+    ReleaseEntities();
+
+    if (mode != Mode.Battle) {
+      return;
+    }
+
+    if (Player.Instance.CurrentHealth <= 0) {
+      SwitchToInventory();
+    }
+
+    SpawnEnemyIfNeeded();
+    MoveEnemies();
+    ShootEnemies();
+    ShootPlayer();
+    MoveShots();
+    RechargeSystems();
+    battleUIManager.UpdateUIOverlay();
   }
 }
