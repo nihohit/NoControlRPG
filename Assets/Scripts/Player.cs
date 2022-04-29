@@ -20,6 +20,7 @@ public class Player {
   public IList<ShieldInstance> Shields { get; private set; }
   public List<WeaponBase> Weapons { get; private set; }
   public ulong XP { get; set; }
+  public ulong XPToNextLevel { get; private set; }
   public uint Level { get; set; }
   public uint Scrap { get; set; }
 
@@ -45,6 +46,7 @@ public class Player {
     Weapons.ForEach(weapon => weapon.CurrentCharge = weapon.MaxCharge);
     XP = 0;
     Level = 1;
+    XPToNextLevel = GetXPToNextLevel();
   }
 
   public static readonly Player Instance = new() {
@@ -57,7 +59,16 @@ public class Player {
     AvailableItems = new List<EquipmentBase>()
   };
 
-  public uint XPToNextLevel() {
-    return (uint)Math.Pow(2, Level) * 1000;
+  private uint GetXPToNextLevel() {
+    return (uint)Math.Pow(2, Level) * 20;
+  }
+
+  internal bool LevelUpIfPossible() {
+    if (XP < XPToNextLevel) {
+      return false;
+    }
+    XP -= XPToNextLevel;
+    Level += 1;
+    return true;
   }
 }

@@ -14,7 +14,7 @@ public class BattleMainManagerScript : MonoBehaviour {
   private readonly Dictionary<Guid, BeamScript> beams = new();
   private const float TIME_BETWEEN_SPAWNS = 1;
   private float timeToNextSpawn = TIME_BETWEEN_SPAWNS;
-  private enum Mode { Battle, Inventory }
+  private enum Mode { Battle, Inventory, LevelUp }
   private Mode mode;
   private UIManagerScript uiManager;
   private BattleUIScript battleUIManager;
@@ -285,6 +285,14 @@ public class BattleMainManagerScript : MonoBehaviour {
     }
   }
 
+    LevelUpIfPossible();
+  private void LevelUpIfPossible() {
+    if (!Player.Instance.LevelUpIfPossible()) {
+      return;
+    }
+    mode = Mode.LevelUp;
+  }
+
   private void RechargeSystems() {
     var player = Player.Instance;
     var availableEnergy = player.CurrentEnergyLevel + player.EnergyRecoveryPerSecond * Time.deltaTime;
@@ -332,6 +340,7 @@ public class BattleMainManagerScript : MonoBehaviour {
       enemies.Remove(enemy.Identifier);
       ReleaseEnemy(enemy);
       RollForDrop(enemy.Config, enemy.Level);
+      Player.Instance.XP += (uint)enemy.Level;
     }
 
     beamsToRelease.ForEach(beam => {

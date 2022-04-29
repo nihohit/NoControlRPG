@@ -28,7 +28,7 @@ public class BattleUIScript : MonoBehaviour {
     shieldBar.SetDescription(string.Format(barUiFormat, "Shield", Player.Instance.CurrentShieldStrength));
     energyBar.SetBarFill(Player.Instance.CurrentEnergyLevel, Player.Instance.MaxEnergyLevel);
     energyBar.SetDescription(string.Format(barUiFormat, "Energy", Player.Instance.CurrentEnergyLevel));
-    xpBar.SetBarFill(Player.Instance.XP, Player.Instance.XPToNextLevel());
+    xpBar.SetBarFill(Player.Instance.XP, Player.Instance.XPToNextLevel);
     xpBar.SetDescription(string.Format(barUiFormat, "XP", Player.Instance.XP));
     Player.Instance.Weapons.ForEach((weapon, index) => {
       weaponBars[index].SetIconFill(weapon.CurrentCharge, weapon.MaxCharge);
