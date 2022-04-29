@@ -90,7 +90,8 @@ public class InventoryUIScript : MonoBehaviour {
     }
   }
 
-  private void ShowItem(EquipmentBase equipment, GameObject textBackground, TMP_Text textBox) {
+  private void ShowItem(EquipmentBase equipment, (GameObject, TMP_Text) textAndBackground) {
+    var (textBackground, textBox) = textAndBackground;
     textBackground.SetActive(equipment != null);
     textBox.text = equipment?.ToString() ?? "";
   }
@@ -98,7 +99,7 @@ public class InventoryUIScript : MonoBehaviour {
   private void SetSelectedItem(EquipmentButtonScript button) {
     eventSystem.SetSelectedGameObject(button?.gameObject);
     selectedButton = button;
-    ShowItem(button?.Equipment, selectedItemTextBackground, selectedItemText);
+    ShowItem(button?.Equipment, (selectedItemTextBackground, selectedItemText));
     SetLaunchButtonAvailability();
     var hasEquipment = button?.Equipment != null;
     upgradeItemButton.gameObject.SetActive(hasEquipment);
@@ -147,20 +148,29 @@ public class InventoryUIScript : MonoBehaviour {
     }
   }
 
+  private (GameObject, TMP_Text) BackgroundToUseForButton() {
+    return selectedButton == null ?
+      (selectedItemTextBackground, selectedItemText) :
+      (hoveredItemTextBackground, hoveredItemText);
+  }
+
   public void PointerEnterButton(EquipmentButtonScript button) {
-    ShowItem(button.Equipment, hoveredItemTextBackground, hoveredItemText);
+    if (button == selectedButton) {
+      return;
+    }
+    ShowItem(button.Equipment, BackgroundToUseForButton());
   }
 
   public void PointerExitButton(EquipmentButtonScript button) {
-    ShowItem(null, hoveredItemTextBackground, hoveredItemText);
+    ShowItem(null, BackgroundToUseForButton());
   }
 
   public void MouseOverUpgradeButton() {
-    ShowItem(selectedButton?.Equipment?.UpgradedVersion(), hoveredItemTextBackground, hoveredItemText);
+    ShowItem(selectedButton?.Equipment?.UpgradedVersion(), (hoveredItemTextBackground, hoveredItemText));
   }
 
   public void MouseExitUpgradeButton() {
-    ShowItem(null, hoveredItemTextBackground, hoveredItemText);
+    ShowItem(null, (hoveredItemTextBackground, hoveredItemText));
   }
 
   public void UpgradeButtonPressed() {
@@ -171,7 +181,7 @@ public class InventoryUIScript : MonoBehaviour {
     selectedButton.LoadEquipment(selectedButton.Equipment.UpgradedVersion(), TextureHandler);
     SetSelectedItem(selectedButton);
     UpdateAttributes();
-    ShowItem(selectedButton?.Equipment?.UpgradedVersion(), hoveredItemTextBackground, hoveredItemText);
+    ShowItem(selectedButton?.Equipment?.UpgradedVersion(), (hoveredItemTextBackground, hoveredItemText));
   }
 
   public void ScrapButtonPressed() {
@@ -184,9 +194,9 @@ public class InventoryUIScript : MonoBehaviour {
   }
 
   public void Update() {
-    if (!eventSystem.alreadySelecting && eventSystem.currentSelectedGameObject == null) {
+    if (!eventSystem.alreadySelecting && eventSystem.currentSelectedGameObject == null && selectedButton != null) {
       DeselectEquipmentButton();
-      ShowItem(null, hoveredItemTextBackground, hoveredItemText);
+      ShowItem(null, (hoveredItemTextBackground, hoveredItemText));
     }
   }
 }
