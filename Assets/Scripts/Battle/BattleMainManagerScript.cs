@@ -195,7 +195,8 @@ public class BattleMainManagerScript : MonoBehaviour {
       beam.Weapon.CurrentCharge -= Time.deltaTime;
       if (beam.Weapon.CurrentCharge <= 0f
         || !beam.Shooter.activeSelf
-        || !beam.Target.activeSelf) { // TODO - this condition means that if an enemy is restored in the next frame after being destroyed, the beam will continue shooting.
+        || !beam.Target.activeSelf // TODO - this condition means that if an enemy is restored in the next frame after being destroyed, the beam will continue shooting.
+        || beam.Weapon.Range < beam.Shooter.Distance(beam.Target)) {
         beamsToRelease.Add(beam);
       } else if (beam.Target.activeSelf) {
         AdjustBeamPosition(beam, 360);
