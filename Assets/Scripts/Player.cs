@@ -43,13 +43,5 @@ public class Player {
     Weapons.ForEach(weapon => weapon.CurrentCharge = weapon.MaxCharge);
   }
 
-  public static readonly Player Instance = new() {
-    EquippedItems = new ReadOnlyCollection<EquipmentBase>(new List<EquipmentBase>{
-      new BulletWeaponInstance(WeaponConfig.MACHINE_GUN, 1f),
-      new BulletWeaponInstance(WeaponConfig.TWO_SHOT_SHOTGUN, 1f),
-      new ReactorInstance(ReactorConfig.DEFAULT, 1),
-      new ShieldInstance(ShieldConfig.BALANCED, 1)
-    }),
-    AvailableItems = new List<EquipmentBase>()
-  };
+  public static readonly Player Instance = new();
 }

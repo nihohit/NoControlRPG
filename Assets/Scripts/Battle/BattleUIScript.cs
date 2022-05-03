@@ -4,28 +4,14 @@ using Assets.Scripts.UnityBase;
 using UnityEngine;
 
 public class BattleUIScript : MonoBehaviour {
-  private FillingBarScript healthBar;
-  private FillingBarScript shieldBar;
-  private FillingBarScript energyBar;
   private FillingIconScript[] weaponBars;
   public TextureHandler TextureHandler { get; set; }
 
   protected void Awake() {
-    var barsContainer = this.FindChild("BarsContainer");
-    healthBar = barsContainer.FindInChild<FillingBarScript>("HealthBar");
-    shieldBar = barsContainer.FindInChild<FillingBarScript>("ShieldBar");
-    energyBar = barsContainer.FindInChild<FillingBarScript>("EnergyBar");
     weaponBars = this.FindChild("CooldownsContainer").GetComponentsInChildren<FillingIconScript>();
   }
 
   public void UpdateUIOverlay() {
-    const string barUiFormat = "{0}: {1:0.#}";
-    healthBar.SetBarFill(Player.Instance.CurrentHealth, Player.Instance.FullHealth);
-    healthBar.SetDescription(string.Format(barUiFormat, "Health", Player.Instance.CurrentHealth));
-    shieldBar.SetBarFill(Player.Instance.CurrentShieldStrength, Player.Instance.MaxShieldStrength);
-    shieldBar.SetDescription(string.Format(barUiFormat, "Shield", Player.Instance.CurrentShieldStrength));
-    energyBar.SetBarFill(Player.Instance.CurrentEnergyLevel, Player.Instance.MaxEnergyLevel);
-    energyBar.SetDescription(string.Format(barUiFormat, "Energy", Player.Instance.CurrentEnergyLevel));
     Player.Instance.Weapons.ForEach((weapon, index) => {
       weaponBars[index].SetIconFill(weapon.CurrentCharge, weapon.MaxCharge);
     });

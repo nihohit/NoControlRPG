@@ -1,10 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Assets.Scripts.Base;
 using Assets.Scripts.UnityBase;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
+
+public enum Mode { Battle, Inventory, Start }
 
 public class BattleMainManagerScript : MonoBehaviour {
   private SpawnPool spawnPool;
@@ -14,12 +19,9 @@ public class BattleMainManagerScript : MonoBehaviour {
   private readonly Dictionary<Guid, BeamScript> beams = new();
   private const float TIME_BETWEEN_SPAWNS = 1;
   private float timeToNextSpawn = TIME_BETWEEN_SPAWNS;
-  private enum Mode { Battle, Inventory }
-  private Mode mode;
+  private Mode mode = Mode.Start;
   private UIManagerScript uiManager;
-  private BattleUIScript battleUIManager;
   private float roundStartTime;
-
   private readonly HashSet<BulletScript> bulletsToRelease = new();
   private readonly HashSet<BeamScript> beamsToRelease = new();
 
@@ -51,9 +53,18 @@ public class BattleMainManagerScript : MonoBehaviour {
     spawnPool = GetComponent<SpawnPool>();
     player = GameObject.Find("Player").gameObject;
     uiManager = GameObject.FindObjectOfType<UIManagerScript>();
-    battleUIManager = GameObject.FindObjectOfType<BattleUIScript>();
+    Player.Instance.StartRound(
+      new ReadOnlyCollection<EquipmentBase>(new List<EquipmentBase>{
+        new BulletWeaponInstance(WeaponConfig.MACHINE_GUN, 1f),
+        new BulletWeaponInstance(WeaponConfig.TWO_SHOT_SHOTGUN, 1f),
+        new ReactorInstance(ReactorConfig.DEFAULT, 1),
+        new ShieldInstance(ShieldConfig.BALANCED, 1)
+      }),
+      new List<EquipmentBase>(),
+      Player.INITIAL_HEALTH);
 
-    SwitchToInventory();
+    roundStartTime = Time.timeSinceLevelLoad;
+    SwitchToBattle();
   }
 
   public void SwitchContext() {
@@ -68,15 +79,15 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private void SwitchToBattle() {
+    var previousMode = mode;
     mode = Mode.Battle;
-    uiManager.ToBattleMode();
-    roundStartTime = Time.timeSinceLevelLoad;
+    uiManager.SwitchMode(previousMode, mode);
   }
 
   private void SwitchToInventory() {
-    ReleaseAllEntities();
+    var previousMode = mode;
     mode = Mode.Inventory;
-    uiManager.ToInventoryMode();
+    uiManager.SwitchMode(previousMode, mode);
   }
 
   private void HitPlayer(float damage) {
@@ -104,16 +115,6 @@ public class BattleMainManagerScript : MonoBehaviour {
   private void ReleaseBeam(BeamScript beam) {
     spawnPool.ReturnBeam(beam);
     beam.Weapon.IsCurrentlyfiring = false;
-  }
-
-  private void ReleaseAllEntities() {
-    bullets.Values.ForEach(ReleaseBullet);
-    bullets.Clear();
-    beams.Values.ForEach(ReleaseBeam);
-    beams.Clear();
-    enemies.Values.ForEach(ReleaseEnemy);
-    enemies.Clear();
-    ClearReleaseLists();
   }
 
   internal void BulletHitEnemy(BulletScript shotScript, GameObject enemy) {
@@ -345,12 +346,8 @@ public class BattleMainManagerScript : MonoBehaviour {
   protected void Update() {
     ReleaseEntities();
 
-    if (mode != Mode.Battle) {
-      return;
-    }
-
     if (Player.Instance.CurrentHealth <= 0) {
-      SwitchToInventory();
+      SceneManager.LoadScene("LevelStartScene");
     }
 
     SpawnEnemyIfNeeded();
@@ -359,6 +356,6 @@ public class BattleMainManagerScript : MonoBehaviour {
     ShootPlayer();
     MoveShots();
     RechargeSystems();
-    battleUIManager.UpdateUIOverlay();
+    uiManager.UpdateUIOverlay();
   }
 }
