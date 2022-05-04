@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using UnityEngine;
 
 public class Player {
   public List<EquipmentBase> AvailableItems { private set; get; }
@@ -24,23 +25,36 @@ public class Player {
   public void StartRound(ReadOnlyCollection<EquipmentBase> equippedItems,
                          List<EquipmentBase> availableItems,
                          float newHealth) {
-    EquippedItems = equippedItems;
-    AvailableItems = availableItems;
     CurrentHealth = newHealth;
     FullHealth = newHealth;
+    LastShieldHitTime = 0;
+
+    ChangeEquipmentInternal(equippedItems, availableItems);
+    CurrentShieldStrength = MaxShieldStrength;
+    CurrentEnergyLevel = MaxEnergyLevel;
+    Weapons.ForEach(weapon => weapon.CurrentCharge = weapon.MaxCharge);
+  }
+
+  private void ChangeEquipmentInternal(ReadOnlyCollection<EquipmentBase> equippedItems,
+                                      List<EquipmentBase> availableItems) {
+    EquippedItems = equippedItems;
+    AvailableItems = availableItems;
 
     Shields = equippedItems.AllOfType<ShieldInstance>();
     MaxShieldStrength = Shields.Sum(shield => shield.MaxStrength);
-    CurrentShieldStrength = MaxShieldStrength;
-    LastShieldHitTime = 0;
 
     var reactors = equippedItems.AllOfType<ReactorInstance>();
     MaxEnergyLevel = reactors.Sum(reactor => reactor.MaxEnergyLevel);
-    CurrentEnergyLevel = MaxEnergyLevel;
     EnergyRecoveryPerSecond = equippedItems.GetEnergyGeneration();
 
     Weapons = equippedItems.AllOfType<WeaponBase>();
-    Weapons.ForEach(weapon => weapon.CurrentCharge = weapon.MaxCharge);
+  }
+
+  public void ChangeEquipment(ReadOnlyCollection<EquipmentBase> equippedItems,
+                              List<EquipmentBase> availableItems) {
+    ChangeEquipmentInternal(equippedItems, availableItems);
+    CurrentEnergyLevel = Mathf.Min(MaxEnergyLevel, CurrentEnergyLevel);
+    CurrentShieldStrength = Mathf.Min(MaxShieldStrength, CurrentShieldStrength);
   }
 
   public static readonly Player Instance = new();

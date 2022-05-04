@@ -42,7 +42,6 @@ public class UIManagerScript : MonoBehaviour {
         battleUIHolder.gameObject.SetActive(false);
         break;
       case Mode.Inventory:
-        inventoryUIHolder.CloseInventory();
         inventoryUIHolder.gameObject.SetActive(false);
         break;
     }
@@ -53,12 +52,12 @@ public class UIManagerScript : MonoBehaviour {
       case Mode.Start:
         break;
       case Mode.Battle:
-        switchContextText.text = "Return to Base";
+        switchContextText.text = "Inventory";
         battleUIHolder.gameObject.SetActive(true);
         battleUIHolder.SetupWeaponBars();
         break;
       case Mode.Inventory:
-        switchContextText.text = "Launch to battle";
+        switchContextText.text = "Battle view";
         inventoryUIHolder.gameObject.SetActive(true);
         inventoryUIHolder.OpenInventory();
         break;

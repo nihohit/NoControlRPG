@@ -74,14 +74,6 @@ public class InventoryUIScript : MonoBehaviour {
       .ToList();
   }
 
-  public void CloseInventory() {
-    Player.Instance.StartRound(ButtonsToEquipment(equippedItemsButtons).ToReadOnlyCollection(),
-      ButtonsToEquipment(availableItemsButtons),
-      Player.INITIAL_HEALTH);
-  }
-
-
-
   private void SetLaunchButtonAvailability() {
     if (HasSufficientEnergy()) {
       SwitchContextText.text = "Launch to battle";
@@ -145,6 +137,9 @@ public class InventoryUIScript : MonoBehaviour {
       button.LoadEquipment(switchedEquipment, TextureHandler);
       DeselectEquipmentButton();
       UpdateAttributes();
+      Player.Instance.ChangeEquipment(
+        ButtonsToEquipment(equippedItemsButtons).ToReadOnlyCollection(),
+        ButtonsToEquipment(availableItemsButtons));
     }
   }
 
