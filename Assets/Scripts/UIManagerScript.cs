@@ -9,7 +9,6 @@ public class UIManagerScript : MonoBehaviour {
   private TMP_Text switchContextText;
   private InventoryUIScript inventoryUIHolder;
   private BattleUIScript battleUIHolder;
-
   private GeneralUIScript generalUIManager;
   private readonly TextureHandler textureHandler = new();
 
@@ -74,5 +73,9 @@ public class UIManagerScript : MonoBehaviour {
       battleUIHolder.UpdateUIOverlay();
     }
     generalUIManager.UpdateUIOverlay();
+  }
+
+  public void UpdateInventoryState() {
+    inventoryUIHolder.UpdateInventoryState();
   }
 }

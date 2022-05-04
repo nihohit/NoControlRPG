@@ -60,10 +60,7 @@ public class InventoryUIScript : MonoBehaviour {
   }
 
   public void OpenInventory() {
-    SetupAvailableButtons(Player.Instance.AvailableItems, availableItemsButtons);
-    SetupAvailableButtons(Player.Instance.EquippedItems, equippedItemsButtons);
-    UpdateAttributes();
-    SetLaunchButtonAvailability();
+    UpdateInventoryState();
     SetSelectedItem(null);
   }
 
@@ -193,5 +190,12 @@ public class InventoryUIScript : MonoBehaviour {
       DeselectEquipmentButton();
       ShowItem(null, (hoveredItemTextBackground, hoveredItemText));
     }
+  }
+
+  public void UpdateInventoryState() {
+    SetupAvailableButtons(Player.Instance.AvailableItems, availableItemsButtons);
+    SetupAvailableButtons(Player.Instance.EquippedItems, equippedItemsButtons);
+    UpdateAttributes();
+    SetLaunchButtonAvailability();
   }
 }
