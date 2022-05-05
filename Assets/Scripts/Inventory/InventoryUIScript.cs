@@ -73,7 +73,7 @@ public class InventoryUIScript : MonoBehaviour {
 
   private void SetLaunchButtonAvailability() {
     if (HasSufficientEnergy()) {
-      SwitchContextText.text = "Launch to battle";
+      SwitchContextText.text = "Battle view";
     } else {
       SwitchContextText.text = "Insufficient energy";
     }
