@@ -133,10 +133,7 @@ public class InventoryUIScript : MonoBehaviour {
       selectedButton.LoadEquipment(button.Equipment, TextureHandler);
       button.LoadEquipment(switchedEquipment, TextureHandler);
       DeselectEquipmentButton();
-      UpdateAttributes();
-      Player.Instance.ChangeEquipment(
-        ButtonsToEquipment(equippedItemsButtons).ToReadOnlyCollection(),
-        ButtonsToEquipment(availableItemsButtons));
+      InventoryStateChanged();
     }
   }
 
@@ -172,7 +169,7 @@ public class InventoryUIScript : MonoBehaviour {
     Player.Instance.Scrap -= selectedButton.Equipment.UpgradeCost;
     selectedButton.LoadEquipment(selectedButton.Equipment.UpgradedVersion(), TextureHandler);
     SetSelectedItem(selectedButton);
-    UpdateAttributes();
+    InventoryStateChanged();
     ShowItem(selectedButton?.Equipment?.UpgradedVersion(), (hoveredItemTextBackground, hoveredItemText));
   }
 
@@ -182,7 +179,7 @@ public class InventoryUIScript : MonoBehaviour {
     Player.Instance.Scrap += selectedButton.Equipment.ScrapValue;
     selectedButton.LoadEquipment(null, TextureHandler);
     DeselectEquipmentButton();
-    UpdateAttributes();
+    InventoryStateChanged();
   }
 
   public void Update() {
@@ -197,5 +194,13 @@ public class InventoryUIScript : MonoBehaviour {
     SetupAvailableButtons(Player.Instance.EquippedItems, equippedItemsButtons);
     UpdateAttributes();
     SetLaunchButtonAvailability();
+  }
+
+  private void InventoryStateChanged() {
+    UpdateAttributes();
+    Player.Instance.ChangeEquipment(
+      ButtonsToEquipment(equippedItemsButtons).ToReadOnlyCollection(),
+      ButtonsToEquipment(availableItemsButtons));
+    UpdateAttributes();
   }
 }
