@@ -316,9 +316,10 @@ public class BattleMainManagerScript : MonoBehaviour {
     if (Randomiser.ProbabilityCheck(config.DropChance)) {
       var chosenConfig = dropList.ChooseRandomValue();
       Player.Instance.AvailableItems.Add(chosenConfig.Instantiate(level));
-      uiManager.UpdateInventoryState();
     }
     Player.Instance.Scrap += (int)Mathf.Floor(level);
+    // happens regardless of a drop, since scrap also needs updating.
+    uiManager.UpdateInventoryState();
   }
 
   private void ReleaseEntities() {
