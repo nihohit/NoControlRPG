@@ -55,12 +55,14 @@ public class BattleMainManagerScript : MonoBehaviour {
     uiManager = GameObject.FindObjectOfType<UIManagerScript>();
     Player.Instance.StartRound(
       new ReadOnlyCollection<EquipmentBase>(new List<EquipmentBase>{
-        new BulletWeaponInstance(WeaponConfig.MACHINE_GUN, 1f),
-        new BulletWeaponInstance(WeaponConfig.TWO_SHOT_SHOTGUN, 1f),
-        new ReactorInstance(ReactorConfig.DEFAULT, 1),
-        new ShieldInstance(ShieldConfig.BALANCED, 1)
+        new BulletWeaponInstance(WeaponConfig.MACHINE_GUN, 3f),
+        new BulletWeaponInstance(WeaponConfig.TWO_SHOT_SHOTGUN, 3f),
+        new ReactorInstance(ReactorConfig.DEFAULT, 3),
+        new ShieldInstance(ShieldConfig.BALANCED, 3)
       }),
-      new List<EquipmentBase>(),
+      new List<EquipmentBase>{
+        new BeamInstance(WeaponConfig.FLAMER, 1f)
+      },
       Player.INITIAL_HEALTH);
 
     roundStartTime = Time.timeSinceLevelLoad;

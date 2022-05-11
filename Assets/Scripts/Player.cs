@@ -7,13 +7,12 @@ public class Player {
   public List<EquipmentBase> AvailableItems { private set; get; }
   public ReadOnlyCollection<EquipmentBase> EquippedItems { private set; get; }
 
-  public static readonly float INITIAL_HEALTH = 100f;
+  public static readonly float INITIAL_HEALTH = 500f;
   public float FullHealth { get; private set; }
   public float CurrentHealth { get; set; }
   public float MaxEnergyLevel { get; private set; }
   public float CurrentEnergyLevel { get; set; }
   public float EnergyRecoveryPerSecond { get; private set; }
-
   public float MaxShieldStrength { get; private set; }
   public float CurrentShieldStrength { get; set; }
   public float LastShieldHitTime { get; set; }
