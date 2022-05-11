@@ -15,7 +15,10 @@ public class InventoryUIScript : MonoBehaviour {
   private TMP_Text upgradeItemText;
   private Button scrapItemButton;
   private TMP_Text scrapItemText;
+  private GameObject equippedItemsContainer;
+  private GameObject forgeItemsContainer;
   private List<EquipmentButtonScript> equippedItemsButtons;
+  private List<ForgeButtonScript> forgeItemsButtons;
   private EquipmentButtonScript[] availableItemsButtons;
   public TextureHandler TextureHandler { get; set; }
   private EquipmentButtonScript selectedButton = null;
@@ -25,12 +28,18 @@ public class InventoryUIScript : MonoBehaviour {
   private TMP_Text hoveredItemText;
   private TMP_Text attributeText;
   private EventSystem eventSystem;
+  private Mode mode;
 
   // Start is called before the first frame update
   protected void Awake() {
-    equippedItemsButtons = GameObject
-      .Find("Equipped Items")
+    equippedItemsContainer = GameObject.Find("Equipped Items");
+    equippedItemsButtons = equippedItemsContainer
       .GetComponentsInChildren<EquipmentButtonScript>()
+      .OrderBy(button => (-button.transform.position.y) * 100000 + button.transform.position.x)
+      .ToList();
+    forgeItemsContainer = GameObject.Find("Forge Items");
+    forgeItemsButtons = forgeItemsContainer
+      .GetComponentsInChildren<ForgeButtonScript>()
       .OrderBy(button => (-button.transform.position.y) * 100000 + button.transform.position.x)
       .ToList();
     availableItemsButtons = GameObject
@@ -59,9 +68,20 @@ public class InventoryUIScript : MonoBehaviour {
     });
   }
 
-  public void OpenInventory() {
-    UpdateInventoryState();
+  private void Open(Mode mode) {
+    this.mode = mode;
+    UpdateInventoryStateExternally();
     SetSelectedItem(null);
+    equippedItemsContainer.SetActive(mode == Mode.Inventory);
+    forgeItemsContainer.SetActive(mode == Mode.Forge);
+  }
+
+  public void OpenInventory() {
+    Open(Mode.Inventory);
+  }
+
+  public void OpenForge() {
+    Open(Mode.Forge);
   }
 
   public List<EquipmentBase> ButtonsToEquipment(IEnumerable<EquipmentButtonScript> buttons) {
@@ -69,14 +89,6 @@ public class InventoryUIScript : MonoBehaviour {
       .Where(button => button.Equipment != null)
       .Select(button => button.Equipment)
       .ToList();
-  }
-
-  private void SetLaunchButtonAvailability() {
-    if (HasSufficientEnergy()) {
-      SwitchContextText.text = "Battle view";
-    } else {
-      SwitchContextText.text = "Insufficient energy";
-    }
   }
 
   private void ShowItem(EquipmentBase equipment, (GameObject, TMP_Text) textAndBackground) {
@@ -89,19 +101,13 @@ public class InventoryUIScript : MonoBehaviour {
     eventSystem.SetSelectedGameObject(button?.gameObject);
     selectedButton = button;
     ShowItem(button?.Equipment, (selectedItemTextBackground, selectedItemText));
-    SetLaunchButtonAvailability();
     var hasEquipment = button?.Equipment != null;
-    upgradeItemButton.gameObject.SetActive(hasEquipment);
+    upgradeItemButton.gameObject.SetActive(hasEquipment && mode == Mode.Forge);
     scrapItemButton.gameObject.SetActive(hasEquipment);
     if (hasEquipment) {
       upgradeItemText.text = $"Upgrade cost: {button.Equipment.UpgradeCost}";
       scrapItemText.text = $"Scrap value: {button.Equipment.ScrapValue}";
-      upgradeItemButton.interactable = button.Equipment.UpgradeCost <= Player.Instance.Scrap;
     }
-  }
-
-  public bool HasSufficientEnergy() {
-    return equippedItemsButtons.GetEnergyGeneration() > 0f;
   }
 
   private void UpdateAttributes() {
@@ -133,8 +139,8 @@ public class InventoryUIScript : MonoBehaviour {
       selectedButton.LoadEquipment(button.Equipment, TextureHandler);
       button.LoadEquipment(switchedEquipment, TextureHandler);
       DeselectEquipmentButton();
-      InventoryStateChanged();
     }
+    InventoryStateChangedInternally();
   }
 
   private (GameObject, TMP_Text) BackgroundToUseForButton() {
@@ -166,11 +172,12 @@ public class InventoryUIScript : MonoBehaviour {
     Assert.NotNull(selectedButton, nameof(selectedButton));
     Assert.NotNull(selectedButton.Equipment, nameof(selectedButton.Equipment));
     Assert.EqualOrGreater(Player.Instance.Scrap, selectedButton.Equipment.UpgradeCost);
+    var forgeButton = forgeItemsButtons.First(button => button.Equipment is null);
     Player.Instance.Scrap -= selectedButton.Equipment.UpgradeCost;
-    selectedButton.LoadEquipment(selectedButton.Equipment.UpgradedVersion(), TextureHandler);
-    SetSelectedItem(selectedButton);
-    InventoryStateChanged();
-    ShowItem(selectedButton?.Equipment?.UpgradedVersion(), (hoveredItemTextBackground, hoveredItemText));
+    forgeButton.StartProcess(selectedButton.Equipment, TextureHandler, ForgeAction.Upgrade);
+    selectedButton.LoadEquipment(null, TextureHandler);
+    SetSelectedItem(null);
+    InventoryStateChangedInternally();
   }
 
   public void ScrapButtonPressed() {
@@ -179,7 +186,7 @@ public class InventoryUIScript : MonoBehaviour {
     Player.Instance.Scrap += selectedButton.Equipment.ScrapValue;
     selectedButton.LoadEquipment(null, TextureHandler);
     DeselectEquipmentButton();
-    InventoryStateChanged();
+    InventoryStateChangedInternally();
   }
 
   public void Update() {
@@ -187,20 +194,38 @@ public class InventoryUIScript : MonoBehaviour {
       DeselectEquipmentButton();
       ShowItem(null, (hoveredItemTextBackground, hoveredItemText));
     }
+    foreach (var button in forgeItemsButtons) {
+      if (button.Equipment == null) {
+        continue;
+      }
+      button.AdvanceProgress(Time.deltaTime);
+      if (button.Progress >= 1) {
+        var equipment = button.Action == ForgeAction.Repair ? button.Equipment : button.Equipment.UpgradedVersion();
+        Player.Instance.AvailableItems.Add(equipment);
+        button.RemoveEquipment();
+        UpdateInventoryStateExternally();
+      }
+    }
   }
 
-  public void UpdateInventoryState() {
+  private void RefreshInventoryState() {
+    UpdateAttributes();
+    upgradeItemButton.interactable =
+      selectedButton?.Equipment != null &&
+      selectedButton?.Equipment?.UpgradeCost <= Player.Instance.Scrap &&
+      forgeItemsButtons.Any(button => button.Equipment is null);
+  }
+
+  public void UpdateInventoryStateExternally() {
     SetupAvailableButtons(Player.Instance.AvailableItems, availableItemsButtons);
     SetupAvailableButtons(Player.Instance.EquippedItems, equippedItemsButtons);
-    UpdateAttributes();
-    SetLaunchButtonAvailability();
+    RefreshInventoryState();
   }
 
-  private void InventoryStateChanged() {
-    UpdateAttributes();
+  private void InventoryStateChangedInternally() {
     Player.Instance.ChangeEquipment(
       ButtonsToEquipment(equippedItemsButtons).ToReadOnlyCollection(),
       ButtonsToEquipment(availableItemsButtons));
-    UpdateAttributes();
+    RefreshInventoryState();
   }
 }

@@ -4,33 +4,19 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManagerScript : MonoBehaviour {
-  private BattleMainManagerScript mainManager;
-  private Button switchContextButton;
-  private TMP_Text switchContextText;
   private InventoryUIScript inventoryUIHolder;
   private BattleUIScript battleUIHolder;
   private GeneralUIScript generalUIManager;
   private readonly TextureHandler textureHandler = new();
 
   protected void Awake() {
-    switchContextButton = this.FindInChild<Button>("SwitchContext");
-    switchContextText = switchContextButton.FindInChild<TMPro.TMP_Text>("Text");
-    mainManager = GameObject.FindObjectOfType<BattleMainManagerScript>();
     inventoryUIHolder = this.FindInChild<InventoryUIScript>("InventoryUI");
     generalUIManager = GameObject.FindObjectOfType<GeneralUIScript>();
     inventoryUIHolder.TextureHandler = textureHandler;
-    inventoryUIHolder.SwitchContextText = switchContextText;
     inventoryUIHolder.gameObject.SetActive(false);
     battleUIHolder = this.FindInChild<BattleUIScript>("BattleUI");
     battleUIHolder.TextureHandler = textureHandler;
     battleUIHolder.gameObject.SetActive(false);
-  }
-
-  public void SwitchContextPressed() {
-    if (inventoryUIHolder.gameObject.activeSelf && !inventoryUIHolder.HasSufficientEnergy()) {
-      return;
-    }
-    mainManager.SwitchContext();
   }
 
   private void CloseMode(Mode mode) {
@@ -43,6 +29,9 @@ public class UIManagerScript : MonoBehaviour {
       case Mode.Inventory:
         inventoryUIHolder.gameObject.SetActive(false);
         break;
+      case Mode.Forge:
+        inventoryUIHolder.gameObject.SetActive(false);
+        break;
     }
   }
 
@@ -51,14 +40,16 @@ public class UIManagerScript : MonoBehaviour {
       case Mode.Start:
         break;
       case Mode.Battle:
-        switchContextText.text = "Inventory";
         battleUIHolder.gameObject.SetActive(true);
         battleUIHolder.SetupWeaponBars();
         break;
       case Mode.Inventory:
-        switchContextText.text = "Battle view";
         inventoryUIHolder.gameObject.SetActive(true);
         inventoryUIHolder.OpenInventory();
+        break;
+      case Mode.Forge:
+        inventoryUIHolder.gameObject.SetActive(true);
+        inventoryUIHolder.OpenForge();
         break;
     }
   }
@@ -76,6 +67,6 @@ public class UIManagerScript : MonoBehaviour {
   }
 
   public void UpdateInventoryState() {
-    inventoryUIHolder.UpdateInventoryState();
+    inventoryUIHolder.UpdateInventoryStateExternally();
   }
 }
