@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 
-public enum Mode { Battle, Inventory, Start }
+public enum Mode { Battle, Inventory, Start, Forge }
 
 public class BattleMainManagerScript : MonoBehaviour {
   private SpawnPool spawnPool;
@@ -67,27 +67,25 @@ public class BattleMainManagerScript : MonoBehaviour {
     SwitchToBattle();
   }
 
-  public void SwitchContext() {
-    switch (mode) {
-      case Mode.Battle:
-        SwitchToInventory();
-        break;
-      case Mode.Inventory:
-        SwitchToBattle();
-        break;
+  private void SwitchMode(Mode newMode) {
+    if (mode == newMode) {
+      return;
     }
-  }
-
-  private void SwitchToBattle() {
     var previousMode = mode;
-    mode = Mode.Battle;
+    mode = newMode;
     uiManager.SwitchMode(previousMode, mode);
   }
 
-  private void SwitchToInventory() {
-    var previousMode = mode;
-    mode = Mode.Inventory;
-    uiManager.SwitchMode(previousMode, mode);
+  public void SwitchToBattle() {
+    SwitchMode(Mode.Battle);
+  }
+
+  public void SwitchToInventory() {
+    SwitchMode(Mode.Inventory);
+  }
+
+  public void SwitchToForge() {
+    SwitchMode(Mode.Forge);
   }
 
   private void HitPlayer(float damage) {
