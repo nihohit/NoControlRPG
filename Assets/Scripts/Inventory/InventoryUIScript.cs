@@ -63,9 +63,19 @@ public class InventoryUIScript : MonoBehaviour {
   private void SetupAvailableButtons(IList<EquipmentBase> equipment, IEnumerable<EquipmentButtonScript> buttons) {
     // TODO - handle the items that don't appear in buttons, or add scrolling bar.
     var sortedEquipment = equipment.OrderByDescending(item => item.Level);
-    buttons.ForEach((button, index) => {
-      button.LoadEquipment(index < equipment.Count ? equipment[index] : null, TextureHandler);
-    });
+    var itemsDictionary = equipment
+      .ToDictionary(item => item.Identifier,
+                    item => item);
+    var buttonsDictionary = buttons
+      .Where(button => button.Equipment != null)
+      .ToDictionary(button => button.Equipment.Identifier,
+                    button => button);
+    var unmatchedItems = equipment
+      .Where(item => !buttonsDictionary.ContainsKey(item.Identifier))
+      .ToList();
+    buttons
+      .Where(button => !itemsDictionary.ContainsKey(button.Equipment?.Identifier ?? Guid.Empty))
+      .ForEach((button, index) => button.LoadEquipment(index < unmatchedItems.Count ? unmatchedItems[index] : null, TextureHandler));
   }
 
   private void Open(Mode mode) {

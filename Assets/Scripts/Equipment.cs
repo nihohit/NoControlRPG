@@ -136,10 +136,11 @@ public class TargetingSystemConfig : EquipmentConfigBase {
 }
 
 public abstract class EquipmentBase {
-  public EquipmentBase(EquipmentConfigBase config, float level) {
+  public EquipmentBase(EquipmentConfigBase config, float level, Guid? identifier = null) {
     this.Config = config;
     BaselineEnergyRequirement = config.BaselineEnergyRequirement.GetLevelValue(level);
     Level = level;
+    Identifier = Guid.NewGuid();
   }
   public abstract EquipmentType Type { get; }
   public EquipmentConfigBase Config { get; }
@@ -153,9 +154,13 @@ public abstract class EquipmentBase {
 
   [NoDisplay]
   public int UpgradeCost => ScrapValue * 3;
+  [NoDisplay]
+  public Guid Identifier { get; private set; }
 
   public EquipmentBase UpgradedVersion() {
-    return Config.Instantiate(MathF.Floor(Level + 1));
+    var newVersion = Config.Instantiate(MathF.Floor(Level + 1));
+    newVersion.Identifier = Identifier;
+    return newVersion;
   }
 
   #region item description
