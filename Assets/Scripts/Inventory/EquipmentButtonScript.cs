@@ -8,6 +8,7 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
   private Button button;
   private Image equipmentImage;
   private Image backgroundImage;
+  private Image damageOverlay;
 
   public EquipmentBase Equipment { get; private set; }
   private Color ColorForType(EquipmentType type) {
@@ -30,6 +31,7 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
       textureHandler.UpdateTexture(equipment.Config.EquipmentImageName, equipmentImage, "Images/InventoryItems");
       backgroundImage.color = ColorForType(equipment.Type);
     }
+    damageOverlay.fillAmount = equipment?.DamageRatio ?? 0;
   }
 
   // Start is called before the first frame update
@@ -39,6 +41,7 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
     button.onClick.AddListener(OnClick);
     equipmentImage = this.FindInChild<Image>("EquipmentImage");
     backgroundImage = this.FindInChild<Image>("ItemBackground");
+    damageOverlay = this.FindInChild<Image>("DamageOverlay");
   }
 
   private void OnClick() {

@@ -141,6 +141,7 @@ public abstract class EquipmentBase {
     BaselineEnergyRequirement = config.BaselineEnergyRequirement.GetLevelValue(level);
     Level = level;
     Identifier = Guid.NewGuid();
+    Health = MaxHealth;
   }
   public abstract EquipmentType Type { get; }
   public EquipmentConfigBase Config { get; }
@@ -151,11 +152,20 @@ public abstract class EquipmentBase {
 
   [NoDisplay]
   public int ScrapValue => (int)MathF.Ceiling(Level) * 3;
-
   [NoDisplay]
   public int UpgradeCost => ScrapValue * 3;
   [NoDisplay]
   public Guid Identifier { get; private set; }
+  [NoDisplay]
+  public float Health { get; set; }
+  [NoDisplay]
+  public float MaxHealth => Level * 40;
+  [NoDisplay]
+  public float DamageRatio => 1 - (Health / MaxHealth);
+  [NoDisplay]
+  public bool IsDamaged => DamageRatio > 0;
+  [NoDisplay]
+  public int FixCost => (int)(UpgradeCost * DamageRatio);
 
   public EquipmentBase UpgradedVersion() {
     var newVersion = Config.Instantiate(MathF.Floor(Level + 1));

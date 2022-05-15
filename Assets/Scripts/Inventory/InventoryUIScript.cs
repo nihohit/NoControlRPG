@@ -115,8 +115,13 @@ public class InventoryUIScript : MonoBehaviour {
     upgradeItemButton.gameObject.SetActive(hasEquipment && mode == Mode.Forge);
     scrapItemButton.gameObject.SetActive(hasEquipment);
     if (hasEquipment) {
-      upgradeItemText.text = $"Upgrade cost: {button.Equipment.UpgradeCost}";
-      scrapItemText.text = $"Scrap value: {button.Equipment.ScrapValue}";
+      var equipment = button.Equipment;
+      if (equipment.IsDamaged) {
+        upgradeItemText.text = $"Fix cost: {equipment.FixCost}";
+      } else {
+        upgradeItemText.text = $"Upgrade cost: {equipment.UpgradeCost}";
+      }
+      scrapItemText.text = $"Scrap value: {equipment.ScrapValue}";
     }
   }
 
@@ -138,6 +143,10 @@ public class InventoryUIScript : MonoBehaviour {
 
   private void DeselectEquipmentButton() {
     SetSelectedItem(null);
+  }
+
+  private int ForgeActionCost() {
+    return selectedButton.Equipment.IsDamaged ? selectedButton.Equipment.FixCost : selectedButton.Equipment.UpgradeCost;
   }
 
   public void InventoryButtonSelected(EquipmentButtonScript button) {
@@ -180,11 +189,12 @@ public class InventoryUIScript : MonoBehaviour {
 
   public void UpgradeButtonPressed() {
     Assert.NotNull(selectedButton, nameof(selectedButton));
-    Assert.NotNull(selectedButton.Equipment, nameof(selectedButton.Equipment));
-    Assert.EqualOrGreater(Player.Instance.Scrap, selectedButton.Equipment.UpgradeCost);
+    var equipment = selectedButton.Equipment;
+    Assert.NotNull(equipment, nameof(equipment));
+    Assert.EqualOrGreater(Player.Instance.Scrap, ForgeActionCost());
     var forgeButton = forgeItemsButtons.First(button => button.Equipment is null);
-    Player.Instance.Scrap -= selectedButton.Equipment.UpgradeCost;
-    forgeButton.StartProcess(selectedButton.Equipment, TextureHandler, ForgeAction.Upgrade);
+    Player.Instance.Scrap -= ForgeActionCost();
+    forgeButton.StartProcess(equipment, TextureHandler, equipment.IsDamaged ? ForgeAction.Repair : ForgeAction.Upgrade);
     selectedButton.LoadEquipment(null, TextureHandler);
     SetSelectedItem(null);
     InventoryStateChangedInternally();
@@ -222,7 +232,7 @@ public class InventoryUIScript : MonoBehaviour {
     UpdateAttributes();
     upgradeItemButton.interactable =
       selectedButton?.Equipment != null &&
-      selectedButton?.Equipment?.UpgradeCost <= Player.Instance.Scrap &&
+      ForgeActionCost() <= Player.Instance.Scrap &&
       forgeItemsButtons.Any(button => button.Equipment is null);
   }
 
