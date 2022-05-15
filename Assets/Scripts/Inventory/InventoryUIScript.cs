@@ -226,6 +226,9 @@ public class InventoryUIScript : MonoBehaviour {
         UpdateInventoryStateExternally();
       }
     }
+    foreach (var button in equippedItemsButtons) {
+      button.UpdateDamageIndicator();
+    }
   }
 
   private void RefreshInventoryState() {
