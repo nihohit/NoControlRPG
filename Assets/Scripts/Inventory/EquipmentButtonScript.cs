@@ -44,6 +44,10 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
     damageOverlay = this.FindInChild<Image>("DamageOverlay");
   }
 
+  public void UpdateDamageIndicator() {
+    damageOverlay.fillAmount = Equipment?.DamageRatio ?? 0;
+  }
+
   private void OnClick() {
     manager.InventoryButtonSelected(this);
   }

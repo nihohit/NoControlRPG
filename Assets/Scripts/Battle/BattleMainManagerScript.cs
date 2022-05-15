@@ -96,7 +96,17 @@ public class BattleMainManagerScript : MonoBehaviour {
     }
     var shieldAfterAbsorption = Player.Instance.CurrentShieldStrength - damage;
     Player.Instance.CurrentShieldStrength = Mathf.Max(0f, shieldAfterAbsorption);
-    Player.Instance.CurrentHealth += Mathf.Min(shieldAfterAbsorption, 0f);
+    var damageAfterShields = -Mathf.Min(shieldAfterAbsorption, 0f);
+    Player.Instance.CurrentHealth -= damageAfterShields;
+    var equipmentToDamage = Player.Instance.EquippedItems.ChooseRandomValue();
+    equipmentToDamage.Health -= damageAfterShields;
+    if (equipmentToDamage.Health < 0) {
+      var newEquippedItems = Player.Instance.EquippedItems
+        .Where(item => item != equipmentToDamage)
+        .ToList()
+        .ToReadOnlyCollection();
+      Player.Instance.ChangeEquipment(newEquippedItems, Player.Instance.AvailableItems);
+    }
   }
 
   private void ClearReleaseLists() {
