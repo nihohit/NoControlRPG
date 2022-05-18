@@ -98,6 +98,13 @@ public class BattleMainManagerScript : MonoBehaviour {
     Player.Instance.CurrentShieldStrength = Mathf.Max(0f, shieldAfterAbsorption);
     var damageAfterShields = -Mathf.Min(shieldAfterAbsorption, 0f);
     Player.Instance.CurrentHealth -= damageAfterShields;
+    DamageEquipment(damageAfterShields);
+  }
+
+  private void DamageEquipment(float damageAfterShields) {
+    if (Player.Instance.EquippedItems.Count == 0) {
+      return;
+    }
     var equipmentToDamage = Player.Instance.EquippedItems.ChooseRandomValue();
     equipmentToDamage.Health -= damageAfterShields;
     if (equipmentToDamage.Health < 0) {
