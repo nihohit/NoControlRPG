@@ -18,30 +18,49 @@ public class SpawnPool : MonoBehaviour {
   private readonly Dictionary<string, List<BeamScript>> beamPools = new();
   private readonly Dictionary<string, List<ExplosionScript>> explosionPools = new();
   private readonly TextureHandler textureHandler = new();
+  private GameObject resourcesParent;
+  private GameObject instantiatedParent;
 
   private void ReturnToPool<TType>(TType item, List<TType> pool) where TType : MonoBehaviour {
     pool.Add(item);
     item.gameObject.SetActive(false);
   }
 
-  private TType GetFromPool<TType>(List<TType> pool, GameObject resource) where TType : MonoBehaviour {
+  private TType GetFromPool<TType>(List<TType> pool) where TType : MonoBehaviour {
+    var result = pool[^1];
+    pool.RemoveAt(pool.Count - 1);
+    result.gameObject.SetActive(true);
+    return result;
+  }
+
+  private TType Spawn<TType>(GameObject resource) where TType : MonoBehaviour {
+    var result = Instantiate(resource).GetComponent<TType>();
+    result.gameObject.name = resource.gameObject.name;
+    result.gameObject.SetActive(true);
+    result.gameObject.SetParent(instantiatedParent);
+    return result;
+  }
+
+  private TType GetFromPoolOrSpawn<TType>(List<TType> pool, GameObject resource) where TType : MonoBehaviour {
     if (pool.Count > 0) {
-      var result = pool[^1];
-      pool.RemoveAt(pool.Count - 1);
-      result.gameObject.SetActive(true);
-      return result;
-    } else {
-      var result = Instantiate(resource).GetComponent<TType>();
-      result.gameObject.name = resource.gameObject.name;
-      result.gameObject.SetActive(true);
-      return result;
+      return GetFromPool(pool);
     }
+    return Spawn<TType>(resource);
   }
 
   protected void Awake() {
     bulletBaseResource = Resources.Load<GameObject>("prefabs/Shot");
     beamBaseResource = Resources.Load<GameObject>("prefabs/Beam");
     unitBaseResource = Resources.Load<GameObject>("prefabs/EnemyUnit");
+
+    resourcesParent = new GameObject {
+      name = "ResourcesParent"
+    };
+    resourcesParent.SetParent(this.gameObject);
+    instantiatedParent = new GameObject {
+      name = "InstantiatedParent"
+    };
+    instantiatedParent.SetParent(this.gameObject);
   }
 
   private static List<T> CreateList<T>() {
@@ -62,6 +81,7 @@ public class SpawnPool : MonoBehaviour {
       var collider = resource.gameObject.AddComponent<PolygonCollider2D>();
       collider.isTrigger = true;
       resource.gameObject.name = objectName;
+      resource.SetParent(resourcesParent);
       resource.SetActive(false);
       return resource;
     });
@@ -70,7 +90,7 @@ public class SpawnPool : MonoBehaviour {
   private T GetObject<T>(string objectName, Dictionary<string, GameObject> resourcesDictionary, GameObject baseResource, Dictionary<string, List<T>> availableObjectsDictionary, string spriteFolder) where T : MonoBehaviour {
     var availableObjects = GetAvailableObjectsPool(objectName, availableObjectsDictionary);
     var resource = GetObjectResource(objectName, resourcesDictionary, baseResource, spriteFolder);
-    return GetFromPool(availableObjects, resource);
+    return GetFromPoolOrSpawn(availableObjects, resource);
   }
 
 
@@ -104,7 +124,7 @@ public class SpawnPool : MonoBehaviour {
       resource = Resources.Load<GameObject>($"effects/{explosionName}");
       explosionResources[explosionName] = resource;
     }
-    var explosion = GetFromPool(GetAvailableObjectsPool(explosionName, explosionPools), resource);
+    var explosion = GetFromPoolOrSpawn(GetAvailableObjectsPool(explosionName, explosionPools), resource);
     explosion.StartExplosion();
     explosion.transform.position = position;
     explosion.transform.rotation = rotation;
