@@ -15,7 +15,7 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
     return type switch {
       EquipmentType.Weapon => Color.red,
       EquipmentType.Shield => Color.blue,
-      EquipmentType.TargetingSystem => Color.grey,
+      EquipmentType.RepairSystem => Color.grey,
       EquipmentType.Reactor => Color.yellow,
       _ => Color.white,
     };

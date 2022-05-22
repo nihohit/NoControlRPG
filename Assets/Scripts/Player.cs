@@ -17,6 +17,7 @@ public class Player {
   public float CurrentShieldStrength { get; set; }
   public float LastShieldHitTime { get; set; }
   public IList<ShieldInstance> Shields { get; private set; }
+  public IList<RepairSystemInstance> RepairSystems { get; private set; }
   public List<WeaponBase> Weapons { get; private set; }
 
   public int Scrap { get; set; }
@@ -47,6 +48,7 @@ public class Player {
     EnergyRecoveryPerSecond = equippedItems.GetEnergyGeneration();
 
     Weapons = equippedItems.AllOfType<WeaponBase>();
+    RepairSystems = equippedItems.AllOfType<RepairSystemInstance>();
   }
 
   public void ChangeEquipment(ReadOnlyCollection<EquipmentBase> equippedItems,

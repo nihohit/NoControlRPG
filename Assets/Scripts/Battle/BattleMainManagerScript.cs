@@ -58,7 +58,9 @@ public class BattleMainManagerScript : MonoBehaviour {
         new BulletWeaponInstance(WeaponConfig.MACHINE_GUN, 3f),
         new BulletWeaponInstance(WeaponConfig.TWO_SHOT_SHOTGUN, 3f),
         new ReactorInstance(ReactorConfig.DEFAULT, 3),
-        new ShieldInstance(ShieldConfig.BALANCED, 3)
+        new ReactorInstance(ReactorConfig.DEFAULT, 3),
+        new ShieldInstance(ShieldConfig.BALANCED, 3),
+        RepairSystemConfig.ROBOT_REPAIR.Instantiate(2),
       }),
       new List<EquipmentBase>{
         new BeamInstance(WeaponConfig.FLAMER, 1f)
@@ -303,7 +305,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     }
   }
 
-  private void RechargeSystems() {
+  private float RechargeSystems() {
     var player = Player.Instance;
     var availableEnergy = player.CurrentEnergyLevel + player.EnergyRecoveryPerSecond * Time.deltaTime;
     var chargeRequirementPerSecond = 0f;
@@ -318,6 +320,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     var timeSinceLastHit = TimeSinceRoundStarted() - player.LastShieldHitTime;
     var shieldRegeneration = player.Shields.Where(shield => shield.TimeBeforeRecharge < timeSinceLastHit).Sum(shield => shield.RechargeRatePerSecond) * Time.deltaTime;
     player.CurrentShieldStrength = Mathf.Min(player.MaxShieldStrength, player.CurrentShieldStrength + shieldRegeneration);
+    return ratio;
   }
 
   static readonly List<EquipmentConfigBase> dropList = typeof(EquipmentConfigBase)
@@ -361,6 +364,17 @@ public class BattleMainManagerScript : MonoBehaviour {
     ClearReleaseLists();
   }
 
+  private void RunRepairSystem(float efficiencyRatio) {
+    var damagedItems = Player.Instance.EquippedItems.Where(item => item.IsDamaged).ToList();
+    var repairRate = efficiencyRatio * Time.deltaTime;
+    foreach (var repairSystem in Player.Instance.RepairSystems) {
+      Player.Instance.CurrentHealth = Mathf.Min(Player.Instance.FullHealth, Player.Instance.CurrentHealth + repairSystem.HullRepairPerSecond * repairRate);
+      for (int i = 0; i < Math.Min(damagedItems.Count, repairSystem.NumberOfSystemsToRepairSimultaneously); ++i) {
+        damagedItems[i].Health = Mathf.Min(damagedItems[i].Health + repairSystem.SystemRepairPerSecond * repairRate, damagedItems[i].MaxHealth);
+      }
+    }
+  }
+
   // Update is called once per frame
   protected void Update() {
     ReleaseEntities();
@@ -374,7 +388,8 @@ public class BattleMainManagerScript : MonoBehaviour {
     ShootEnemies();
     ShootPlayer();
     MoveShots();
-    RechargeSystems();
+    var efficiencyRatio = RechargeSystems();
+    RunRepairSystem(efficiencyRatio);
     uiManager.UpdateUIOverlay();
   }
 }

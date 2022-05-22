@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using Assets.Scripts.Base;
 
-public enum EquipmentType { Weapon, Reactor, Shield, TargetingSystem }
+public enum EquipmentType { Weapon, Reactor, Shield, RepairSystem }
 
 public abstract class EquipmentConfigBase {
   public EquipmentConfigBase(string equipmentImageName,
@@ -120,19 +120,53 @@ public class ReactorConfig : EquipmentConfigBase {
   public override EquipmentBase Instantiate(float level) => new ReactorInstance(this, level);
 }
 
-// TODO - implement or remove
-public class TargetingSystemConfig : EquipmentConfigBase {
-  public TargetingSystemConfig(string equipmentImageName,
-                               string itemDisplayName,
-                               LevelBasedValue baselineEnergyRequirement)
-                               : base(equipmentImageName,
-                                      itemDisplayName,
-                                      baselineEnergyRequirement) { }
+public class RepairSystemConfig : EquipmentConfigBase {
+  public RepairSystemConfig(string equipmentImageName,
+                      string itemDisplayName,
+                      LevelBasedValue hullRepairPerSecond,
+                      LevelBasedValue systemRepairPerSecond,
+                      int numberOfSystemsToRepairSimultaneously,
+                      LevelBasedValue baselineEnergyRequirement)
+                       : base(equipmentImageName,
+                              itemDisplayName,
+                              baselineEnergyRequirement) {
+    HullRepairPerSecond = hullRepairPerSecond;
+    SystemRepairPerSecond = systemRepairPerSecond;
+    NumberOfSystemsToRepairSimultaneously = numberOfSystemsToRepairSimultaneously;
+  }
 
-  [NoDrop]
-  public static TargetingSystemConfig DEFAULT = new("TargetingSystem", "Default targeting system", LevelBasedValue.ConstantValue(0));
+  public LevelBasedValue HullRepairPerSecond { get; }
+  public LevelBasedValue SystemRepairPerSecond { get; }
+  public int NumberOfSystemsToRepairSimultaneously { get; }
 
-  public override EquipmentBase Instantiate(float level) => new TargetingSystemInstance(this, level);
+  public static RepairSystemConfig HULL_REPAIR = new(
+    equipmentImageName: "RepairSystem",
+    itemDisplayName: "Hull repair system",
+    hullRepairPerSecond: LevelBasedValue.LinearValue(4),
+    systemRepairPerSecond: LevelBasedValue.LinearValue(0),
+    numberOfSystemsToRepairSimultaneously: 0,
+    baselineEnergyRequirement: LevelBasedValue.LinearValue(2)
+  );
+
+  public static RepairSystemConfig NANO_REPAIR = new(
+    equipmentImageName: "RepairSystem",
+    itemDisplayName: "Nano repair",
+    hullRepairPerSecond: LevelBasedValue.LinearValue(0),
+    systemRepairPerSecond: LevelBasedValue.LinearValue(2),
+    numberOfSystemsToRepairSimultaneously: 3,
+    baselineEnergyRequirement: LevelBasedValue.LinearValue(2)
+  );
+
+  public static RepairSystemConfig ROBOT_REPAIR = new(
+    equipmentImageName: "RepairSystem",
+    itemDisplayName: "Robotic repair system",
+    hullRepairPerSecond: LevelBasedValue.LinearValue(1),
+    systemRepairPerSecond: LevelBasedValue.LinearValue(1),
+    numberOfSystemsToRepairSimultaneously: 1,
+    baselineEnergyRequirement: LevelBasedValue.LinearValue(2)
+  );
+
+  public override EquipmentBase Instantiate(float level) => new RepairSystemInstance(this, level);
 }
 
 public abstract class EquipmentBase {
@@ -140,7 +174,7 @@ public abstract class EquipmentBase {
     this.Config = config;
     BaselineEnergyRequirement = config.BaselineEnergyRequirement.GetLevelValue(level);
     Level = level;
-    Identifier = Guid.NewGuid();
+    Identifier = identifier ?? Guid.NewGuid();
     Health = MaxHealth;
   }
   public abstract EquipmentType Type { get; }
@@ -221,6 +255,19 @@ public abstract class EquipmentBase {
   #endregion
 }
 
+public class RepairSystemInstance : EquipmentBase {
+  public RepairSystemInstance(RepairSystemConfig config, float level) : base(config, level) {
+    HullRepairPerSecond = config.HullRepairPerSecond.GetLevelValue(level);
+    SystemRepairPerSecond = config.SystemRepairPerSecond.GetLevelValue(level);
+    NumberOfSystemsToRepairSimultaneously = config.NumberOfSystemsToRepairSimultaneously;
+  }
+
+  override public EquipmentType Type { get { return EquipmentType.RepairSystem; } }
+  public float HullRepairPerSecond { get; }
+  public float SystemRepairPerSecond { get; }
+  public int NumberOfSystemsToRepairSimultaneously { get; }
+}
+
 public class ShieldInstance : EquipmentBase {
   public ShieldInstance(ShieldConfig config, float level) : base(config, level) {
     MaxStrength = config.Strength.GetLevelValue(level);
@@ -251,11 +298,6 @@ public class ReactorInstance : EquipmentBase {
     }
     return base.PropertyInfoToString(propertyInfo);
   }
-}
-
-public class TargetingSystemInstance : EquipmentBase {
-  public TargetingSystemInstance(TargetingSystemConfig config, float level) : base(config, level) { }
-  override public EquipmentType Type { get { return EquipmentType.TargetingSystem; } }
 }
 
 public static class EquipmentExtensions {
