@@ -1,7 +1,5 @@
 using Assets.Scripts.UnityBase;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class UIManagerScript : MonoBehaviour {
   private InventoryUIScript inventoryUIHolder;

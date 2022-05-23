@@ -78,8 +78,8 @@ public class SpawnPool : MonoBehaviour {
       textureHandler.UpdateTexture(objectName, spriteRenderer, spriteFolder);
       // If this becomes a perf problem, try using this: 
       // https://github.com/j-bbr/PolygonColliderSimplification/tree/master/Assets/Collider2D%20Optimization
-      var collider = resource.gameObject.AddComponent<PolygonCollider2D>();
-      collider.isTrigger = true;
+      var addedCollider = resource.gameObject.AddComponent<PolygonCollider2D>();
+      addedCollider.isTrigger = true;
       resource.gameObject.name = objectName;
       resource.SetParent(resourcesParent);
       resource.SetActive(false);
@@ -116,7 +116,7 @@ public class SpawnPool : MonoBehaviour {
   }
 
   public void ReturnUnit(EnemyUnitScript unit) {
-    ReturnToPool(unit, GetAvailableObjectsPool(unit.gameObject.name, unitPools)); ;
+    ReturnToPool(unit, GetAvailableObjectsPool(unit.gameObject.name, unitPools));
   }
 
   private void SpawnExplosion(Vector3 position, string explosionName, Quaternion rotation) {
@@ -126,8 +126,9 @@ public class SpawnPool : MonoBehaviour {
     }
     var explosion = GetFromPoolOrSpawn(GetAvailableObjectsPool(explosionName, explosionPools), resource);
     explosion.StartExplosion();
-    explosion.transform.position = position;
-    explosion.transform.rotation = rotation;
+    var explosionTransform = explosion.transform;
+    explosionTransform.position = position;
+    explosionTransform.rotation = rotation;
   }
 
   public void SpawnUnitExplosion(Vector3 position, Quaternion rotation) {

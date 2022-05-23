@@ -7,15 +7,15 @@ public class LevelBasedValue {
   private readonly float exponentCoefficient;
 
   public static LevelBasedValue ConstantValue(float constant) {
-    return new LevelBasedValue(constant);
+    return new(constant);
   }
 
   public static LevelBasedValue LinearValue(float coefficient) {
-    return new LevelBasedValue(linearCoefficient: coefficient);
+    return new(linearCoefficient: coefficient);
   }
 
   public static LevelBasedValue ExponentialValue(float value, float coefficient) {
-    return new LevelBasedValue(exponentValue: value, exponentCoefficient: coefficient);
+    return new(exponentValue: value, exponentCoefficient: coefficient);
   }
 
   public LevelBasedValue(float constant = 0, float linearCoefficient = 0, float exponentValue = 0, float exponentCoefficient = 0) {

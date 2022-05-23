@@ -1,5 +1,4 @@
 using Assets.Scripts.UnityBase;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,7 +15,7 @@ public class FillingIconScript : MonoBehaviour {
   }
 
   /// Value is expected to be in 0..1 range.
-  public void SetIconFill(float value) {
+  private void SetIconFill(float value) {
     iconBackground.fillAmount = value;
   }
 

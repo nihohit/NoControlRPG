@@ -13,7 +13,7 @@ public enum Mode { Battle, Inventory, Start, Forge }
 
 public class BattleMainManagerScript : MonoBehaviour {
   private SpawnPool spawnPool;
-  private GameObject player;
+  private GameObject playerGameObject;
   private readonly Dictionary<Guid, EnemyUnitScript> enemies = new();
   private readonly Dictionary<Guid, BulletScript> bullets = new();
   private readonly Dictionary<Guid, BeamScript> beams = new();
@@ -24,6 +24,11 @@ public class BattleMainManagerScript : MonoBehaviour {
   private float roundStartTime;
   private readonly HashSet<BulletScript> bulletsToRelease = new();
   private readonly HashSet<BeamScript> beamsToRelease = new();
+
+  private void Awake()
+  {
+    mainCamera = Camera.main;
+  }
 
   private static EnemyConfig MakeScoutMech(WeaponConfig weaponConfig) {
     return new EnemyConfig(health: new LevelBasedValue(constant: 2f, linearCoefficient: 1),
@@ -51,7 +56,7 @@ public class BattleMainManagerScript : MonoBehaviour {
   // Start is called before the first frame update
   protected void Start() {
     spawnPool = GetComponent<SpawnPool>();
-    player = GameObject.Find("Player").gameObject;
+    playerGameObject = GameObject.Find("Player").gameObject;
     uiManager = GameObject.FindObjectOfType<UIManagerScript>();
     Player.Instance.StartRound(
       new ReadOnlyCollection<EquipmentBase>(new List<EquipmentBase>{
@@ -133,7 +138,7 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   private void ReleaseBeam(BeamScript beam) {
     spawnPool.ReturnBeam(beam);
-    beam.Weapon.IsCurrentlyfiring = false;
+    beam.Weapon.IsCurrentlyFiring = false;
   }
 
   internal void BulletHitEnemy(BulletScript shotScript, GameObject enemy) {
@@ -174,7 +179,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     }
     var config = enemyConfigs.ChooseRandomValue();
     var newEnemy = spawnPool.GetUnit(config.ImageName);
-    var verticalSize = Camera.main.orthographicSize;
+    var verticalSize = mainCamera.orthographicSize;
     var horizontalSize = verticalSize * Screen.width / Screen.height;
     var distance = Mathf.Sqrt(Mathf.Pow(verticalSize, 2) + Mathf.Pow(horizontalSize, 2)) + 0.1f;
     newEnemy.transform.position = UnityEngine.Random.insideUnitCircle.normalized * distance;
@@ -184,7 +189,7 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private void MoveEnemies() {
-    var playerPosition = player.transform.position;
+    var playerPosition = playerGameObject.transform.position;
     foreach (var enemy in enemies.Values) {
       enemy.transform.RotateTowards(playerPosition, enemy.Speed * Time.deltaTime);
       enemy.gameObject.MoveForwards(1.5f);
@@ -192,14 +197,15 @@ public class BattleMainManagerScript : MonoBehaviour {
   }
 
   private EnemyUnitScript FindEnemyInRange(float weaponRange) {
-    return enemies.Values.FirstOrDefault(enemy => Vector3.Distance(enemy.transform.position, player.transform.position) < weaponRange);
+    return enemies.Values.FirstOrDefault(enemy => Vector3.Distance(enemy.transform.position, playerGameObject.transform.position) < weaponRange);
   }
 
   private void AdjustBeamPosition(BeamScript beam, float rotationSpeed) {
     // If position isn't moved far from target before rotation, the rotation will go nuts.
-    beam.transform.position = beam.Shooter.transform.position;
-    beam.transform.RotateTowards(beam.Target.transform.position, rotationSpeed);
-    beam.transform.position += beam.transform.right.normalized * beam.Weapon.Range / 2;
+    var beamTransform = beam.transform;
+    beamTransform.position = beam.Shooter.transform.position;
+    beamTransform.RotateTowards(beam.Target.transform.position, rotationSpeed);
+    beamTransform.Translate(Vector3.right * beam.Weapon.Range / 2, Space.Self);
   }
 
   private void MoveShots() {
@@ -229,8 +235,9 @@ public class BattleMainManagerScript : MonoBehaviour {
   private void CreateBullet(GameObject shooter, BulletWeaponInstance weapon, Vector3 to) {
     var bullet = spawnPool.GetBullet(weapon.Config.shotImageName);
     bullets[bullet.Identifier] = bullet;
-    bullet.transform.position = shooter.transform.position;
-    bullet.Init(shooter, shooter.transform.position, weapon);
+    var shooterPosition = shooter.transform.position;
+    bullet.transform.position = shooterPosition;
+    bullet.Init(shooter, shooterPosition, weapon);
     bullet.transform.RotateTowards(to, 360, (float)Randomiser.NextDouble(-weapon.Config.ShotSpreadInDegrees, weapon.Config.ShotSpreadInDegrees));
   }
 
@@ -260,7 +267,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     beam.Init(shooter, weapon, target);
     beam.transform.localScale = new Vector3(weapon.Range * BEAM_SCALE, BEAM_SCALE, BEAM_SCALE);
     AdjustBeamPosition(beam, 360);
-    weapon.IsCurrentlyfiring = true;
+    weapon.IsCurrentlyFiring = true;
   }
 
   private void CreateShot(GameObject shooter, WeaponBase weapon, GameObject target) {
@@ -284,7 +291,7 @@ public class BattleMainManagerScript : MonoBehaviour {
       return;
     }
 
-    ShootWeapon(player, weapon, enemyInRange.gameObject);
+    ShootWeapon(playerGameObject, weapon, enemyInRange.gameObject);
   }
 
   private void ShootEnemies() {
@@ -298,10 +305,10 @@ public class BattleMainManagerScript : MonoBehaviour {
     foreach (var enemy in enemies.Values) {
       var weapon = enemy.Weapon;
       weapon.CurrentCharge = Mathf.Min(weapon.MaxCharge, weapon.CurrentCharge + Time.deltaTime);
-      if (!weapon.CanShoot() || Vector3.Distance(enemy.transform.position, player.transform.position) > weapon.Range) {
+      if (!weapon.CanShoot() || Vector3.Distance(enemy.transform.position, playerGameObject.transform.position) > weapon.Range) {
         continue;
       }
-      ShootWeapon(enemy.gameObject, weapon, player);
+      ShootWeapon(enemy.gameObject, weapon, playerGameObject);
     }
   }
 
@@ -323,14 +330,16 @@ public class BattleMainManagerScript : MonoBehaviour {
     return ratio;
   }
 
-  static readonly List<EquipmentConfigBase> dropList = typeof(EquipmentConfigBase)
+  private static readonly List<EquipmentConfigBase> dropList = typeof(EquipmentConfigBase)
     .Assembly.GetTypes()
     .Where(type => type.IsSubclassOf(typeof(EquipmentConfigBase)))
     .SelectMany(type => type.GetFields()
                             .Where(field => field.FieldType.IsSubclassOf(typeof(EquipmentConfigBase))
-                                            && !field.CustomAttributes.Any(attribute => attribute.AttributeType == typeof(NoDropAttribute)))
+                                            && field.CustomAttributes.All(attribute => attribute.AttributeType != typeof(NoDropAttribute)))
                             .Select(field => field.GetValue(null) as EquipmentConfigBase))
     .ToList();
+
+  private Camera mainCamera;
 
   private void RollForDrop(EnemyConfig config, float level) {
     if (Randomiser.ProbabilityCheck(config.DropChance)) {
@@ -346,13 +355,15 @@ public class BattleMainManagerScript : MonoBehaviour {
     bulletsToRelease.ForEach(bullet => {
       bullets.Remove(bullet.Identifier);
       ReleaseBullet(bullet);
-      spawnPool.SpawnShotExplosion(bullet.transform.position, bullet.transform.rotation);
+      var bulletTransform = bullet.transform;
+      spawnPool.SpawnShotExplosion(bulletTransform.position, bulletTransform.rotation);
     });
 
     var enemiesToRelease = enemies.Where(pair => pair.Value.Health <= 0).ToList();
     foreach (var (key, enemy) in enemiesToRelease) {
-      spawnPool.SpawnUnitExplosion(enemy.transform.position, enemy.transform.rotation);
-      enemies.Remove(enemy.Identifier);
+      var enemyTransform = enemy.transform;
+      spawnPool.SpawnUnitExplosion(enemyTransform.position, enemyTransform.rotation);
+      enemies.Remove(key);
       ReleaseEnemy(enemy);
       RollForDrop(enemy.Config, enemy.Level);
     }

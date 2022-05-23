@@ -16,7 +16,7 @@ public class FillingBarScript : MonoBehaviour {
   }
 
   /// Value is expected to be in 0..1 range.
-  public void SetBarFill(float value) {
+  private void SetBarFill(float value) {
     bar.fillAmount = value;
   }
 

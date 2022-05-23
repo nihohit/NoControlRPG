@@ -35,7 +35,7 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     baselineEnergyRequirement: LevelBasedValue.LinearValue(1.5f)
   );
 
-  public static BulletWeaponConfig RIFLE = new(
+  public static readonly BulletWeaponConfig RIFLE = new(
     range: LevelBasedValue.ConstantValue(7f),
     shotImageName: "Bullet",
     equipmentImageName: "IncendiaryGun",
@@ -47,7 +47,7 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     baselineEnergyRequirement: LevelBasedValue.LinearValue(1)
   );
 
-  public static BulletWeaponConfig MACHINE_GUN = new(
+  public static readonly BulletWeaponConfig MACHINE_GUN = new(
     range: LevelBasedValue.ConstantValue(6f),
     shotImageName: "Bullet",
     equipmentImageName: "MachineGun",
@@ -62,7 +62,7 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     baselineEnergyRequirement: LevelBasedValue.LinearValue(1)
   );
 
-  public static BulletWeaponConfig TWO_SHOT_SHOTGUN = new(
+  public static readonly BulletWeaponConfig TWO_SHOT_SHOTGUN = new(
     range: LevelBasedValue.ConstantValue(4f),
     shotImageName: "ShotgunPellet",
     equipmentImageName: "Shotgun",
@@ -79,7 +79,7 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     baselineEnergyRequirement: LevelBasedValue.LinearValue(1)
   );
 
-  public static BeamWeaponConfig FLAMER = new(
+  public static readonly BeamWeaponConfig FLAMER = new(
     range: LevelBasedValue.ConstantValue(5f),
     shotImageName: "Flamer",
     equipmentImageName: "Flamer",
@@ -90,7 +90,7 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     baselineEnergyRequirement: LevelBasedValue.LinearValue(1)
   );
 
-  public static BulletWeaponConfig MISSILE = new(
+  public static readonly BulletWeaponConfig MISSILE = new(
     range: LevelBasedValue.ConstantValue(10f),
     shotImageName: "Missile",
     equipmentImageName: "Missile",
@@ -232,7 +232,7 @@ public abstract class WeaponBase : EquipmentBase {
     this.EnergyConsumptionWhenRechargingPerSecond = config.energyConsumptionWhenRechargingPerSecond.GetLevelValue(level);
   }
 
-  override public EquipmentType Type { get { return EquipmentType.Weapon; } }
+  public override EquipmentType Type => EquipmentType.Weapon;
 
   [NoDisplay]
   public float CurrentChargingRequirementPerSecond => CurrentCharge < MaxCharge ? EnergyConsumptionWhenRechargingPerSecond : 0;
@@ -258,10 +258,10 @@ public class BeamInstance : WeaponInstance<BeamWeaponConfig> {
     this.DamagePerSecond = config.damagePerSecond.GetLevelValue(level);
   }
 
-  public bool IsCurrentlyfiring { get; set; }
+  public bool IsCurrentlyFiring { get; set; }
 
   public override bool CanShoot() {
-    return !IsCurrentlyfiring && CurrentCharge > 0.2f * MaxCharge;
+    return !IsCurrentlyFiring && CurrentCharge > 0.2f * MaxCharge;
   }
 }
 
@@ -297,6 +297,6 @@ public class BulletWeaponInstance : WeaponInstance<BulletWeaponConfig> {
   }
 
   public override bool CanShoot() {
-    return CurrentCharge == MaxCharge;
+    return Math.Abs(CurrentCharge - MaxCharge) < 0.01;
   }
 }

@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 public class EnemyUnitScript : MonoBehaviour {
-  public Guid Identifier = Guid.NewGuid();
+  public Guid Identifier { get; } = Guid.NewGuid();
 
   public float Health { get; set; }
   public float Speed { get; private set; }

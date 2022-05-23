@@ -2,8 +2,8 @@ using System;
 using UnityEngine;
 
 public class ShotScript<T> : MonoBehaviour where T : WeaponBase {
-  public Guid Identifier = Guid.NewGuid();
-  public T Weapon { get; protected set; }
+  public Guid Identifier { get; } = Guid.NewGuid();
+  public T Weapon { get; private set; }
 
   public GameObject Shooter { get; private set; }
   protected BattleMainManagerScript manager;

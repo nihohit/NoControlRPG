@@ -14,12 +14,12 @@ public class ExplosionScript : MonoBehaviour {
       .Select(system => system.gameObject.AddComponent<ParticleCallbackScript>())
       .ToArray();
     foreach (var particle in particles) {
-      void callback(ParticleCallbackScript caller) {
+      void Callback(ParticleCallbackScript caller) {
         if (++callbacksCalled == particles.Length) {
           spawnPool.ExplosionDone(this);
         }
       }
-      particle.Callback = callback;
+      particle.Callback = Callback;
     }
   }
 

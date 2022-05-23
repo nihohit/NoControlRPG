@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Assets.Scripts.Base;
 using Assets.Scripts.UnityBase;
+using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -17,11 +18,11 @@ public class InventoryUIScript : MonoBehaviour {
   private TMP_Text scrapItemText;
   private GameObject equippedItemsContainer;
   private GameObject forgeItemsContainer;
-  private List<EquipmentButtonScript> equippedItemsButtons;
-  private List<ForgeButtonScript> forgeItemsButtons;
+  private EquipmentButtonScript[] equippedItemsButtons;
+  private ForgeButtonScript[] forgeItemsButtons;
   private EquipmentButtonScript[] availableItemsButtons;
   public TextureHandler TextureHandler { get; set; }
-  private EquipmentButtonScript selectedButton = null;
+  private EquipmentButtonScript selectedButton;
   private GameObject selectedItemTextBackground;
   private TMP_Text selectedItemText;
   private GameObject hoveredItemTextBackground;
@@ -35,22 +36,31 @@ public class InventoryUIScript : MonoBehaviour {
     equippedItemsContainer = GameObject.Find("Equipped Items");
     equippedItemsButtons = equippedItemsContainer
       .GetComponentsInChildren<EquipmentButtonScript>()
-      .OrderBy(button => (-button.transform.position.y) * 100000 + button.transform.position.x)
-      .ToList();
+      .OrderBy(button => {
+        var position= button.transform.position;
+        return -position.y * 100000 + position.x;
+      })
+      .ToArray();
     forgeItemsContainer = GameObject.Find("Forge Items");
     forgeItemsButtons = forgeItemsContainer
       .GetComponentsInChildren<ForgeButtonScript>()
-      .OrderBy(button => (-button.transform.position.y) * 100000 + button.transform.position.x)
-      .ToList();
+      .OrderBy(button => {
+        var position= button.transform.position;
+        return -position.y * 100000 + position.x;
+      })
+      .ToArray();
     availableItemsButtons = GameObject
       .Find("Available Items")
       .GetComponentsInChildren<EquipmentButtonScript>()
-      .OrderBy(button => (-button.transform.position.y) * 100000 + button.transform.position.x)
+      .OrderBy(button => {
+        var position= button.transform.position;
+        return -position.y * 100000 + position.x;
+      })
       .ToArray();
     selectedItemTextBackground = GameObject.Find("SelectedItemTextBackground").gameObject;
-    selectedItemText = selectedItemTextBackground.GetComponentInChildren<TMPro.TMP_Text>();
+    selectedItemText = selectedItemTextBackground.GetComponentInChildren<TMP_Text>();
     hoveredItemTextBackground = GameObject.Find("HoveredItemTextBackground").gameObject;
-    hoveredItemText = hoveredItemTextBackground.GetComponentInChildren<TMPro.TMP_Text>();
+    hoveredItemText = hoveredItemTextBackground.GetComponentInChildren<TMP_Text>();
     hoveredItemTextBackground.SetActive(false);
     eventSystem = FindObjectOfType<EventSystem>();
     attributeText = this.FindInChild<TMP_Text>("Attributes");
@@ -60,9 +70,8 @@ public class InventoryUIScript : MonoBehaviour {
     scrapItemText = scrapItemButton.FindInChild<TMP_Text>("Text");
   }
 
-  private void SetupAvailableButtons(IList<EquipmentBase> equipment, IEnumerable<EquipmentButtonScript> buttons) {
+  private void SetupAvailableButtons(IList<EquipmentBase> equipment, EquipmentButtonScript[] buttons) {
     // TODO - handle the items that don't appear in buttons, or add scrolling bar.
-    var sortedEquipment = equipment.OrderByDescending(item => item.Level);
     var itemsDictionary = equipment
       .ToDictionary(item => item.Identifier,
                     item => item);
@@ -78,12 +87,12 @@ public class InventoryUIScript : MonoBehaviour {
       .ForEach((button, index) => button.LoadEquipment(index < unmatchedItems.Count ? unmatchedItems[index] : null, TextureHandler));
   }
 
-  private void Open(Mode mode) {
-    this.mode = mode;
+  private void Open(Mode openedMode) {
+    this.mode = openedMode;
     UpdateInventoryStateExternally();
     SetSelectedItem(null);
-    equippedItemsContainer.SetActive(mode == Mode.Inventory);
-    forgeItemsContainer.SetActive(mode == Mode.Forge);
+    equippedItemsContainer.SetActive(openedMode == Mode.Inventory);
+    forgeItemsContainer.SetActive(openedMode == Mode.Forge);
   }
 
   public void OpenInventory() {
@@ -94,7 +103,7 @@ public class InventoryUIScript : MonoBehaviour {
     Open(Mode.Forge);
   }
 
-  public List<EquipmentBase> ButtonsToEquipment(IEnumerable<EquipmentButtonScript> buttons) {
+  private List<EquipmentBase> ButtonsToEquipment(IEnumerable<EquipmentButtonScript> buttons) {
     return buttons
       .Where(button => button.Equipment != null)
       .Select(button => button.Equipment)
@@ -107,22 +116,22 @@ public class InventoryUIScript : MonoBehaviour {
     textBox.text = equipment?.ToString() ?? "";
   }
 
-  private void SetSelectedItem(EquipmentButtonScript button) {
+  private void SetSelectedItem([CanBeNull] EquipmentButtonScript button) {
     eventSystem.SetSelectedGameObject(button?.gameObject);
     selectedButton = button;
     ShowItem(button?.Equipment, (selectedItemTextBackground, selectedItemText));
     var hasEquipment = button?.Equipment != null;
     upgradeItemButton.gameObject.SetActive(hasEquipment && mode == Mode.Forge);
     scrapItemButton.gameObject.SetActive(hasEquipment);
-    if (hasEquipment) {
-      var equipment = button.Equipment;
-      if (equipment.IsDamaged) {
-        upgradeItemText.text = $"Fix cost: {equipment.FixCost}";
-      } else {
-        upgradeItemText.text = $"Upgrade cost: {equipment.UpgradeCost}";
-      }
-      scrapItemText.text = $"Scrap value: {equipment.ScrapValue}";
+    if (!hasEquipment) {
+      return;
     }
+
+    var equipment = button.Equipment;
+    upgradeItemText.text = equipment.IsDamaged ? 
+      $"Fix cost: {equipment.FixCost}" : 
+      $"Upgrade cost: {equipment.UpgradeCost}";
+    scrapItemText.text = $"Scrap value: {equipment.ScrapValue}";
   }
 
   private void UpdateAttributes() {
@@ -180,7 +189,8 @@ public class InventoryUIScript : MonoBehaviour {
   }
 
   public void MouseOverUpgradeButton() {
-    ShowItem(selectedButton?.Equipment?.UpgradedVersion(), (hoveredItemTextBackground, hoveredItemText));
+    ShowItem(selectedButton?.Equipment?.UpgradedVersion(),
+      (hoveredItemTextBackground, hoveredItemText));
   }
 
   public void MouseExitUpgradeButton() {

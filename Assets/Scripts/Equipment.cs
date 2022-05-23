@@ -8,7 +8,7 @@ using Assets.Scripts.Base;
 public enum EquipmentType { Weapon, Reactor, Shield, RepairSystem }
 
 public abstract class EquipmentConfigBase {
-  public EquipmentConfigBase(string equipmentImageName,
+  protected EquipmentConfigBase(string equipmentImageName,
                              string itemDisplayName,
                              LevelBasedValue baselineEnergyRequirement) {
     this.EquipmentImageName = equipmentImageName;
@@ -27,7 +27,7 @@ public class NoDisplayAttribute : Attribute { }
 public class NoDropAttribute : Attribute { }
 
 public class ShieldConfig : EquipmentConfigBase {
-  public ShieldConfig(string equipmentImageName,
+  private ShieldConfig(string equipmentImageName,
                       string itemDisplayName,
                       LevelBasedValue strength,
                       LevelBasedValue rechargeRate,
@@ -48,7 +48,7 @@ public class ShieldConfig : EquipmentConfigBase {
   public LevelBasedValue EnergyConsumptionWhenRechargingPerSecond { get; }
   public LevelBasedValue TimeBeforeRecharge { get; }
 
-  public static ShieldConfig BALANCED = new(
+  public static readonly ShieldConfig BALANCED = new(
     equipmentImageName: "Shield",
     itemDisplayName: "Basic shield",
     strength: LevelBasedValue.LinearValue(20),
@@ -82,7 +82,7 @@ public class ShieldConfig : EquipmentConfigBase {
 }
 
 public class ReactorConfig : EquipmentConfigBase {
-  public ReactorConfig(string equipmentImageName,
+  private ReactorConfig(string equipmentImageName,
                        string itemDisplayName,
                        LevelBasedValue maxEnergyLevel,
                        LevelBasedValue rechargeRate)
@@ -96,7 +96,7 @@ public class ReactorConfig : EquipmentConfigBase {
   public LevelBasedValue MaxEnergyLevel { get; }
   public LevelBasedValue EnergyRechargeRate { get; }
 
-  public static ReactorConfig DEFAULT = new(
+  public static readonly ReactorConfig DEFAULT = new(
     equipmentImageName: "Reactor",
     itemDisplayName: "Basic reactor",
     maxEnergyLevel: LevelBasedValue.LinearValue(20),
@@ -121,7 +121,7 @@ public class ReactorConfig : EquipmentConfigBase {
 }
 
 public class RepairSystemConfig : EquipmentConfigBase {
-  public RepairSystemConfig(string equipmentImageName,
+  private RepairSystemConfig(string equipmentImageName,
                       string itemDisplayName,
                       LevelBasedValue hullRepairPerSecond,
                       LevelBasedValue systemRepairPerSecond,
@@ -157,7 +157,7 @@ public class RepairSystemConfig : EquipmentConfigBase {
     baselineEnergyRequirement: LevelBasedValue.LinearValue(2)
   );
 
-  public static RepairSystemConfig ROBOT_REPAIR = new(
+  public static readonly RepairSystemConfig ROBOT_REPAIR = new(
     equipmentImageName: "RepairSystem",
     itemDisplayName: "Robotic repair system",
     hullRepairPerSecond: LevelBasedValue.LinearValue(1),
@@ -170,7 +170,7 @@ public class RepairSystemConfig : EquipmentConfigBase {
 }
 
 public abstract class EquipmentBase {
-  public EquipmentBase(EquipmentConfigBase config, float level, Guid? identifier = null) {
+  protected EquipmentBase(EquipmentConfigBase config, float level, Guid? identifier = null) {
     this.Config = config;
     BaselineEnergyRequirement = config.BaselineEnergyRequirement.GetLevelValue(level);
     Level = level;
@@ -228,10 +228,10 @@ public abstract class EquipmentBase {
   protected virtual string PropertyInfoToString(PropertyInfo propertyInfo) {
     var name = FormattedPropertyName(propertyInfo);
     if (name.EndsWith("in seconds")) {
-      return $"{name[..name.LastIndexOf(" in seconds")]}: {propertyInfo.GetValue(this):0.#} seconds";
+      return $"{name[..name.LastIndexOf(" in seconds", StringComparison.Ordinal)]}: {propertyInfo.GetValue(this):0.#} seconds";
     }
     if (name.EndsWith("per second")) {
-      return $"{name[..name.LastIndexOf(" per second")]}: {propertyInfo.GetValue(this):0.#} per second";
+      return $"{name[..name.LastIndexOf(" per second", StringComparison.Ordinal)]}: {propertyInfo.GetValue(this):0.#} per second";
     }
     return $"{name}: {propertyInfo.GetValue(this):0.#}";
   }
@@ -262,7 +262,7 @@ public class RepairSystemInstance : EquipmentBase {
     NumberOfSystemsToRepairSimultaneously = config.NumberOfSystemsToRepairSimultaneously;
   }
 
-  override public EquipmentType Type { get { return EquipmentType.RepairSystem; } }
+  public override EquipmentType Type => EquipmentType.RepairSystem;
   public float HullRepairPerSecond { get; }
   public float SystemRepairPerSecond { get; }
   public int NumberOfSystemsToRepairSimultaneously { get; }
@@ -276,7 +276,7 @@ public class ShieldInstance : EquipmentBase {
     EnergyConsumptionWhenRechargingPerSecond = config.EnergyConsumptionWhenRechargingPerSecond.GetLevelValue(level);
   }
 
-  override public EquipmentType Type { get { return EquipmentType.Shield; } }
+  public override EquipmentType Type => EquipmentType.Shield;
   public float EnergyConsumptionWhenRechargingPerSecond { get; }
   public float MaxStrength { get; }
   public float RechargeRatePerSecond { get; }
@@ -288,7 +288,7 @@ public class ReactorInstance : EquipmentBase {
     MaxEnergyLevel = config.MaxEnergyLevel.GetLevelValue(level);
     EnergyRecoveryPerSecond = config.EnergyRechargeRate.GetLevelValue(level);
   }
-  override public EquipmentType Type { get { return EquipmentType.Reactor; } }
+  public override EquipmentType Type => EquipmentType.Reactor;
   public float MaxEnergyLevel { get; }
   public float EnergyRecoveryPerSecond { get; }
 
@@ -313,7 +313,7 @@ public static class EquipmentExtensions {
       .AllOfType<T>();
   }
 
-  public static float GetEnergyGeneration(this IEnumerable<EquipmentBase> equipment) {
+  public static float GetEnergyGeneration(this ICollection<EquipmentBase> equipment) {
     var baselineEnergyConsumption = equipment.Sum(item => item.BaselineEnergyRequirement);
     var baseEnergyGeneration = equipment.AllOfType<ReactorInstance>().Sum(reactor => reactor.EnergyRecoveryPerSecond);
     return baseEnergyGeneration - baselineEnergyConsumption;
@@ -323,6 +323,7 @@ public static class EquipmentExtensions {
     return equipmentButtons
       .Select(button => button.Equipment)
       .Where(item => item != null)
+      .ToArray()
       .GetEnergyGeneration();
   }
 }

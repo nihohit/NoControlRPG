@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class BulletScript : ShotScript<BulletWeaponInstance> {
   private bool alreadyHit;
-  public Vector3 StartPoint { get; private set; }
+  private Vector3 StartPoint { get; set; }
   public float Speed { get; private set; }
 
   public bool InRange() {
@@ -20,10 +20,10 @@ public class BulletScript : ShotScript<BulletWeaponInstance> {
     if (other.gameObject == Shooter || alreadyHit) {
       return;
     }
-    if (other.gameObject.tag == "Enemy") {
+    if (other.gameObject.CompareTag("Enemy")) {
       alreadyHit = true;
       manager.BulletHitEnemy(this, other.gameObject);
-    } else if (other.gameObject.tag == "Player") {
+    } else if (other.gameObject.CompareTag("Player")) {
       alreadyHit = true;
       manager.BulletHitPlayer(this, other.gameObject);
     }

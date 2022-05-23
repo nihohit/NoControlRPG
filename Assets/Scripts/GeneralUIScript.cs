@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Assets.Scripts.UnityBase;
 using UnityEngine;
 
@@ -15,12 +13,12 @@ public class GeneralUIScript : MonoBehaviour {
   }
 
   public void UpdateUIOverlay() {
-    const string barUiFormat = "{0}: {1:0.#}";
+    const string BAR_UI_FORMAT = "{0}: {1:0.#}";
     healthBar.SetBarFill(Player.Instance.CurrentHealth, Player.Instance.FullHealth);
-    healthBar.SetDescription(string.Format(barUiFormat, "Health", Player.Instance.CurrentHealth));
+    healthBar.SetDescription(string.Format(BAR_UI_FORMAT, "Health", Player.Instance.CurrentHealth));
     shieldBar.SetBarFill(Player.Instance.CurrentShieldStrength, Player.Instance.MaxShieldStrength);
-    shieldBar.SetDescription(string.Format(barUiFormat, "Shield", Player.Instance.CurrentShieldStrength));
+    shieldBar.SetDescription(string.Format(BAR_UI_FORMAT, "Shield", Player.Instance.CurrentShieldStrength));
     energyBar.SetBarFill(Player.Instance.CurrentEnergyLevel, Player.Instance.MaxEnergyLevel);
-    energyBar.SetDescription(string.Format(barUiFormat, "Energy", Player.Instance.CurrentEnergyLevel));
+    energyBar.SetDescription(string.Format(BAR_UI_FORMAT, "Energy", Player.Instance.CurrentEnergyLevel));
   }
 }

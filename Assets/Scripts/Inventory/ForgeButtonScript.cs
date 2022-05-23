@@ -1,7 +1,6 @@
 using Assets.Scripts.Base;
 using Assets.Scripts.UnityBase;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public enum ForgeAction { Repair, Upgrade }
@@ -12,7 +11,7 @@ public class ForgeButtonScript : MonoBehaviour {
   private Image damageOverlay;
   public EquipmentBase Equipment { get; private set; }
   public ForgeAction Action { get; private set; }
-  public float TimeToComplete { get; private set; }
+  private float TimeToComplete { get; set; }
 
   private Color ColorForType(ForgeAction type) {
     return type switch {
@@ -52,11 +51,7 @@ public class ForgeButtonScript : MonoBehaviour {
     damageOverlay.fillAmount = 0;
   }
 
-  public float Progress {
-    get {
-      return Action == ForgeAction.Repair ? 1f - damageOverlay.fillAmount : backgroundImage.fillAmount;
-    }
-  }
+  public float Progress => Action == ForgeAction.Repair ? 1f - damageOverlay.fillAmount : backgroundImage.fillAmount;
 
   public void AdvanceProgress(float timePassed) {
     if (Action == ForgeAction.Repair) {

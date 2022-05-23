@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -8,7 +6,7 @@ public class UpgradeButtonScript : MonoBehaviour, IPointerEnterHandler, IPointer
 
   // Start is called before the first frame update
   protected void Awake() {
-    manager = GameObject.FindObjectOfType<InventoryUIScript>();
+    manager = FindObjectOfType<InventoryUIScript>();
   }
 
   public void OnPointerEnter(PointerEventData eventData) {
