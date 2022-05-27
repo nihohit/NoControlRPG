@@ -9,6 +9,8 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
   private Image equipmentImage;
   private Image backgroundImage;
   private Image damageOverlay;
+  private Image repairOverlay;
+  private Image upgradeOverlay;
 
   public EquipmentBase Equipment { get; private set; }
   private Color ColorForType(EquipmentType type) {
@@ -32,6 +34,8 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
       backgroundImage.color = ColorForType(equipment.Type);
     }
     damageOverlay.fillAmount = equipment?.DamageRatio ?? 0;
+    upgradeOverlay.enabled = false;
+    repairOverlay.enabled = false;
   }
 
   // Start is called before the first frame update
@@ -42,6 +46,8 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
     equipmentImage = this.FindInChild<Image>("EquipmentImage");
     backgroundImage = this.FindInChild<Image>("ItemBackground");
     damageOverlay = this.FindInChild<Image>("DamageOverlay");
+    upgradeOverlay = this.FindInChild<Image>("UpgradeIcon");
+    repairOverlay = this.FindInChild<Image>("RepairIcon");
   }
 
   public void UpdateDamageIndicator() {
@@ -58,5 +64,10 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
 
   public void OnPointerExit(PointerEventData eventData) {
     manager.PointerExitButton(this);
+  }
+
+  public void SetForgeAction(Forge.Action.Type? actionType) {
+    repairOverlay.enabled = actionType == Forge.Action.Type.Repair;
+    upgradeOverlay.enabled = actionType == Forge.Action.Type.Upgrade;
   }
 }

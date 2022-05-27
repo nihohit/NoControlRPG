@@ -8,6 +8,7 @@ public class Player {
   public ReadOnlyCollection<EquipmentBase> EquippedItems { private set; get; }
 
   public static readonly float INITIAL_HEALTH = 500f;
+  
   public float FullHealth { get; private set; }
   public float CurrentHealth { get; set; }
   public float MaxEnergyLevel { get; private set; }
@@ -37,18 +38,19 @@ public class Player {
 
   private void ChangeEquipmentInternal(ReadOnlyCollection<EquipmentBase> equippedItems,
                                       List<EquipmentBase> availableItems) {
+    var activeEquippedItems = equippedItems.Where(item => !item.IsBeingForged).ToArray();
     EquippedItems = equippedItems;
     AvailableItems = availableItems;
 
-    Shields = equippedItems.AllOfType<ShieldInstance>();
+    Shields = activeEquippedItems.AllOfType<ShieldInstance>();
     MaxShieldStrength = Shields.Sum(shield => shield.MaxStrength);
 
-    var reactors = equippedItems.AllOfType<ReactorInstance>();
+    var reactors = activeEquippedItems.AllOfType<ReactorInstance>();
     MaxEnergyLevel = reactors.Sum(reactor => reactor.MaxEnergyLevel);
     EnergyRecoveryPerSecond = equippedItems.GetEnergyGeneration();
 
-    Weapons = equippedItems.AllOfType<WeaponBase>();
-    RepairSystems = equippedItems.AllOfType<RepairSystemInstance>();
+    Weapons = activeEquippedItems.AllOfType<WeaponBase>();
+    RepairSystems = activeEquippedItems.AllOfType<RepairSystemInstance>();
   }
 
   public void ChangeEquipment(ReadOnlyCollection<EquipmentBase> equippedItems,
