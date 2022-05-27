@@ -9,8 +9,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 
-public enum Mode { Battle, Inventory, Start, Forge }
-
 public class BattleMainManagerScript : MonoBehaviour {
   private SpawnPool spawnPool;
   private GameObject playerGameObject;
@@ -24,9 +22,7 @@ public class BattleMainManagerScript : MonoBehaviour {
   private float roundStartTime;
   private readonly HashSet<BulletScript> bulletsToRelease = new();
   private readonly HashSet<BeamScript> beamsToRelease = new();
-
-  private void Awake()
-  {
+  protected void Awake() {
     mainCamera = Camera.main;
   }
 
@@ -71,6 +67,7 @@ public class BattleMainManagerScript : MonoBehaviour {
         new BeamInstance(WeaponConfig.FLAMER, 1f)
       },
       Player.INITIAL_HEALTH);
+    uiManager.UpdateInventoryState();
 
     roundStartTime = Time.timeSinceLevelLoad;
     SwitchToBattle();
@@ -91,10 +88,6 @@ public class BattleMainManagerScript : MonoBehaviour {
 
   public void SwitchToInventory() {
     SwitchMode(Mode.Inventory);
-  }
-
-  public void SwitchToForge() {
-    SwitchMode(Mode.Forge);
   }
 
   private void HitPlayer(float damage) {

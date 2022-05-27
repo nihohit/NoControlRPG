@@ -1,3 +1,4 @@
+using System;
 using Assets.Scripts.UnityBase;
 using UnityEngine;
 
@@ -27,9 +28,6 @@ public class UIManagerScript : MonoBehaviour {
       case Mode.Inventory:
         inventoryUIHolder.gameObject.SetActive(false);
         break;
-      case Mode.Forge:
-        inventoryUIHolder.gameObject.SetActive(false);
-        break;
     }
   }
 
@@ -44,10 +42,6 @@ public class UIManagerScript : MonoBehaviour {
       case Mode.Inventory:
         inventoryUIHolder.gameObject.SetActive(true);
         inventoryUIHolder.OpenInventory();
-        break;
-      case Mode.Forge:
-        inventoryUIHolder.gameObject.SetActive(true);
-        inventoryUIHolder.OpenForge();
         break;
     }
   }
@@ -66,5 +60,9 @@ public class UIManagerScript : MonoBehaviour {
 
   public void UpdateInventoryState() {
     inventoryUIHolder.UpdateInventoryStateExternally();
+  }
+
+  protected void Update() {
+    inventoryUIHolder.UpdateFrame();
   }
 }
