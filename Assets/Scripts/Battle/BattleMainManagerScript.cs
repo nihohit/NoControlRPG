@@ -211,7 +211,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     }
 
     foreach (var beam in beams.Values) {
-      beam.Weapon.CurrentCharge -= Time.deltaTime;
+      beam.Weapon.CurrentCharge -= Time.deltaTime * beam.Weapon.chargeConsumptionPerSecond;
       if (beam.Weapon.CurrentCharge <= 0f
         || !beam.Shooter.activeSelf
         || !beam.Target.activeSelf // TODO - this condition means that if an enemy is restored in the next frame after being destroyed, the beam will continue shooting.
