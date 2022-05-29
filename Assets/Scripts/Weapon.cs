@@ -30,6 +30,7 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     equipmentImageName: "Laser",
     maxCharge: LevelBasedValue.LinearValue(2.5f),
     energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1),
+    chargeConsumptionPerSecond: LevelBasedValue.LinearValue(1.2f),
     damagePerSecond: LevelBasedValue.LinearValue(2f),
     itemDisplayName: "Laser beam",
     baselineEnergyRequirement: LevelBasedValue.LinearValue(1.5f)
@@ -85,6 +86,7 @@ public abstract class WeaponConfig : EquipmentConfigBase {
     equipmentImageName: "Flamer",
     maxCharge: LevelBasedValue.LinearValue(2.0f),
     energyConsumptionWhenRechargingPerSecond: LevelBasedValue.LinearValue(1.0f),
+    chargeConsumptionPerSecond: LevelBasedValue.LinearValue(1.5f),
     damagePerSecond: LevelBasedValue.LinearValue(1f),
     itemDisplayName: "Flamer",
     baselineEnergyRequirement: LevelBasedValue.LinearValue(1)
@@ -203,6 +205,7 @@ public class BeamWeaponConfig : WeaponConfig {
     LevelBasedValue baselineEnergyRequirement,
     LevelBasedValue maxCharge,
     LevelBasedValue energyConsumptionWhenRechargingPerSecond,
+    LevelBasedValue chargeConsumptionPerSecond,
     LevelBasedValue damagePerSecond)
     : base(range,
            shotImageName,
@@ -212,9 +215,11 @@ public class BeamWeaponConfig : WeaponConfig {
            itemDisplayName,
            baselineEnergyRequirement) {
     this.damagePerSecond = damagePerSecond;
+    this.chargeConsumptionPerSecond = chargeConsumptionPerSecond;
   }
 
   public readonly LevelBasedValue damagePerSecond;
+  public readonly LevelBasedValue chargeConsumptionPerSecond;
 
   public override EquipmentBase Instantiate(float level) => new BeamInstance(this, level);
 }
@@ -256,9 +261,12 @@ public class BeamInstance : WeaponInstance<BeamWeaponConfig> {
 
   public BeamInstance(BeamWeaponConfig config, float level) : base(config, level) {
     this.DamagePerSecond = config.damagePerSecond.GetLevelValue(level);
+    this.chargeConsumptionPerSecond = config.chargeConsumptionPerSecond.GetLevelValue(level);
   }
 
   public bool IsCurrentlyFiring { get; set; }
+  public readonly float chargeConsumptionPerSecond;
+  public float SecondsUntilChargeIsConsumed => MaxCharge / chargeConsumptionPerSecond;
 
   public override bool CanShoot() {
     return !IsCurrentlyFiring && CurrentCharge > 0.2f * MaxCharge;
