@@ -212,6 +212,7 @@ public class InventoryUIScript : MonoBehaviour {
 
     foreach (var button in equippedItemsButtons.Concat(availableItemsButtons)) {
       button.UpdateDamageIndicator();
+      button.UpdateUpgradeProgress();
     }
 
     var results = Forge.Instance.Advance(Time.deltaTime);

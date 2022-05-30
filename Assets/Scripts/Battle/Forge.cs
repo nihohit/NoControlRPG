@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using Assets.Scripts.Base;
 using UnityEngine;
 
-public class Forge  {
-  public static Forge Instance => Singleton<Forge>.Instance;
+public class Forge {
+  public static Forge Instance { get; } = new();
 
   private Forge() {}
   public class Action {
@@ -101,12 +101,16 @@ public class Forge  {
     return results;
   }
 
-  public Action.Type? EquipmentForgeType(EquipmentBase equipment) {
+  public Action? EquipmentForgeAction(EquipmentBase equipment) {
     if (actions.TryGetValue(equipment.Identifier, out var forgeAction)) {
-      return forgeAction.ActionType;
+      return forgeAction;
     }
 
     return null;
+  }
+  
+  public Action.Type? EquipmentForgeType(EquipmentBase equipment) {
+    return EquipmentForgeAction(equipment)?.ActionType;
   }
 
   public int NumberOfActions => actions.Count;
