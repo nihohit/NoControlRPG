@@ -69,5 +69,18 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
   public void SetForgeAction(Forge.Action.Type? actionType) {
     repairOverlay.enabled = actionType == Forge.Action.Type.Repair;
     upgradeOverlay.enabled = actionType == Forge.Action.Type.Upgrade;
+    upgradeOverlay.fillAmount = 1;
+  }
+
+  public void UpdateUpgradeProgress() {
+    if (Equipment == null) {
+      return;
+    }
+
+    var action = Forge.Instance.EquipmentForgeAction(Equipment);
+    if (action == null || action.ActionType == Forge.Action.Type.Repair) {
+      return;
+    }
+    upgradeOverlay.fillAmount = 1 - action.CompletionRate;
   }
 }
