@@ -66,20 +66,21 @@ public class Forge {
 
   private readonly Dictionary<Guid, Action> actions = new();
 
-  private Action.Type AddAction(EquipmentBase equipment, int cost, Action.Type forgeActionType) {
+  private Action AddAction(EquipmentBase equipment, int cost, Action.Type forgeActionType) {
     var player = Player.Instance;
     Assert.EqualOrGreater(player.Scrap, cost);
     Assert.AssertConditionMet(!actions.ContainsKey(equipment.Identifier), "Equipment already under forge action");
     player.Scrap -= cost;
-    actions.Add(equipment.Identifier, new Action(equipment, forgeActionType));
-    return forgeActionType;
+    var action = new Action(equipment, forgeActionType);
+    actions.Add(equipment.Identifier, action);
+    return action;
   }
   
-  public Action.Type Repair(EquipmentBase equipment) {
+  public Action Repair(EquipmentBase equipment) {
     return AddAction(equipment, equipment.FixCost, Action.Type.Repair);
   }
 
-  public Action.Type Upgrade(EquipmentBase equipment) {
+  public Action Upgrade(EquipmentBase equipment) {
     return AddAction(equipment, equipment.UpgradeCost, Action.Type.Upgrade);
   }
 
@@ -101,7 +102,11 @@ public class Forge {
     return results;
   }
 
-  public Action? EquipmentForgeAction(EquipmentBase equipment) {
+  public Action GetActionForEquipment(EquipmentBase equipment) {
+    if (equipment is null) {
+      return null;
+    }
+    
     if (actions.TryGetValue(equipment.Identifier, out var forgeAction)) {
       return forgeAction;
     }
@@ -109,8 +114,8 @@ public class Forge {
     return null;
   }
   
-  public Action.Type? EquipmentForgeType(EquipmentBase equipment) {
-    return EquipmentForgeAction(equipment)?.ActionType;
+  public Action.Type? GetActionTypeForEquipment(EquipmentBase equipment) {
+    return GetActionForEquipment(equipment)?.ActionType;
   }
 
   public int NumberOfActions => actions.Count;

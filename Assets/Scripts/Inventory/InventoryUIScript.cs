@@ -181,7 +181,7 @@ public class InventoryUIScript : MonoBehaviour {
     var equipment = selectedButton.Equipment;
     Assert.NotNull(equipment, nameof(equipment));
     Assert.EqualOrGreater(Player.Instance.Scrap, ForgeActionCost());
-    Forge.Action.Type forgeAction;
+    Forge.Action forgeAction;
     if (equipment.IsDamaged) {
       forgeAction = Forge.Instance.Repair(equipment);
     }
