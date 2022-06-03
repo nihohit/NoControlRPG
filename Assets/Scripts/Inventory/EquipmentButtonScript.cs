@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
+  #region views
   private InventoryUIScript manager;
   private Button button;
   private Image equipmentImage;
@@ -11,33 +12,14 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
   private Image damageOverlay;
   private Image repairOverlay;
   private Image upgradeOverlay;
+  #endregion
 
+  #region state
+
+  private Forge.Action forgeAction;
   public EquipmentBase Equipment { get; private set; }
-  private Color ColorForType(EquipmentType type) {
-    return type switch {
-      EquipmentType.Weapon => Color.red,
-      EquipmentType.Shield => Color.blue,
-      EquipmentType.RepairSystem => Color.grey,
-      EquipmentType.Reactor => Color.yellow,
-      _ => Color.white,
-    };
-  }
-
-  public void LoadEquipment(EquipmentBase equipment, TextureHandler textureHandler) {
-    Equipment = equipment;
-    if (equipment is null) {
-      equipmentImage.gameObject.SetActive(false);
-      backgroundImage.color = Color.white;
-    } else {
-      equipmentImage.gameObject.SetActive(true);
-      textureHandler.UpdateTexture(equipment.Config.EquipmentImageName, equipmentImage, "Images/InventoryItems");
-      backgroundImage.color = ColorForType(equipment.Type);
-    }
-    damageOverlay.fillAmount = equipment?.DamageRatio ?? 0;
-    upgradeOverlay.enabled = false;
-    repairOverlay.enabled = false;
-  }
-
+  #endregion
+  
   // Start is called before the first frame update
   protected void Awake() {
     manager = GameObject.FindObjectOfType<InventoryUIScript>();
@@ -48,10 +30,6 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
     damageOverlay = this.FindInChild<Image>("DamageOverlay");
     upgradeOverlay = this.FindInChild<Image>("UpgradeIcon");
     repairOverlay = this.FindInChild<Image>("RepairIcon");
-  }
-
-  public void UpdateDamageIndicator() {
-    damageOverlay.fillAmount = Equipment?.DamageRatio ?? 0;
   }
 
   private void OnClick() {
@@ -65,22 +43,57 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
   public void OnPointerExit(PointerEventData eventData) {
     manager.PointerExitButton(this);
   }
-
-  public void SetForgeAction(Forge.Action.Type? actionType) {
-    repairOverlay.enabled = actionType == Forge.Action.Type.Repair;
-    upgradeOverlay.enabled = actionType == Forge.Action.Type.Upgrade;
-    upgradeOverlay.fillAmount = 1;
+  
+  private Color ColorForType(EquipmentType type) {
+    return type switch {
+      EquipmentType.Weapon => Color.red,
+      EquipmentType.Shield => Color.blue,
+      EquipmentType.RepairSystem => Color.grey,
+      EquipmentType.Reactor => Color.yellow,
+      _ => Color.white,
+    };
   }
 
-  public void UpdateUpgradeProgress() {
-    if (Equipment == null) {
-      return;
+  public void LoadEquipment(EquipmentBase equipment, TextureHandler textureHandler) {
+    Equipment = equipment;
+    SetForgeAction(Forge.Instance.GetActionForEquipment(equipment));
+    if (equipment is null) {
+      equipmentImage.gameObject.SetActive(false);
+      backgroundImage.color = Color.white;
+    } else {
+      equipmentImage.gameObject.SetActive(true);
+      textureHandler.UpdateTexture(equipment.Config.EquipmentImageName, equipmentImage, "Images/InventoryItems");
+      backgroundImage.color = ColorForType(equipment.Type);
     }
+    damageOverlay.fillAmount = equipment?.DamageRatio ?? 0;
+  }
 
-    var action = Forge.Instance.EquipmentForgeAction(Equipment);
-    if (action == null || action.ActionType == Forge.Action.Type.Repair) {
+  public void FrameUpdate() {
+    UpdateDamageIndicator();
+    UpdateUpgradeProgress();
+  }
+  
+  private void UpdateDamageIndicator() {
+    damageOverlay.fillAmount = Equipment?.DamageRatio ?? 0;
+  }
+
+  public void SetForgeAction(Forge.Action action) {
+    forgeAction = action;
+    repairOverlay.enabled = action?.ActionType == Forge.Action.Type.Repair;
+    upgradeOverlay.enabled = action?.ActionType == Forge.Action.Type.Upgrade;
+    upgradeOverlay.fillAmount = 1;
+  }
+  
+  private void UpdateUpgradeProgress() {
+    if (forgeAction?.CompletionRate >= 1) {
+      SetForgeAction(null);
       return;
     }
-    upgradeOverlay.fillAmount = 1 - action.CompletionRate;
+    if (Equipment == null || 
+        forgeAction == null || 
+        forgeAction.ActionType == Forge.Action.Type.Repair) {
+      return;
+    }
+    upgradeOverlay.fillAmount = 1 - forgeAction.CompletionRate;
   }
 }

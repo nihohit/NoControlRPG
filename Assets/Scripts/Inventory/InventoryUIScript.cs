@@ -211,17 +211,10 @@ public class InventoryUIScript : MonoBehaviour {
     }
 
     foreach (var button in equippedItemsButtons.Concat(availableItemsButtons)) {
-      button.UpdateDamageIndicator();
-      button.UpdateUpgradeProgress();
+      button.FrameUpdate();
     }
 
     var results = Forge.Instance.Advance(Time.deltaTime);
-    foreach (var result in results) {
-      equippedItemsButtons.Concat(availableItemsButtons)
-        .First(button => button.Equipment?.Identifier == result.Identifier)
-        .SetForgeAction(null);
-    }
-
     if (results.Any()) {
       InventoryStateChangedInternally();
     }
