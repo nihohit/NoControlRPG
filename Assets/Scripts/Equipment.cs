@@ -202,7 +202,7 @@ public abstract class EquipmentBase {
   public int FixCost => (int)(UpgradeCost * DamageRatio);
   
   [NoDisplay]
-  public bool IsBeingForged => Forge.Instance.EquipmentForgeType(this) != null;
+  public bool IsBeingForged => Forge.Instance.GetActionTypeForEquipment(this) != null;
 
   public EquipmentBase UpgradedVersion() {
     var newVersion = Config.Instantiate(MathF.Floor(Level + 1));
