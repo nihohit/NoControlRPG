@@ -85,7 +85,10 @@ public class EquipmentButtonScript : MonoBehaviour, IPointerEnterHandler, IPoint
   }
   
   private void UpdateUpgradeProgress() {
-    if (forgeAction?.CompletionRate >= 1) {
+    if (forgeAction is not null && forgeAction.Completed) {
+      Equipment = forgeAction.ActionType == Forge.Action.Type.Upgrade
+        ? Equipment.UpgradedVersion()
+        : Equipment;
       SetForgeAction(null);
       return;
     }
