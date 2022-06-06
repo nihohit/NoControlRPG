@@ -12,10 +12,11 @@ using UnityEngine.UI;
 
 public class InventoryUIScript : MonoBehaviour {
   private Button upgradeItemButton;
-  public TMP_Text SwitchContextText { get; set; }
   private TMP_Text upgradeItemText;
   private Button scrapItemButton;
   private TMP_Text scrapItemText;
+  private Button fixItemButton;
+  private TMP_Text fixItemText;
   private GameObject equippedItemsContainer;
   private EquipmentButtonScript[] equippedItemsButtons;
   private EquipmentButtonScript[] availableItemsButtons;
@@ -57,6 +58,8 @@ public class InventoryUIScript : MonoBehaviour {
     upgradeItemText = upgradeItemButton.FindInChild<TMP_Text>("Text");
     scrapItemButton = this.FindInChild<Button>("ScrapButton");
     scrapItemText = scrapItemButton.FindInChild<TMP_Text>("Text");
+    fixItemButton = this.FindInChild<Button>("FixButton");
+    fixItemText = fixItemButton.FindInChild<TMP_Text>("Text");
   }
 
   private void SetupAvailableButtons(IList<EquipmentBase> equipment, EquipmentButtonScript[] buttons) {
@@ -98,17 +101,17 @@ public class InventoryUIScript : MonoBehaviour {
     eventSystem.SetSelectedGameObject(button?.gameObject);
     selectedButton = button;
     ShowItem(button?.Equipment, (selectedItemTextBackground, selectedItemText));
-    var hasEquipment = button?.Equipment != null;
+    var hasEquipment = HasEquipment();
     upgradeItemButton.gameObject.SetActive(hasEquipment);
+    fixItemButton.gameObject.SetActive(hasEquipment);
     scrapItemButton.gameObject.SetActive(hasEquipment);
     if (!hasEquipment) {
       return;
     }
 
     var equipment = button.Equipment;
-    upgradeItemText.text = equipment.IsDamaged ?
-      $"Fix cost: {equipment.FixCost}" :
-      $"Upgrade cost: {equipment.UpgradeCost}";
+    upgradeItemText.text = $"Upgrade cost: {equipment.UpgradeCost}";
+    fixItemText.text = $"Fix cost: {equipment.FixCost}";
     scrapItemText.text = $"Scrap value: {equipment.ScrapValue}";
   }
 
@@ -130,10 +133,6 @@ public class InventoryUIScript : MonoBehaviour {
 
   private void DeselectEquipmentButton() {
     SetSelectedItem(null);
-  }
-
-  private int ForgeActionCost() {
-    return selectedButton.Equipment.IsDamaged ? selectedButton.Equipment.FixCost : selectedButton.Equipment.UpgradeCost;
   }
 
   public void InventoryButtonSelected(EquipmentButtonScript button) {
@@ -176,21 +175,26 @@ public class InventoryUIScript : MonoBehaviour {
     ShowItem(null, (hoveredItemTextBackground, hoveredItemText));
   }
 
-  public void UpgradeButtonPressed() {
+  private void ForgeButtonPressed(Forge.Action.Type actionType) {
     Assert.NotNull(selectedButton, nameof(selectedButton));
     var equipment = selectedButton.Equipment;
     Assert.NotNull(equipment, nameof(equipment));
-    Assert.EqualOrGreater(Player.Instance.Scrap, ForgeActionCost());
-    Forge.Action forgeAction;
-    if (equipment.IsDamaged) {
-      forgeAction = Forge.Instance.Repair(equipment);
-    }
-    else {
-      forgeAction = Forge.Instance.Upgrade(equipment);
-    }
+    var cost = actionType == Forge.Action.Type.Repair ? equipment.FixCost : equipment.UpgradeCost;
+    Assert.EqualOrGreater(Player.Instance.Scrap, cost);
+    var forgeAction = actionType == Forge.Action.Type.Repair ? 
+      Forge.Instance.Repair(equipment) : 
+      Forge.Instance.Upgrade(equipment);
     selectedButton.SetForgeAction(forgeAction);
     
     InventoryStateChangedInternally();
+  }
+  
+  public void UpgradeButtonPressed() {
+    ForgeButtonPressed(Forge.Action.Type.Upgrade);
+  }
+  
+  public void FixButtonPressed() {
+    ForgeButtonPressed(Forge.Action.Type.Repair);
   }
 
   public void ScrapButtonPressed() {
@@ -218,13 +222,24 @@ public class InventoryUIScript : MonoBehaviour {
     if (results.Any()) {
       InventoryStateChangedInternally();
     }
+    
+    // needs to happen every frame, since IsDamaged can change.
+    fixItemButton.interactable =
+      HasEquipment() &&
+      selectedButton.Equipment.IsDamaged && 
+      selectedButton.Equipment.FixCost <= Player.Instance.Scrap &&
+      !selectedButton.Equipment.IsBeingForged;
   }
 
+  private bool HasEquipment() {
+    return selectedButton is not null && selectedButton.Equipment is not null;
+  }
+  
   private void RefreshInventoryState() {
     UpdateAttributes();
     upgradeItemButton.interactable =
-      selectedButton?.Equipment != null &&
-      ForgeActionCost() <= Player.Instance.Scrap &&
+      HasEquipment() &&
+      selectedButton.Equipment.UpgradeCost <= Player.Instance.Scrap &&
       !selectedButton.Equipment.IsBeingForged;
   }
 
