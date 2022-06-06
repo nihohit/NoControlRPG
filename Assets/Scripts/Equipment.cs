@@ -207,6 +207,7 @@ public abstract class EquipmentBase {
   public EquipmentBase UpgradedVersion() {
     var newVersion = Config.Instantiate(MathF.Floor(Level + 1));
     newVersion.Identifier = Identifier;
+    newVersion.Health = Health * newVersion.MaxHealth / MaxHealth;
     return newVersion;
   }
 
