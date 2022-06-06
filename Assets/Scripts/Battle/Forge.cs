@@ -16,6 +16,7 @@ public class Forge {
     public EquipmentBase Equipment { get; private set; }
     private readonly float totalTimeToComplete;
     private float timeToComplete = 0;
+    public bool Completed { get; private set; }
   
     private const float REPAIR_RATE = 5;
     private const float UPGRADE_RATE = 3;
@@ -32,6 +33,7 @@ public class Forge {
       var equipment = Equipment;
       Equipment = null;
       timeToComplete = Single.MaxValue;
+      Completed = true;
       return equipment;
     }
     
@@ -49,9 +51,9 @@ public class Forge {
       Assert.NotNull(Equipment, nameof(Equipment));
   
       switch (ActionType) {
-        case Action.Type.Repair:
+        case Type.Repair:
           return AdvanceRepair(time);
-        case Action.Type.Upgrade:
+        case Type.Upgrade:
           return AdvanceUpgrade(time);
       }
       Assert.UnreachableCode();
@@ -59,7 +61,7 @@ public class Forge {
     }
 
     public float CompletionRate =>
-      ActionType == Action.Type.Upgrade
+      ActionType == Type.Upgrade
         ? timeToComplete / totalTimeToComplete
         : Equipment.DamageRatio;
   }
@@ -88,7 +90,7 @@ public class Forge {
     List<EquipmentBase> results = new();
     foreach (var action in actions.Values) {
       var result = action.Advance(time);
-      if (result != null) {
+      if (result != null || action.Equipment.Health <= 0) {
         results.Add(result);
       }
     }
