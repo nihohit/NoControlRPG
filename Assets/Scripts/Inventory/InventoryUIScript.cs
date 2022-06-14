@@ -80,7 +80,6 @@ public class InventoryUIScript : MonoBehaviour {
   }
 
   public void OpenInventory() {
-    UpdateInventoryStateExternally();
     SetSelectedItem(null);
   }
 
@@ -213,6 +212,14 @@ public class InventoryUIScript : MonoBehaviour {
       DeselectEquipmentButton();
       ShowItem(null, (hoveredItemTextBackground, hoveredItemText));
     }
+    UpdateAttributes();
+
+    if (Player.Instance.AvailableItemsChangedThisFrame) {
+      SetupAvailableButtons(Player.Instance.AvailableItems, availableItemsButtons);
+    }
+    if (Player.Instance.EquippedItemsChangedThisFrame) {
+      SetupAvailableButtons(Player.Instance.EquippedItems, equippedItemsButtons);
+    }
 
     foreach (var button in equippedItemsButtons.Concat(availableItemsButtons)) {
       button.FrameUpdate();
@@ -236,23 +243,16 @@ public class InventoryUIScript : MonoBehaviour {
   }
   
   private void RefreshInventoryState() {
-    UpdateAttributes();
     upgradeItemButton.interactable =
       HasEquipment() &&
       selectedButton.Equipment.UpgradeCost <= Player.Instance.Scrap &&
       !selectedButton.Equipment.IsBeingForged;
   }
 
-  public void UpdateInventoryStateExternally() {
-    SetupAvailableButtons(Player.Instance.AvailableItems, availableItemsButtons);
-    SetupAvailableButtons(Player.Instance.EquippedItems, equippedItemsButtons);
-    RefreshInventoryState();
-  }
-
   private void InventoryStateChangedInternally() {
     Player.Instance.ChangeEquipment(
       ButtonsToEquipment(equippedItemsButtons).ToReadOnlyCollection(),
-      ButtonsToEquipment(availableItemsButtons));
+      ButtonsToEquipment(availableItemsButtons).ToReadOnlyCollection());
     RefreshInventoryState();
   }
 }

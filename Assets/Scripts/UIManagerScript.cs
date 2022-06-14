@@ -51,18 +51,11 @@ public class UIManagerScript : MonoBehaviour {
     OpenMode(next);
   }
 
-  public void UpdateUIOverlay() {
+  public void UpdateFrame() {
     if (battleUIHolder.gameObject.activeSelf) {
       battleUIHolder.UpdateUIOverlay();
     }
     generalUIManager.UpdateUIOverlay();
-  }
-
-  public void UpdateInventoryState() {
-    inventoryUIHolder.UpdateInventoryStateExternally();
-  }
-
-  protected void Update() {
     inventoryUIHolder.UpdateFrame();
   }
 }

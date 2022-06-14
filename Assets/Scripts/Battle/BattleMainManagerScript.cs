@@ -55,19 +55,18 @@ public class BattleMainManagerScript : MonoBehaviour {
     playerGameObject = GameObject.Find("Player").gameObject;
     uiManager = GameObject.FindObjectOfType<UIManagerScript>();
     Player.Instance.StartRound(
-      new ReadOnlyCollection<EquipmentBase>(new List<EquipmentBase>{
+      new List<EquipmentBase>{
         new BulletWeaponInstance(WeaponConfig.MACHINE_GUN, 3f),
         new BulletWeaponInstance(WeaponConfig.TWO_SHOT_SHOTGUN, 3f),
         new ReactorInstance(ReactorConfig.DEFAULT, 3),
         new ReactorInstance(ReactorConfig.DEFAULT, 3),
         new ShieldInstance(ShieldConfig.BALANCED, 3),
         RepairSystemConfig.ROBOT_REPAIR.Instantiate(2),
-      }),
+      }.ToReadOnlyCollection(),
       new List<EquipmentBase>{
         new BeamInstance(WeaponConfig.FLAMER, 1f)
-      },
+      }.ToReadOnlyCollection(),
       Player.INITIAL_HEALTH);
-    uiManager.UpdateInventoryState();
 
     roundStartTime = Time.timeSinceLevelLoad;
     SwitchToBattle();
@@ -110,7 +109,6 @@ public class BattleMainManagerScript : MonoBehaviour {
     if (equipmentToDamage.Health < 0) {
       var newEquippedItems = Player.Instance.EquippedItems
         .Where(item => item != equipmentToDamage)
-        .ToList()
         .ToReadOnlyCollection();
       Player.Instance.ChangeEquipment(newEquippedItems, Player.Instance.AvailableItems);
     }
@@ -337,11 +335,13 @@ public class BattleMainManagerScript : MonoBehaviour {
   private void RollForDrop(EnemyConfig config, float level) {
     if (Randomiser.ProbabilityCheck(config.DropChance)) {
       var chosenConfig = dropList.ChooseRandomValue();
-      Player.Instance.AvailableItems.Add(chosenConfig.Instantiate(level));
+      var newItem = chosenConfig.Instantiate(level);
+      Player.Instance.ChangeEquipment(
+        Player.Instance.EquippedItems,
+        Player.Instance.AvailableItems.Concat(new[]{newItem}).ToReadOnlyCollection()
+        );
     }
     Player.Instance.Scrap += (int)Mathf.Floor(level);
-    // happens regardless of a drop, since scrap also needs updating.
-    uiManager.UpdateInventoryState();
   }
 
   private void ReleaseEntities() {
@@ -394,6 +394,7 @@ public class BattleMainManagerScript : MonoBehaviour {
     MoveShots();
     var efficiencyRatio = RechargeSystems();
     RunRepairSystem(efficiencyRatio);
-    uiManager.UpdateUIOverlay();
+    uiManager.UpdateFrame();
+    Player.Instance.EndFrame();
   }
 }

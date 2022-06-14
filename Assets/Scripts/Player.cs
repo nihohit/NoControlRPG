@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 public class Player {
-  public List<EquipmentBase> AvailableItems { private set; get; }
+  public ReadOnlyCollection<EquipmentBase> AvailableItems { private set; get; }
   public ReadOnlyCollection<EquipmentBase> EquippedItems { private set; get; }
 
   public static readonly float INITIAL_HEALTH = 500f;
@@ -20,11 +20,13 @@ public class Player {
   public IList<ShieldInstance> Shields { get; private set; }
   public IList<RepairSystemInstance> RepairSystems { get; private set; }
   public List<WeaponBase> Weapons { get; private set; }
+  public bool AvailableItemsChangedThisFrame { get; private set; } = true;
+  public bool EquippedItemsChangedThisFrame { get; private set; } = true;
 
   public int Scrap { get; set; }
 
   public void StartRound(ReadOnlyCollection<EquipmentBase> equippedItems,
-                         List<EquipmentBase> availableItems,
+    ReadOnlyCollection<EquipmentBase> availableItems,
                          float newHealth) {
     CurrentHealth = newHealth;
     FullHealth = newHealth;
@@ -36,12 +38,21 @@ public class Player {
     Weapons.ForEach(weapon => weapon.CurrentCharge = weapon.MaxCharge);
   }
 
+  public void EndFrame() {
+    EquippedItemsChangedThisFrame = false;
+    AvailableItemsChangedThisFrame = false;
+  }
+  
   private void ChangeEquipmentInternal(ReadOnlyCollection<EquipmentBase> equippedItems,
-                                      List<EquipmentBase> availableItems) {
-    var activeEquippedItems = equippedItems.Where(item => !item.IsBeingForged).ToArray();
-    EquippedItems = equippedItems;
+    ReadOnlyCollection<EquipmentBase> availableItems) {
     AvailableItems = availableItems;
+    AvailableItemsChangedThisFrame = true;
+    if (EquippedItems == equippedItems) {
+      return;
+    }
+    EquippedItems = equippedItems;
 
+    var activeEquippedItems = equippedItems.Where(item => !item.IsBeingForged).ToArray();
     Shields = activeEquippedItems.AllOfType<ShieldInstance>();
     MaxShieldStrength = Shields.Sum(shield => shield.MaxStrength);
 
@@ -51,10 +62,11 @@ public class Player {
 
     Weapons = activeEquippedItems.AllOfType<WeaponBase>();
     RepairSystems = activeEquippedItems.AllOfType<RepairSystemInstance>();
+    EquippedItemsChangedThisFrame = true;
   }
 
   public void ChangeEquipment(ReadOnlyCollection<EquipmentBase> equippedItems,
-                              List<EquipmentBase> availableItems) {
+    ReadOnlyCollection<EquipmentBase> availableItems) {
     ChangeEquipmentInternal(equippedItems, availableItems);
     CurrentEnergyLevel = Mathf.Min(MaxEnergyLevel, CurrentEnergyLevel);
     CurrentShieldStrength = Mathf.Min(MaxShieldStrength, CurrentShieldStrength);
